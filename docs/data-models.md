@@ -13,6 +13,7 @@ An account can login and see and manage their "traits" and "connections" and "co
 {
     "id": "",
     "displayName": string,
+    "publicListed": boolean,
     "traits":[],
     "connections":[]
 }

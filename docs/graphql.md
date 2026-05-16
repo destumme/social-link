@@ -20,6 +20,7 @@ type Account {
   id: ID!
   displayName: String!
   username: String!
+  publicListed: Boolean!
   traits: [Trait!]!
   connections: [Connection!]!
   connectionGroups: [ConnectionGroup!]!
@@ -53,12 +54,6 @@ type ConnectionGroup {
   traits: [Trait!]!
 }
 
-type AccountWithConnectionContext {
-  account: Account!
-  isConnection: Boolean!
-  connection: Connection
-  sharedTraits: [Trait!]!
-}
 ```
 
 ## Queries
@@ -68,8 +63,7 @@ type Query {
   # Account
   me: Account
   accountByUsername(username: String!): Account
-  accountById(id: ID!): Account
-  accountWithConnectionContext(username: String!): AccountWithConnectionContext!
+  accountByShareId(shareId: String!): Account
 
   # Traits
   myTraits: [Trait!]!
@@ -77,13 +71,11 @@ type Query {
 
   # Connection Groups
   myConnectionGroups: [ConnectionGroup!]!
-  connectionGroupById(id: ID!): ConnectionGroup
 
   # Connections
   myConnections: [Connection!]!
   pendingConnections: [Connection!]!
-  connectionById(id: ID!): Connection
-  connectionWithAccount(accountId: ID!): Connection
+  connectionByAccount(accountId: ID!): Connection
 
   # Search
   searchAccounts(query: String!): [Account!]!
@@ -126,6 +118,7 @@ type Mutation {
 input UpdateAccountInput {
   displayName: String
   username: String
+  publicListed: Boolean
 }
 
 input CreateTraitInput {
@@ -188,14 +181,13 @@ input RequestConnectionInput {
 ### /link/{username}
 
 - **Request Connection**: `requestConnection`
-- **View Connected User Page**: `accountWithConnectionContext`
-- **Review Traits Shared with a Connection**: `accountWithConnectionContext.sharedTraits`
+- **View Account Page**: `accountByUsername`, `accountByShareId`
 - **Update Traits Shared with a Connection**: `updateConnectionTraits`
-- **View Connection Details**: `connectionById`
+- **View Connection Details**: `connectionByAccount`
 - **Remove Connection**: `removeConnection`
 
 ### Global
 
 - **Search for Users**: `searchAccounts`
 - **Create Account**: Handled via BetterAuth OAuth flow
-- **Account Management**: `me`, `updateAccount`, account lookup
+- **Account Management**: `me`, `updateAccount`, `accountByShareId`

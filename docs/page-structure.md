@@ -84,7 +84,7 @@ A user reviews incoming and outgoing pending connection requests.
 
 ## View Connected User Page
 
-A user views another connected user's profile and the traits they've shared.
+A user views another account's profile page via username or share link. Trait visibility is determined by connection status and group membership.
 
 ## Review Traits Shared with a Connection
 
