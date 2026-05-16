@@ -6,7 +6,7 @@ This is a next.js SSR application.
 
 | Name     | Description |
 |----------|-------------|
-| Monogo   | Backend Datastore |
+| Mongo   | Backend Datastore |
 | Vitest   | Testing Library |
 | BetterAuth | Authentication Library |
 | Shadcn   | Component Library |
