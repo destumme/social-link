@@ -146,18 +146,12 @@ input UpdateConnectionGroupInput {
 }
 
 input RequestConnectionInput {
-  groupIds: [ID!]!
-  sharedTraitIds: [ID!]!
+  groupIds: [ID!]
+  sharedTraitIds: [ID!]
 }
 ```
 
 ## Coverage
-
-### /edit/traits
-
-- **Create Trait**: `createTrait`
-- **Delete Trait**: `deleteTrait`
-- **Edit Trait**: `updateTrait`
 
 ### /edit/groups
 
@@ -166,6 +160,12 @@ input RequestConnectionInput {
 - **Delete Group**: `deleteConnectionGroup`
 - **Add Account to Group**: `addConnectionToGroup`
 - **Remove Account from Group**: `removeConnectionFromGroup`
+
+### /edit/traits
+
+- **Create Trait**: `createTrait`
+- **Delete Trait**: `deleteTrait`
+- **Edit Trait**: `updateTrait`
 - **Toggle Group Visibility on Trait**: `addTraitToGroup`, `removeTraitFromGroup`
 
 ### /settings
@@ -182,7 +182,6 @@ input RequestConnectionInput {
 
 - **Request Connection**: `requestConnection`
 - **View Account Page**: `accountByUsername`, `accountByShareId`
-- **Update Traits Shared with a Connection**: `updateConnectionTraits`
 - **View Connection Details**: `connectionByAccount`
 - **Remove Connection**: `removeConnection`
 

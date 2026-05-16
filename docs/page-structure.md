@@ -16,6 +16,63 @@ See `./data-models` for their definition.
 /link/{username} - User page (public view or connection-specific view showing shared traits)
 ```
 
+## Wireframes
+
+### / - Landing Page
+
+- Hero section with app description
+- Call-to-action buttons: Login / Sign up
+- Search bar for finding public accounts (`searchAccounts`)
+
+### /login - Login Page
+
+- OAuth provider buttons (social login via BetterAuth)
+- Redirect to `/login/create-account` for new users
+
+### /login/create-account - Create Account Page
+
+- Display name input
+- Username input
+- `publicListed` toggle (controls search visibility)
+- Continue/Submit button
+
+### /edit/traits - Traits Page
+
+- List of existing traits showing: key, value, category, icon, visible groups
+- Create trait form: key input, value input, category dropdown (`PHONE_NUMBER`, `EMAIL`, `SOCIAL_MEDIA_LINK`, `WEBSITE_LINK`), optional icon input
+- Edit trait button per row (opens inline edit or modal)
+- Delete trait button per row (with confirmation)
+- Visible groups controls per trait: checkboxes/toggles for each connection group to control `visibleGroups`
+
+### /edit/groups - Groups Page
+
+- List of existing connection groups showing: name, connection count, trait count
+- Create group form: name input
+- Rename group button per row
+- Delete group button per row (with confirmation)
+- Add connection to group: connection selector + group selector
+- Remove connection from group button
+
+### /settings - Settings Page
+
+- Display name edit field
+- Username edit field
+- `publicListed` toggle
+- OAuth provider management: list of connected providers with link/unlink buttons
+
+### /link - Connections Inbox
+
+- Pending connections section: list showing connected account, createdAt, Accept/Decline buttons
+- All connections section: list showing connected account, status, assigned groups (user's own groups only)
+- Remove connection button per row
+- Add connection to group controls per connection
+
+### /link/{username} - User Page
+
+- Account profile display: displayName, username, visible traits (filtered by `visibleGroups` if connected)
+- If not connected: "Request Connection" button
+- If already connected: show shared traits (determined by `visibleGroups` on each trait), connection status, remove connection button
+
 # User Scenarios
 
 ## Create Account
