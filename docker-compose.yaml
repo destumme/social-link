@@ -5,10 +5,10 @@ services:
     environment:
       - POSTGRES_USER=social
       - POSTGRES_PASSWORD=links
-      - POSTGRES_DB=social-links
+      - POSTGRES_DB=social_links
     ports:
       - 5432:5432
     volumes:
-      - db:/var/lib/postgresql/data
+      - ./data/db:/var/lib/postgresql/data
 volumes:
   db:

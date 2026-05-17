@@ -5,12 +5,11 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 
 enum TraitCategory {
@@ -27,19 +26,20 @@ enum ConnectionStatus {
 }
 
 model Account {
-  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  id               String            @id @default(uuid())
   displayName      String
   username         String            @unique
   publicListed     Boolean           @default(true)
   traits           Trait[]
-  connections      Connection[]
+  connections      Connection[]      @relation("connections")
   connectionGroups ConnectionGroup[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  connectedTo      Connection[]      @relation("connectedTo")
 }
 
 model Trait {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  id            String         @id @default(uuid())
   key           String
   value         String
   category      TraitCategory?
@@ -48,28 +48,29 @@ model Trait {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   account       Account?       @relation(fields: [accountId], references: [id])
-  accountId     String?        @db.ObjectId
+  accountId     String?
 }
 
 model Connection {
-  id               String           @id @default(auto()) @map("_id") @db.ObjectId
-  connectedAccount String
-  status           ConnectionStatus
-  groups           String[]
-  traits           String[]
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  account          Account?         @relation(fields: [accountId], references: [id])
-  accountId        String?          @db.ObjectId
+  id                 String           @id @default(uuid())
+  connectedAccount   Account?         @relation("connectedTo", fields: [connectedAccountId], references: [id])
+  connectedAccountId String?
+  status             ConnectionStatus
+  groups             String[]
+  traits             String[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  account            Account?         @relation("connections", fields: [accountId], references: [id])
+  accountId          String?
 }
 
 model ConnectionGroup {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(uuid())
   name        String
   connections String[]
   traits      String[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   account     Account? @relation(fields: [accountId], references: [id])
-  accountId   String?  @db.ObjectId
+  accountId   String?
 }

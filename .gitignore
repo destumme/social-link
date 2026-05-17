@@ -46,4 +46,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
+# Database
+data/
+!data/init-scripts
 /generated/prisma
+src/generated/prisma
