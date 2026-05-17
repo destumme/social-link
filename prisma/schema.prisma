@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum TraitCategory {
+  PHONE_NUMBER
+  EMAIL
+  SOCIAL_MEDIA_LINK
+  WEBSITE_LINK
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Account {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  displayName      String
+  username         String            @unique
+  publicListed     Boolean           @default(true)
+  traits           Trait[]
+  connections      Connection[]
+  connectionGroups ConnectionGroup[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model Trait {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  key           String
+  value         String
+  category      TraitCategory?
+  icon          String?
+  visibleGroups String[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  account       Account?       @relation(fields: [accountId], references: [id])
+  accountId     String?        @db.ObjectId
+}
+
+model Connection {
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  connectedAccount String
+  status           ConnectionStatus
+  groups           String[]
+  traits           String[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  account          Account?         @relation(fields: [accountId], references: [id])
+  accountId        String?          @db.ObjectId
+}
+
+model ConnectionGroup {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  connections String[]
+  traits      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  account     Account? @relation(fields: [accountId], references: [id])
+  accountId   String?  @db.ObjectId
+}

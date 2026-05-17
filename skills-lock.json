@@ -25,6 +25,12 @@
       "skillPath": "skills/next-best-practices/SKILL.md",
       "computedHash": "923cf68cb8f4ce917d81744b78b93ff586d3146b6c96dacfef797237b4897f16"
     },
+    "prisma-client-api": {
+      "source": "prisma/skills",
+      "sourceType": "github",
+      "skillPath": "prisma-client-api/SKILL.md",
+      "computedHash": "0434410e48fb796bbdc3ad0050654bfc9cf72c89b30dbad098ee5c9f655b7f85"
+    },
     "shadcn": {
       "source": "shadcn/ui",
       "sourceType": "github",
