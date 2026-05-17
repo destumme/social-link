@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TraitCategory {
+  PHONE_NUMBER
+  EMAIL
+  SOCIAL_MEDIA_LINK
+  WEBSITE_LINK
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Account {
+  id               String            @id @default(uuid())
+  displayName      String
+  username         String            @unique
+  publicListed     Boolean           @default(true)
+  traits           Trait[]
+  connections      Connection[]      @relation("connections")
+  connectionGroups ConnectionGroup[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  connectedTo      Connection[]      @relation("connectedTo")
+}
+
+model Trait {
+  id            String         @id @default(uuid())
+  key           String
+  value         String
+  category      TraitCategory?
+  icon          String?
+  visibleGroups String[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  account       Account?       @relation(fields: [accountId], references: [id])
+  accountId     String?
+}
+
+model Connection {
+  id                 String           @id @default(uuid())
+  connectedAccount   Account?         @relation("connectedTo", fields: [connectedAccountId], references: [id])
+  connectedAccountId String?
+  status             ConnectionStatus
+  groups             String[]
+  traits             String[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  account            Account?         @relation("connections", fields: [accountId], references: [id])
+  accountId          String?
+}
+
+model ConnectionGroup {
+  id          String   @id @default(uuid())
+  name        String
+  connections String[]
+  traits      String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  account     Account? @relation(fields: [accountId], references: [id])
+  accountId   String?
+}
