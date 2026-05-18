@@ -1,50 +1,93 @@
-export const Connection = {
-  account: () => {
-    throw new Error('Not implemented')
-  },
-  connectedAccount: () => {
-    throw new Error('Not implemented')
-  },
-  groups: () => {
-    throw new Error('Not implemented')
-  },
-  traits: () => {
-    throw new Error('Not implemented')
-  },
+import { GraphqlContext } from "./context";
+
+interface RequestConnectionInput {
+  groupIds?: string[];
+  sharedTraitIds?: string[];
 }
+
+export const Connection = {
+  account: (parent: { accountId: string }) => {
+    throw new Error("Not implemented");
+  },
+  connectedAccount: (parent: { connectedAccountId: string }) => {
+    throw new Error("Not implemented");
+  },
+  groups: (parent: { groups: string[] }) => {
+    throw new Error("Not implemented");
+  },
+  traits: (parent: { traits: string[] }) => {
+    throw new Error("Not implemented");
+  },
+};
 
 export const Query = {
-  myConnections: () => {
-    throw new Error('Not implemented')
+  myConnections: (
+    _parent: unknown,
+    _args: unknown,
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  pendingConnections: () => {
-    throw new Error('Not implemented')
+  pendingConnections: (
+    _parent: unknown,
+    _args: unknown,
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  connectionByAccount: () => {
-    throw new Error('Not implemented')
+  connectionByAccount: (_parent: unknown, _args: { accountId: string }) => {
+    throw new Error("Not implemented");
   },
-}
+};
 
 export const Mutation = {
-  requestConnection: () => {
-    throw new Error('Not implemented')
+  requestConnection: (
+    _parent: unknown,
+    _args: { accountId: string; input: RequestConnectionInput },
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  acceptConnection: () => {
-    throw new Error('Not implemented')
+  acceptConnection: (
+    _parent: unknown,
+    _args: { connectionId: string },
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  declineConnection: () => {
-    throw new Error('Not implemented')
+  declineConnection: (
+    _parent: unknown,
+    _args: { connectionId: string },
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  removeConnection: () => {
-    throw new Error('Not implemented')
+  removeConnection: (
+    _parent: unknown,
+    _args: { id: string },
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  addConnectionToGroup: () => {
-    throw new Error('Not implemented')
+  addConnectionToGroup: (
+    _parent: unknown,
+    _args: { connectionId: string; groupId: string },
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  removeConnectionFromGroup: () => {
-    throw new Error('Not implemented')
+  removeConnectionFromGroup: (
+    _parent: unknown,
+    _args: { connectionId: string; groupId: string },
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-  updateConnectionTraits: () => {
-    throw new Error('Not implemented')
+  updateConnectionTraits: (
+    _parent: unknown,
+    _args: { connectionId: string; traitIds: string[] },
+    _context: GraphqlContext,
+  ) => {
+    throw new Error("Not implemented");
   },
-}
+};

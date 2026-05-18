@@ -112,12 +112,18 @@ export const typeDefs = /* GraphQL */ `
     deleteTrait(id: ID!): Boolean!
 
     createConnectionGroup(input: CreateConnectionGroupInput!): ConnectionGroup!
-    updateConnectionGroup(id: ID!, input: UpdateConnectionGroupInput!): ConnectionGroup!
+    updateConnectionGroup(
+      id: ID!
+      input: UpdateConnectionGroupInput!
+    ): ConnectionGroup!
     deleteConnectionGroup(id: ID!): Boolean!
     addTraitToGroup(groupId: ID!, traitId: ID!): ConnectionGroup!
     removeTraitFromGroup(groupId: ID!, traitId: ID!): ConnectionGroup!
 
-    requestConnection(accountId: ID!, input: RequestConnectionInput!): Connection!
+    requestConnection(
+      accountId: ID!
+      input: RequestConnectionInput!
+    ): Connection!
     acceptConnection(connectionId: ID!): Connection!
     declineConnection(connectionId: ID!): Boolean!
     removeConnection(id: ID!): Boolean!
@@ -125,4 +131,4 @@ export const typeDefs = /* GraphQL */ `
     removeConnectionFromGroup(connectionId: ID!, groupId: ID!): Connection!
     updateConnectionTraits(connectionId: ID!, traitIds: [ID!]!): Connection!
   }
-`
+`;
