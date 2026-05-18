@@ -1,3 +1,6 @@
+import { Trait } from "@/generated/prisma/client";
+import { prisma } from "@/lib/database/prisma";
+
 interface CreateTraitInput {
   key: string;
   value: string;
@@ -13,22 +16,29 @@ interface UpdateTraitInput {
 }
 
 export const traitService = {
+  
   /**
-   * traitById query.
-   * @param id - The trait ID.
-   * @returns The trait or null.
+   * 
+   * @param accountId 
+   * @param connectionAccountId 
    */
-  findById: async (_id: string): Promise<unknown> => {
-    throw new Error("Not implemented");
-  },
+  findVisibleTraits: async(accountId: string, authedAccountId: string):Promise<Trait[]> => {
+    const traits = await prisma.trait.findMany({where: {
+      visibleGroups: {
+        some: {
+          accountId: authedAccountId,
+          AND: {
+            connections: {
+              some: {
+                accountId
+              }
+            }
+          }
+        }
+      }
+    }})
 
-  /**
-   * myTraits query, Account.traits resolver.
-   * @param accountId - The account ID.
-   * @returns Array of traits.
-   */
-  findByAccountId: async (_accountId: string): Promise<unknown> => {
-    throw new Error("Not implemented");
+    return traits
   },
 
   /**

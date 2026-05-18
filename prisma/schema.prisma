@@ -39,38 +39,39 @@ model Account {
 }
 
 model Trait {
-  id            String         @id @default(uuid())
+  id            String            @id @default(uuid())
   key           String
   value         String
   category      TraitCategory?
   icon          String?
-  visibleGroups String[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  account       Account?       @relation(fields: [accountId], references: [id])
+  visibleGroups ConnectionGroup[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  account       Account?          @relation(fields: [accountId], references: [id])
   accountId     String?
 }
 
 model Connection {
-  id                 String           @id @default(uuid())
-  connectedAccount   Account?         @relation("connectedTo", fields: [connectedAccountId], references: [id])
+  id                 String            @id @default(uuid())
+  connectedAccount   Account?          @relation("connectedTo", fields: [connectedAccountId], references: [id])
   connectedAccountId String?
   status             ConnectionStatus
   groups             String[]
   traits             String[]
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  account            Account?         @relation("connections", fields: [accountId], references: [id])
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  account            Account?          @relation("connections", fields: [accountId], references: [id])
   accountId          String?
+  connectionGroups   ConnectionGroup[]
 }
 
 model ConnectionGroup {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   name        String
-  connections String[]
-  traits      String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  account     Account? @relation(fields: [accountId], references: [id])
+  connections Connection[]
+  traits      Trait[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  account     Account?     @relation(fields: [accountId], references: [id])
   accountId   String?
 }

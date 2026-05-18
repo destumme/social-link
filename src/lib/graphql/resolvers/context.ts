@@ -1,7 +1,7 @@
 import { services } from "@/lib/services";
 
 export interface GraphqlContext {
-  accountId?: string;
+  accountId: string;
   services: typeof services;
 }
 
