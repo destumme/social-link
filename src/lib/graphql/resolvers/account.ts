@@ -21,7 +21,7 @@ export const Account = {
         },
       });
     }
-
+    
     return prisma.trait.findMany({
       where: {
         visibleGroups: {
