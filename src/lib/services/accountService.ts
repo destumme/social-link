@@ -5,6 +5,7 @@ import { NotFoundError } from "@/lib/errors";
 interface CreateAccountInput {
   displayName: string;
   username: string;
+  publicListed: boolean;
 }
 
 interface UpdateAccountInput {
@@ -21,10 +22,7 @@ export const accountService = {
    */
   create: async (input: CreateAccountInput): Promise<Account> => {
     return prisma.account.create({
-      data: {
-        ...input,
-        publicListed: false,
-      },
+      data: input,
     });
   },
 

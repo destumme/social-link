@@ -16,29 +16,46 @@ interface UpdateTraitInput {
 }
 
 export const traitService = {
-  
   /**
-   * 
-   * @param accountId 
-   * @param connectionAccountId 
+   * Find traits that the accountId has made visible to the authedAccountId
+   * @param accountId
+   * @param connectionAccountId
    */
-  findVisibleTraits: async(accountId: string, authedAccountId: string):Promise<Trait[]> => {
-    const traits = await prisma.trait.findMany({where: {
-      visibleGroups: {
-        some: {
-          accountId: authedAccountId,
-          AND: {
-            connections: {
-              some: {
-                accountId
-              }
-            }
-          }
-        }
-      }
-    }})
+  findVisibleTraits: async (
+    accountId: string,
+    authedAccountId: string,
+  ): Promise<Trait[]> => {
+    const traits = await prisma.trait.findMany({
+      where: {
+        visibleGroups: {
+          some: {
+            accountId: authedAccountId,
+            AND: {
+              connections: {
+                some: {
+                  accountId,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
 
-    return traits
+    return traits;
+  },
+
+  /**
+   * Find traits by account ID.
+   * @param accountId - The account ID.
+   * @returns Array of traits for the account.
+   */
+  findByAccountId: async (accountId: string): Promise<Trait[]> => {
+    return prisma.trait.findMany({
+      where: {
+        accountId,
+      },
+    });
   },
 
   /**

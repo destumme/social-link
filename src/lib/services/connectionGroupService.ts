@@ -49,11 +49,17 @@ export const connectionGroupService = {
     accountId: string,
     input: CreateConnectionGroupInput,
   ): Promise<ConnectionGroup> => {
+    const traits =
+      input.traitIds !== undefined
+        ? input.traitIds?.map((t) => {
+            return { id: t };
+          })
+        : [];
+
     return prisma.connectionGroup.create({
       data: {
         name: input.name,
-        traits: input.traitIds ?? [],
-        accountId,
+        ...(traits.length !== 0 ? { traits: { connect: traits } } : {}),
       },
     });
   },
@@ -130,17 +136,10 @@ export const connectionGroupService = {
     groupId: string,
     traitId: string,
   ): Promise<ConnectionGroup> => {
-    const group = await prisma.connectionGroup.findUnique({
+    const group =  await prisma.connectionGroup.update({
       where: { id: groupId },
-    });
-    if (group === null) {
-      throw new NotFoundError("Connection group not found", {
-        domain: "connectionGroups",
-      });
-    }
-    return prisma.connectionGroup.update({
-      where: { id: groupId },
-      data: { traits: { set: group.traits.filter((t) => t !== traitId) } },
+      data: { traits: { disconnect: [{ id: traitId }] } },
+      include: {traits: true}
     });
   },
 };
