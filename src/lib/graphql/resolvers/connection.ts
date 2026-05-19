@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/database/prisma";
 import { GraphqlContext } from "./context";
 
 interface RequestConnectionInput {
@@ -24,9 +25,11 @@ export const Query = {
   myConnections: (
     _parent: unknown,
     _args: unknown,
-    _context: GraphqlContext,
+    context: GraphqlContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connection.findMany({
+      where: { accountId: context.authedAccountId },
+    });
   },
   pendingConnections: (
     _parent: unknown,

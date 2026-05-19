@@ -1,8 +1,5 @@
-import { services } from "@/lib/services";
-
 export interface GraphqlContext {
   authedAccountId: string;
-  services: typeof services;
 }
 
 export function createContext(request: Request): GraphqlContext {
@@ -10,6 +7,5 @@ export function createContext(request: Request): GraphqlContext {
 
   return {
     authedAccountId: accountId,
-    services,
   };
 }

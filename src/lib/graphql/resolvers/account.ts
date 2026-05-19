@@ -1,5 +1,6 @@
-import { GraphqlContext } from "./context";
+import { prisma } from "@/lib/database/prisma";
 import { NotFoundError, UnauthorizedError } from "../errors";
+import { GraphqlContext } from "./context";
 
 interface UpdateAccountInput {
   displayName: string;
@@ -8,15 +9,35 @@ interface UpdateAccountInput {
 }
 
 export const Account = {
-  traits: (parent: { id: string }, _args: unknown, context: GraphqlContext) => {
+  traits: async (
+    parent: { id: string },
+    _args: unknown,
+    context: GraphqlContext,
+  ) => {
     if (parent.id === context.authedAccountId) {
-      return context.services.traits.findByAccountId(context.authedAccountId);
+      return prisma.trait.findMany({
+        where: {
+          accountId: context.authedAccountId,
+        },
+      });
     }
 
-    return context.services.traits.findVisibleTraits(
-      parent.id,
-      context.authedAccountId,
-    );
+    return prisma.trait.findMany({
+      where: {
+        visibleGroups: {
+          some: {
+            accountId: context.authedAccountId,
+            AND: {
+              connections: {
+                some: {
+                  accountId: parent.id,
+                },
+              },
+            },
+          },
+        },
+      },
+    });
   },
   connections: (
     parent: { id: string },
@@ -24,32 +45,48 @@ export const Account = {
     context: GraphqlContext,
   ) => {
     if (parent.id === context.authedAccountId) {
-      return context.services.connections.findByAccountId(
-        context.authedAccountId,
-      );
+      return prisma.connection.findMany({
+        where: { accountId: context.authedAccountId },
+      });
     }
 
     throw new UnauthorizedError("Connections are private");
   },
-  connectionGroups: (
-    parent: { id: string },
-    _args: unknown,
-    context: GraphqlContext,
-  ) => {
-    return context.services.groups.findByAccountId(parent.id);
+  connectionGroups: (parent: { id: string }) => {
+    return prisma.connectionGroup.findMany({
+      where: { accountId: parent.id },
+    });
   },
 };
 
 export const Query = {
-  me: (_parent: unknown, _args: unknown, context: GraphqlContext) => {
-    return context.services.accounts.findById(context.authedAccountId);
+  me: async (_parent: unknown, _args: unknown, context: GraphqlContext) => {
+    const account = await prisma.account.findUnique({
+      where: {
+        id: context.authedAccountId,
+      },
+    });
+
+    if (account === null) {
+      throw new NotFoundError("account not found");
+    }
+
+    return account;
   },
   accountByUsername: (
     _parent: unknown,
     args: { username: string },
-    context: GraphqlContext,
+    _context: GraphqlContext,
   ) => {
-    return context.services.accounts.search(args.username);
+    return prisma.account.findMany({
+      where: {
+        publicListed: true,
+        username: {
+          contains: args.username,
+          mode: "insensitive",
+        },
+      },
+    });
   },
   accountByShareId: (_parent: unknown, _args: { shareId: string }) => {
     throw new Error("Not implemented");
@@ -57,15 +94,20 @@ export const Query = {
 };
 
 export const Mutation = {
-  updateAccount: (
+  updateAccount: async (
     root: unknown,
     args: { input: UpdateAccountInput },
     context: GraphqlContext,
   ) => {
-    //todo: verify authorization
-    const account = context.services.accounts.update(
-      context.authedAccountId,
-      args.input,
-    );
+    const account = await prisma.account.findUnique({
+      where: { id: context.authedAccountId },
+    });
+    if (account === null) {
+      throw new NotFoundError("account not found");
+    }
+    return prisma.account.update({
+      where: { id: context.authedAccountId },
+      data: args.input,
+    });
   },
 };

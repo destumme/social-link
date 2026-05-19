@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/database/prisma";
+import { NotFoundError } from "../errors";
 import { GraphqlContext } from "./context";
 
 interface CreateConnectionGroupInput {
@@ -26,46 +28,90 @@ export const Query = {
   myConnectionGroups: (
     _parent: unknown,
     _args: unknown,
-    _context: GraphqlContext,
+    context: GraphqlContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connectionGroup.findMany({
+      where: { accountId: context.authedAccountId },
+    });
   },
 };
 
 export const Mutation = {
-  createConnectionGroup: (
+  createConnectionGroup: async (
     _parent: unknown,
-    _args: { input: CreateConnectionGroupInput },
-    _context: GraphqlContext,
+    args: { input: CreateConnectionGroupInput },
+    context: GraphqlContext,
   ) => {
-    throw new Error("Not implemented");
+    const traits =
+      args.input.traitIds !== undefined
+        ? args.input.traitIds?.map((t) => {
+            return { id: t };
+          })
+        : [];
+
+    return prisma.connectionGroup.create({
+      data: {
+        name: args.input.name,
+        ...(traits.length !== 0 ? { traits: { connect: traits } } : {}),
+        accountId: context.authedAccountId,
+      },
+    });
   },
-  updateConnectionGroup: (
+  updateConnectionGroup: async (
     _parent: unknown,
-    _args: { id: string; input: UpdateConnectionGroupInput },
+    args: { id: string; input: UpdateConnectionGroupInput },
     _context: GraphqlContext,
   ) => {
-    throw new Error("Not implemented");
+    const group = await prisma.connectionGroup.findUnique({
+      where: { id: args.id },
+    });
+    if (group === null) {
+      throw new NotFoundError("Connection group not found");
+    }
+    return prisma.connectionGroup.update({
+      where: { id: args.id },
+      data: args.input,
+    });
   },
-  deleteConnectionGroup: (
+  deleteConnectionGroup: async (
     _parent: unknown,
-    _args: { id: string },
+    args: { id: string },
     _context: GraphqlContext,
   ) => {
-    throw new Error("Not implemented");
+    const group = await prisma.connectionGroup.findUnique({
+      where: { id: args.id },
+    });
+    if (group === null) {
+      throw new NotFoundError("Connection group not found");
+    }
+    await prisma.connectionGroup.delete({ where: { id: args.id } });
+    return true;
   },
-  addTraitToGroup: (
+  addTraitToGroup: async (
     _parent: unknown,
-    _args: { groupId: string; traitId: string },
+    args: { groupId: string; traitId: string },
     _context: GraphqlContext,
   ) => {
-    throw new Error("Not implemented");
+    const group = await prisma.connectionGroup.findUnique({
+      where: { id: args.groupId },
+    });
+    if (group === null) {
+      throw new NotFoundError("Connection group not found");
+    }
+    return prisma.connectionGroup.update({
+      where: { id: args.groupId },
+      data: { traits: { connect: { id: args.traitId } } },
+    });
   },
-  removeTraitFromGroup: (
+  removeTraitFromGroup: async (
     _parent: unknown,
-    _args: { groupId: string; traitId: string },
+    args: { groupId: string; traitId: string },
     _context: GraphqlContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connectionGroup.update({
+      where: { id: args.groupId },
+      data: { traits: { disconnect: [{ id: args.traitId }] } },
+      include: { traits: true },
+    });
   },
 };
