@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/database/prisma";
 import { NotFoundError, UnauthorizedError } from "../errors";
-import { GraphqlContext } from "./context";
+import { GraphQLContext } from "./context";
 
 interface UpdateAccountInput {
   displayName: string;
@@ -12,7 +12,7 @@ export const Account = {
   traits: async (
     parent: { id: string },
     _args: unknown,
-    context: GraphqlContext,
+    context: GraphQLContext,
   ) => {
     if (parent.id === context.authedAccountId) {
       return prisma.trait.findMany({
@@ -42,7 +42,7 @@ export const Account = {
   connections: (
     parent: { id: string },
     _args: unknown,
-    context: GraphqlContext,
+    context: GraphQLContext,
   ) => {
     if (parent.id === context.authedAccountId) {
       return prisma.connection.findMany({
@@ -60,7 +60,7 @@ export const Account = {
 };
 
 export const Query = {
-  me: async (_parent: unknown, _args: unknown, context: GraphqlContext) => {
+  me: async (_parent: unknown, _args: unknown, context: GraphQLContext) => {
     const account = await prisma.account.findUnique({
       where: {
         id: context.authedAccountId,
@@ -76,7 +76,7 @@ export const Query = {
   accountByUsername: (
     _parent: unknown,
     args: { username: string },
-    _context: GraphqlContext,
+    _context: GraphQLContext,
   ) => {
     return prisma.account.findMany({
       where: {
@@ -97,7 +97,7 @@ export const Mutation = {
   updateAccount: async (
     root: unknown,
     args: { input: UpdateAccountInput },
-    context: GraphqlContext,
+    context: GraphQLContext,
   ) => {
     const account = await prisma.account.findUnique({
       where: { id: context.authedAccountId },

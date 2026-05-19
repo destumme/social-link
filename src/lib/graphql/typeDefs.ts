@@ -40,7 +40,6 @@ export const typeDefs = /* GraphQL */ `
     connectedAccount: Account!
     status: ConnectionStatus!
     groups: [ConnectionGroup!]!
-    traits: [Trait!]!
     createdAt: DateTime!
   }
 

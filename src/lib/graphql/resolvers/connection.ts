@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/database/prisma";
-import { GraphqlContext } from "./context";
+import { GraphQLContext } from "./context";
 
 interface RequestConnectionInput {
   groupIds?: string[];
@@ -8,16 +8,17 @@ interface RequestConnectionInput {
 
 export const Connection = {
   account: (parent: { accountId: string }) => {
-    throw new Error("Not implemented");
+    return prisma.account.findUnique({ where: { id: parent.accountId } });
   },
   connectedAccount: (parent: { connectedAccountId: string }) => {
-    throw new Error("Not implemented");
+    return prisma.account.findUnique({
+      where: { id: parent.connectedAccountId },
+    });
   },
-  groups: (parent: { groups: string[] }) => {
-    throw new Error("Not implemented");
-  },
-  traits: (parent: { traits: string[] }) => {
-    throw new Error("Not implemented");
+  groups: (parent: { id: string }) => {
+    return prisma.connectionGroup.findMany({
+      where: { connections: { some: { id: parent.id } } },
+    });
   },
 };
 
@@ -25,7 +26,7 @@ export const Query = {
   myConnections: (
     _parent: unknown,
     _args: unknown,
-    context: GraphqlContext,
+    context: GraphQLContext,
   ) => {
     return prisma.connection.findMany({
       where: { accountId: context.authedAccountId },
@@ -34,63 +35,111 @@ export const Query = {
   pendingConnections: (
     _parent: unknown,
     _args: unknown,
-    _context: GraphqlContext,
+    context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connection.findMany({
+      where: { connectedAccountId: context.authedAccountId, status: "PENDING" },
+    });
   },
-  connectionByAccount: (_parent: unknown, _args: { accountId: string }) => {
-    throw new Error("Not implemented");
+  connectionByAccount: (
+    _parent: unknown,
+    args: { accountId: string },
+    context: GraphQLContext,
+  ) => {
+    return prisma.connection.findFirst({
+      where: {
+        accountId: context.authedAccountId,
+        connectedAccountId: args.accountId,
+      },
+    });
   },
 };
 
 export const Mutation = {
-  requestConnection: (
+  requestConnection: async (
     _parent: unknown,
-    _args: { accountId: string; input: RequestConnectionInput },
-    _context: GraphqlContext,
+    args: { accountId: string; input: RequestConnectionInput },
+    context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    const groupIds = args.input.groupIds ?? [];
+    return prisma.connection.create({
+      data: {
+        accountId: context.authedAccountId,
+        connectedAccountId: args.accountId,
+        status: "PENDING",
+        ...(groupIds.length > 0
+          ? {
+              connectionGroups: {
+                connect: groupIds.map((id) => ({ id })),
+              },
+            }
+          : {}),
+      },
+    });
   },
-  acceptConnection: (
+  acceptConnection: async (
     _parent: unknown,
-    _args: { connectionId: string },
-    _context: GraphqlContext,
+    args: { connectionId: string },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connection.update({
+      where: { id: args.connectionId },
+      data: { status: "ACCEPTED" },
+    });
   },
-  declineConnection: (
+  declineConnection: async (
     _parent: unknown,
-    _args: { connectionId: string },
-    _context: GraphqlContext,
+    args: { connectionId: string },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connection.update({
+      where: { id: args.connectionId },
+      data: { status: "DECLINED" },
+    });
   },
-  removeConnection: (
+  removeConnection: async (
     _parent: unknown,
-    _args: { id: string },
-    _context: GraphqlContext,
+    args: { id: string },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    await prisma.connection.delete({ where: { id: args.id } });
+    return true;
   },
-  addConnectionToGroup: (
+  addConnectionToGroup: async (
     _parent: unknown,
-    _args: { connectionId: string; groupId: string },
-    _context: GraphqlContext,
+    args: { connectionId: string; groupId: string },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connection.update({
+      where: { id: args.connectionId },
+      data: { connectionGroups: { connect: { id: args.groupId } } },
+    });
   },
-  removeConnectionFromGroup: (
+  removeConnectionFromGroup: async (
     _parent: unknown,
-    _args: { connectionId: string; groupId: string },
-    _context: GraphqlContext,
+    args: { connectionId: string; groupId: string },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.connection.update({
+      where: { id: args.connectionId },
+      data: { connectionGroups: { disconnect: { id: args.groupId } } },
+    });
   },
-  updateConnectionTraits: (
+  updateConnectionTraits: async (
     _parent: unknown,
-    _args: { connectionId: string; traitIds: string[] },
-    _context: GraphqlContext,
+    args: { connectionId: string; traitIds: string[] },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    const groups = await prisma.connectionGroup.findMany({
+      where: { traits: { some: { id: { in: args.traitIds } } } },
+    });
+    return prisma.connection.update({
+      where: { id: args.connectionId },
+      data: {
+        connectionGroups: {
+          set: groups.map((g) => ({ id: g.id })),
+        },
+      },
+    });
   },
 };

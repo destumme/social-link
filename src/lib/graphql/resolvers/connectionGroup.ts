@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/database/prisma";
 import { NotFoundError } from "../errors";
-import { GraphqlContext } from "./context";
+import { GraphQLContext } from "./context";
 
 interface CreateConnectionGroupInput {
   name: string;
@@ -14,13 +14,17 @@ interface UpdateConnectionGroupInput {
 
 export const ConnectionGroup = {
   account: (parent: { accountId: string }) => {
-    throw new Error("Not implemented");
+    return prisma.account.findUnique({ where: { id: parent.accountId } });
   },
-  connections: (parent: { connections: string[] }) => {
-    throw new Error("Not implemented");
+  connections: (parent: { id: string }) => {
+    return prisma.connection.findMany({
+      where: { connectionGroups: { some: { id: parent.id } } },
+    });
   },
-  traits: (parent: { traits: string[] }) => {
-    throw new Error("Not implemented");
+  traits: (parent: { id: string }) => {
+    return prisma.trait.findMany({
+      where: { visibleGroups: { some: { id: parent.id } } },
+    });
   },
 };
 
@@ -28,7 +32,7 @@ export const Query = {
   myConnectionGroups: (
     _parent: unknown,
     _args: unknown,
-    context: GraphqlContext,
+    context: GraphQLContext,
   ) => {
     return prisma.connectionGroup.findMany({
       where: { accountId: context.authedAccountId },
@@ -40,7 +44,7 @@ export const Mutation = {
   createConnectionGroup: async (
     _parent: unknown,
     args: { input: CreateConnectionGroupInput },
-    context: GraphqlContext,
+    context: GraphQLContext,
   ) => {
     const traits =
       args.input.traitIds !== undefined
@@ -60,7 +64,7 @@ export const Mutation = {
   updateConnectionGroup: async (
     _parent: unknown,
     args: { id: string; input: UpdateConnectionGroupInput },
-    _context: GraphqlContext,
+    _context: GraphQLContext,
   ) => {
     const group = await prisma.connectionGroup.findUnique({
       where: { id: args.id },
@@ -76,7 +80,7 @@ export const Mutation = {
   deleteConnectionGroup: async (
     _parent: unknown,
     args: { id: string },
-    _context: GraphqlContext,
+    _context: GraphQLContext,
   ) => {
     const group = await prisma.connectionGroup.findUnique({
       where: { id: args.id },
@@ -90,7 +94,7 @@ export const Mutation = {
   addTraitToGroup: async (
     _parent: unknown,
     args: { groupId: string; traitId: string },
-    _context: GraphqlContext,
+    _context: GraphQLContext,
   ) => {
     const group = await prisma.connectionGroup.findUnique({
       where: { id: args.groupId },
@@ -106,7 +110,7 @@ export const Mutation = {
   removeTraitFromGroup: async (
     _parent: unknown,
     args: { groupId: string; traitId: string },
-    _context: GraphqlContext,
+    _context: GraphQLContext,
   ) => {
     return prisma.connectionGroup.update({
       where: { id: args.groupId },

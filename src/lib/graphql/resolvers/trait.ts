@@ -1,4 +1,5 @@
-import { GraphqlContext } from "./context";
+import { prisma } from "@/lib/database/prisma";
+import { GraphQLContext } from "./context";
 
 interface CreateTraitInput {
   key: string;
@@ -16,42 +17,58 @@ interface UpdateTraitInput {
 
 export const Trait = {
   account: (parent: { accountId: string }) => {
-    throw new Error("Not implemented");
+    return prisma.account.findUnique({ where: { id: parent.accountId } });
   },
-  visibleGroups: (parent: { visibleGroups: string[] }) => {
-    throw new Error("Not implemented");
+  visibleGroups: (parent: { id: string }) => {
+    return prisma.connectionGroup.findMany({
+      where: { traits: { some: { id: parent.id } } },
+    });
   },
 };
 
 export const Query = {
-  myTraits: (_parent: unknown, _args: unknown, _context: GraphqlContext) => {
-    throw new Error("Not implemented");
+  myTraits: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
+    return prisma.trait.findMany({
+      where: { accountId: context.authedAccountId },
+    });
   },
-  traitById: (_parent: unknown, _args: { id: string }) => {
-    throw new Error("Not implemented");
+  traitById: (_parent: unknown, args: { id: string }) => {
+    return prisma.trait.findUnique({ where: { id: args.id } });
   },
 };
 
 export const Mutation = {
   createTrait: (
     _parent: unknown,
-    _args: { input: CreateTraitInput },
-    _context: GraphqlContext,
+    args: { input: CreateTraitInput },
+    context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.trait.create({
+      data: {
+        key: args.input.key,
+        value: args.input.value,
+        category: args.input.category,
+        icon: args.input.icon,
+        accountId: context.authedAccountId,
+      },
+    });
   },
   updateTrait: (
     _parent: unknown,
-    _args: { id: string; input: UpdateTraitInput },
-    _context: GraphqlContext,
+    args: { id: string; input: UpdateTraitInput },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    return prisma.trait.update({
+      where: { id: args.id },
+      data: args.input,
+    });
   },
   deleteTrait: (
     _parent: unknown,
-    _args: { id: string },
-    _context: GraphqlContext,
+    args: { id: string },
+    _context: GraphQLContext,
   ) => {
-    throw new Error("Not implemented");
+    await prisma.trait.delete({ where: { id: args.id } });
+    return true;
   },
 };

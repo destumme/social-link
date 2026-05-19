@@ -1,4 +1,4 @@
-import { GraphQLScalarType, Kind } from "graphql";
+import { GraphQLDateTime as DateTime } from "graphql-scalars";
 import {
   Account as AccountType,
   Query as AccountQuery,
@@ -19,30 +19,7 @@ import {
   Query as ConnectionGroupQuery,
   Mutation as ConnectionGroupMutation,
 } from "./connectionGroup";
-import { GraphqlContext } from "./context";
-
-const DateTime = new GraphQLScalarType({
-  name: "DateTime",
-  description: "DateTime scalar",
-  serialize(value) {
-    if (value instanceof Date) {
-      return value.toISOString();
-    }
-    throw new Error("DateTime must be a Date");
-  },
-  parseValue(value) {
-    if (typeof value === "string") {
-      return new Date(value);
-    }
-    throw new Error("DateTime must be a string");
-  },
-  parseLiteral(ast) {
-    if (ast.kind === Kind.STRING) {
-      return new Date(ast.value);
-    }
-    throw new Error("DateTime must be a string");
-  },
-});
+import { GraphQLContext } from "./context";
 
 export const resolvers = {
   DateTime,
