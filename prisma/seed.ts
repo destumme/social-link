@@ -136,7 +136,7 @@ async function main() {
       data: {
         name: "Close Friends",
         accountId: alice.id,
-        traits: [aliceEmail.id, alicePhone.id],
+        traits: { connect: [{ id: aliceEmail.id }, { id: alicePhone.id }] },
       },
     });
 
@@ -144,7 +144,7 @@ async function main() {
       data: {
         name: "Colleagues",
         accountId: bob.id,
-        traits: [bobTwitter.id],
+        traits: { connect: [{ id: bobTwitter.id }] },
       },
     });
 
@@ -154,7 +154,6 @@ async function main() {
         connectedAccountId: bob.id,
         status: "ACCEPTED",
         groups: [aliceCloseFriends.id],
-        traits: [aliceEmail.id],
       },
     });
 
@@ -164,7 +163,6 @@ async function main() {
         connectedAccountId: alice.id,
         status: "ACCEPTED",
         groups: [bobColleagues.id],
-        traits: [bobTwitter.id],
       },
     });
 
