@@ -69,3 +69,21 @@ export function findTraitsForGroup(groupId: string) {
     where: { visibleGroups: { some: { id: groupId } } },
   });
 }
+
+export const connectionGroup = {
+  findConnectionGroupById,
+  createConnectionGroup,
+  updateConnectionGroup,
+  deleteConnectionGroup,
+  addTraitToGroup,
+  removeTraitFromGroup,
+};
+export const search = {
+  findConnectionGroupsByAccountId,
+  findAccountForGroup,
+  findConnectionsForGroup,
+  findTraitsForGroup,
+};
+
+const service = { connectionGroup, search };
+export default service;

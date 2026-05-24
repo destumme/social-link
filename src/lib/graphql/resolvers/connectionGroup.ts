@@ -1,17 +1,6 @@
 import { NotFoundError } from "../errors";
 import { GraphQLContext } from "./context";
-import {
-  findConnectionGroupsByAccountId,
-  findConnectionGroupById,
-  createConnectionGroup,
-  updateConnectionGroup,
-  deleteConnectionGroup,
-  addTraitToGroup,
-  removeTraitFromGroup,
-  findAccountForGroup,
-  findConnectionsForGroup,
-  findTraitsForGroup,
-} from "@/lib/services/connectionGroupService";
+import connectionGroupService from "@/lib/services/connectionGroupService";
 
 interface CreateConnectionGroupInput {
   name: string;
@@ -25,13 +14,13 @@ interface UpdateConnectionGroupInput {
 
 export const ConnectionGroup = {
   account: (parent: { accountId: string }) => {
-    return findAccountForGroup(parent.accountId);
+    return connectionGroupService.search.findAccountForGroup(parent.accountId);
   },
   connections: (parent: { id: string }) => {
-    return findConnectionsForGroup(parent.id);
+    return connectionGroupService.search.findConnectionsForGroup(parent.id);
   },
   traits: (parent: { id: string }) => {
-    return findTraitsForGroup(parent.id);
+    return connectionGroupService.search.findTraitsForGroup(parent.id);
   },
 };
 
@@ -41,7 +30,9 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    return findConnectionGroupsByAccountId(context.authedAccountId);
+    return connectionGroupService.search.findConnectionGroupsByAccountId(
+      context.authedAccountId,
+    );
   },
 };
 
@@ -51,7 +42,7 @@ export const Mutation = {
     args: { input: CreateConnectionGroupInput },
     context: GraphQLContext,
   ) => {
-    return createConnectionGroup(
+    return connectionGroupService.connectionGroup.createConnectionGroup(
       args.input.name,
       context.authedAccountId,
       args.input.traitIds,
@@ -62,22 +53,31 @@ export const Mutation = {
     args: { id: string; input: UpdateConnectionGroupInput },
     _context: GraphQLContext,
   ) => {
-    const group = await findConnectionGroupById(args.id);
+    const group =
+      await connectionGroupService.connectionGroup.findConnectionGroupById(
+        args.id,
+      );
     if (group === null) {
       throw new NotFoundError("Connection group not found");
     }
-    return updateConnectionGroup(args.id, args.input);
+    return connectionGroupService.connectionGroup.updateConnectionGroup(
+      args.id,
+      args.input,
+    );
   },
   deleteConnectionGroup: async (
     _parent: unknown,
     args: { id: string },
     _context: GraphQLContext,
   ) => {
-    const group = await findConnectionGroupById(args.id);
+    const group =
+      await connectionGroupService.connectionGroup.findConnectionGroupById(
+        args.id,
+      );
     if (group === null) {
       throw new NotFoundError("Connection group not found");
     }
-    await deleteConnectionGroup(args.id);
+    await connectionGroupService.connectionGroup.deleteConnectionGroup(args.id);
     return true;
   },
   addTraitToGroup: async (
@@ -85,17 +85,26 @@ export const Mutation = {
     args: { groupId: string; traitId: string },
     _context: GraphQLContext,
   ) => {
-    const group = await findConnectionGroupById(args.groupId);
+    const group =
+      await connectionGroupService.connectionGroup.findConnectionGroupById(
+        args.groupId,
+      );
     if (group === null) {
       throw new NotFoundError("Connection group not found");
     }
-    return addTraitToGroup(args.groupId, args.traitId);
+    return connectionGroupService.connectionGroup.addTraitToGroup(
+      args.groupId,
+      args.traitId,
+    );
   },
   removeTraitFromGroup: async (
     _parent: unknown,
     args: { groupId: string; traitId: string },
     _context: GraphQLContext,
   ) => {
-    return removeTraitFromGroup(args.groupId, args.traitId);
+    return connectionGroupService.connectionGroup.removeTraitFromGroup(
+      args.groupId,
+      args.traitId,
+    );
   },
 };

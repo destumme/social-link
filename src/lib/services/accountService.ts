@@ -56,3 +56,15 @@ export function findAccountConnections(accountId: string) {
 export function findAccountConnectionGroups(accountId: string) {
   return prisma.connectionGroup.findMany({ where: { accountId } });
 }
+
+export const account = { findAccountById, updateAccount };
+export const search = {
+  findAccountsByUsername,
+  findAccountTraitsForOwner,
+  findAccountTraitsForViewer,
+  findAccountConnections,
+  findAccountConnectionGroups,
+};
+
+const service = { account, search };
+export default service;

@@ -23,7 +23,12 @@ export function createTrait(
 
 export function updateTrait(
   id: string,
-  data: { key?: string; value?: string; category?: TraitCategory; icon?: string },
+  data: {
+    key?: string;
+    value?: string;
+    category?: TraitCategory;
+    icon?: string;
+  },
 ) {
   return prisma.trait.update({ where: { id }, data });
 }
@@ -41,3 +46,13 @@ export function findVisibleGroupsForTrait(traitId: string) {
 export function findAccountForTrait(accountId: string) {
   return prisma.account.findUnique({ where: { id: accountId } });
 }
+
+export const trait = { findTraitById, createTrait, updateTrait, deleteTrait };
+export const search = {
+  findTraitsByAccountId,
+  findVisibleGroupsForTrait,
+  findAccountForTrait,
+};
+
+const service = { trait, search };
+export default service;

@@ -1,14 +1,6 @@
 import { NotFoundError, UnauthorizedError } from "../errors";
 import { GraphQLContext } from "./context";
-import {
-  findAccountById,
-  findAccountsByUsername,
-  updateAccount,
-  findAccountTraitsForOwner,
-  findAccountTraitsForViewer,
-  findAccountConnections,
-  findAccountConnectionGroups,
-} from "@/lib/services/accountService";
+import accountService from "@/lib/services/accountService";
 
 interface UpdateAccountInput {
   displayName: string;
@@ -23,10 +15,15 @@ export const Account = {
     context: GraphQLContext,
   ) => {
     if (parent.id === context.authedAccountId) {
-      return findAccountTraitsForOwner(context.authedAccountId);
+      return accountService.search.findAccountTraitsForOwner(
+        context.authedAccountId,
+      );
     }
 
-    return findAccountTraitsForViewer(parent.id, context.authedAccountId);
+    return accountService.search.findAccountTraitsForViewer(
+      parent.id,
+      context.authedAccountId,
+    );
   },
   connections: (
     parent: { id: string },
@@ -34,19 +31,23 @@ export const Account = {
     context: GraphQLContext,
   ) => {
     if (parent.id === context.authedAccountId) {
-      return findAccountConnections(context.authedAccountId);
+      return accountService.search.findAccountConnections(
+        context.authedAccountId,
+      );
     }
 
     throw new UnauthorizedError("Connections are private");
   },
   connectionGroups: (parent: { id: string }) => {
-    return findAccountConnectionGroups(parent.id);
+    return accountService.search.findAccountConnectionGroups(parent.id);
   },
 };
 
 export const Query = {
   me: async (_parent: unknown, _args: unknown, context: GraphQLContext) => {
-    const account = await findAccountById(context.authedAccountId);
+    const account = await accountService.account.findAccountById(
+      context.authedAccountId,
+    );
 
     if (account === null) {
       throw new UnauthorizedError("account not found");
@@ -59,7 +60,7 @@ export const Query = {
     args: { username: string },
     _context: GraphQLContext,
   ) => {
-    return findAccountsByUsername(args.username);
+    return accountService.search.findAccountsByUsername(args.username);
   },
   accountByShareId: (_parent: unknown, _args: { shareId: string }) => {
     throw new Error("Not implemented");
@@ -72,10 +73,15 @@ export const Mutation = {
     args: { input: UpdateAccountInput },
     context: GraphQLContext,
   ) => {
-    const account = await findAccountById(context.authedAccountId);
+    const account = await accountService.account.findAccountById(
+      context.authedAccountId,
+    );
     if (account === null) {
       throw new NotFoundError("account not found");
     }
-    return updateAccount(context.authedAccountId, args.input);
+    return accountService.account.updateAccount(
+      context.authedAccountId,
+      args.input,
+    );
   },
 };

@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/database/prisma";
 
 export function findConnectionsByAccountId(accountId: string, status?: string) {
-  const where: any = {accountId, ...(status !== null && {status})}
+  const where: any = { accountId, ...(status !== null && { status }) };
   if (status !== null) {
-    where.status = status
+    where.status = status;
   }
 
   return prisma.connection.findMany({
-    where
+    where,
   });
 }
 
@@ -183,3 +183,29 @@ export function findAccountForConnection(accountId: string) {
 export function findConnectedAccountForConnection(connectedAccountId: string) {
   return prisma.account.findUnique({ where: { id: connectedAccountId } });
 }
+
+export const connection = {
+  findConnectionById,
+  addConnectionToGroup,
+  removeConnectionFromGroup,
+  updateConnectionTraitGroups,
+};
+export const connectionPair = {
+  findConnectionPair,
+  createConnectionPair,
+  acceptConnectionPair,
+  declineConnectionPair,
+  deleteConnectionPair,
+};
+export const search = {
+  findConnectionsByAccountId,
+  findPendingConnectionsForAccount,
+  findConnectionBetweenAccounts,
+  checkConnectionExists,
+  findGroupsForConnection,
+  findAccountForConnection,
+  findConnectedAccountForConnection,
+};
+
+const service = { connection, connectionPair, search };
+export default service;

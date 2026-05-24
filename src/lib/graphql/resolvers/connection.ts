@@ -1,23 +1,6 @@
 import { GraphQLContext } from "./context";
 import { GraphQLAppError, NotFoundError } from "../errors";
-import {
-  findConnectionsByAccountId,
-  findPendingConnectionsForAccount,
-  findConnectionBetweenAccounts,
-  findConnectionById,
-  findConnectionPair,
-  checkConnectionExists,
-  createConnectionPair,
-  acceptConnectionPair,
-  declineConnectionPair,
-  deleteConnectionPair,
-  addConnectionToGroup,
-  removeConnectionFromGroup,
-  updateConnectionTraitGroups,
-  findGroupsForConnection,
-  findAccountForConnection,
-  findConnectedAccountForConnection,
-} from "@/lib/services/connectionService";
+import connectionService from "@/lib/services/connectionService";
 
 interface RequestConnectionInput {
   groupIds?: string[];
@@ -26,13 +9,15 @@ interface RequestConnectionInput {
 
 export const Connection = {
   account: (parent: { accountId: string }) => {
-    return findAccountForConnection(parent.accountId);
+    return connectionService.search.findAccountForConnection(parent.accountId);
   },
   connectedAccount: (parent: { connectedAccountId: string }) => {
-    return findConnectedAccountForConnection(parent.connectedAccountId);
+    return connectionService.search.findConnectedAccountForConnection(
+      parent.connectedAccountId,
+    );
   },
   groups: (parent: { id: string }) => {
-    return findGroupsForConnection(parent.id);
+    return connectionService.search.findGroupsForConnection(parent.id);
   },
 };
 
@@ -42,21 +27,26 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    return findConnectionsByAccountId(context.authedAccountId, "ACCEPTED");
+    return connectionService.search.findConnectionsByAccountId(
+      context.authedAccountId,
+      "ACCEPTED",
+    );
   },
   pendingConnections: (
     _parent: unknown,
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    return findPendingConnectionsForAccount(context.authedAccountId);
+    return connectionService.search.findPendingConnectionsForAccount(
+      context.authedAccountId,
+    );
   },
   connectionByAccount: (
     _parent: unknown,
     args: { accountId: string },
     context: GraphQLContext,
   ) => {
-    return findConnectionBetweenAccounts(
+    return connectionService.search.findConnectionBetweenAccounts(
       context.authedAccountId,
       args.accountId,
     );
@@ -69,8 +59,7 @@ export const Mutation = {
     args: { accountId: string; input: RequestConnectionInput },
     context: GraphQLContext,
   ) => {
-    //agent-done: verify no existing connection in either direction before creating
-    const existing = await checkConnectionExists(
+    const existing = await connectionService.search.checkConnectionExists(
       context.authedAccountId,
       args.accountId,
     );
@@ -80,7 +69,7 @@ export const Mutation = {
         statusCode: 409,
       });
     }
-    return createConnectionPair(
+    return connectionService.connectionPair.createConnectionPair(
       context.authedAccountId,
       args.accountId,
       args.input.groupIds,
@@ -91,8 +80,9 @@ export const Mutation = {
     args: { connectionId: string },
     _context: GraphQLContext,
   ) => {
-    //agent-done: verify both sides are PENDING, then update both to ACCEPTED in a transaction
-    const pair = await findConnectionPair(args.connectionId);
+    const pair = await connectionService.connectionPair.findConnectionPair(
+      args.connectionId,
+    );
     if (!pair || !pair.connection)
       throw new NotFoundError("Connection not found");
     if (
@@ -105,15 +95,19 @@ export const Mutation = {
         statusCode: 400,
       });
     }
-    return acceptConnectionPair(pair.connection.id, pair.otherSide.id);
+    return connectionService.connectionPair.acceptConnectionPair(
+      pair.connection.id,
+      pair.otherSide.id,
+    );
   },
   declineConnection: async (
     _parent: unknown,
     args: { connectionId: string },
     _context: GraphQLContext,
   ) => {
-    //agent-done: verify both sides are PENDING, then update both to DECLINED in a transaction
-    const pair = await findConnectionPair(args.connectionId);
+    const pair = await connectionService.connectionPair.findConnectionPair(
+      args.connectionId,
+    );
     if (!pair || !pair.connection)
       throw new NotFoundError("Connection not found");
     if (
@@ -126,17 +120,21 @@ export const Mutation = {
         statusCode: 400,
       });
     }
-    return declineConnectionPair(pair.connection.id, pair.otherSide.id);
+    return connectionService.connectionPair.declineConnectionPair(
+      pair.connection.id,
+      pair.otherSide.id,
+    );
   },
   removeConnection: async (
     _parent: unknown,
     args: { id: string },
     _context: GraphQLContext,
   ) => {
-    //agent-done: delete both sides in a transaction; Prisma auto-cleans connectionGroups join records
-    const connection = await findConnectionById(args.id);
+    const connection = await connectionService.connection.findConnectionById(
+      args.id,
+    );
     if (!connection) throw new NotFoundError("Connection not found");
-    await deleteConnectionPair(
+    await connectionService.connectionPair.deleteConnectionPair(
       connection.id,
       connection.connectedAccountId ?? "",
       connection.accountId ?? "",
@@ -148,8 +146,9 @@ export const Mutation = {
     args: { connectionId: string; groupId: string },
     _context: GraphQLContext,
   ) => {
-    //agent-done: verify connection is ACCEPTED before adding to group
-    const connection = await findConnectionById(args.connectionId);
+    const connection = await connectionService.connection.findConnectionById(
+      args.connectionId,
+    );
     if (!connection) throw new NotFoundError("Connection not found");
     if (connection.status !== "ACCEPTED") {
       throw new GraphQLAppError(
@@ -157,22 +156,29 @@ export const Mutation = {
         { code: "BAD_REQUEST", statusCode: 400 },
       );
     }
-    return addConnectionToGroup(args.connectionId, args.groupId);
+    return connectionService.connection.addConnectionToGroup(
+      args.connectionId,
+      args.groupId,
+    );
   },
   removeConnectionFromGroup: async (
     _parent: unknown,
     args: { connectionId: string; groupId: string },
     _context: GraphQLContext,
   ) => {
-    return removeConnectionFromGroup(args.connectionId, args.groupId);
+    return connectionService.connection.removeConnectionFromGroup(
+      args.connectionId,
+      args.groupId,
+    );
   },
   updateConnectionTraits: async (
     _parent: unknown,
     args: { connectionId: string; traitIds: string[] },
     _context: GraphQLContext,
   ) => {
-    //agent-todo:
-    // update this function to do a full replacement of the related traits to a group when this is called
-    return updateConnectionTraitGroups(args.connectionId, args.traitIds);
+    return connectionService.connection.updateConnectionTraitGroups(
+      args.connectionId,
+      args.traitIds,
+    );
   },
 };
