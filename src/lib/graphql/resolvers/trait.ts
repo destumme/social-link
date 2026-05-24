@@ -12,7 +12,7 @@ interface CreateTraitInput {
 interface UpdateTraitInput {
   key?: string;
   value?: string;
-  category?: string;
+  category?: TraitCategory;
   icon?: string;
 }
 

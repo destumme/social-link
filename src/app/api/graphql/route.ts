@@ -1,20 +1,17 @@
-import {
-  createSchema,
-  createYoga,
-  useErrorHandler,
-  useLogger,
-} from "graphql-yoga";
+import { createSchema, createYoga, useLogger } from "graphql-yoga";
 import { schema } from "@/lib/graphql";
 import { createContext, GraphQLContext } from "@/lib/graphql/resolvers/context";
 import { NextRequest } from "next/server";
 import { logger } from "@/lib/logger";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { handleRequest } = createYoga<any, GraphQLContext>({
   schema: createSchema(schema),
   graphqlEndpoint: "/api/graphql",
   fetchAPI: { Response },
   context: async ({ request }) => createContext(request),
   plugins: [
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useLogger({
       skipIntrospection: true,
       logFn: (event, args) =>

@@ -1,14 +1,14 @@
 import { prisma } from "@/lib/database/prisma";
 
-export function findConnectionGroupsByAccountId(accountId: string) {
+function findConnectionGroupsByAccountId(accountId: string) {
   return prisma.connectionGroup.findMany({ where: { accountId } });
 }
 
-export function findConnectionGroupById(id: string) {
+function findConnectionGroupById(id: string) {
   return prisma.connectionGroup.findUnique({ where: { id } });
 }
 
-export function createConnectionGroup(
+function createConnectionGroup(
   name: string,
   accountId: string,
   traitIds?: string[],
@@ -23,7 +23,7 @@ export function createConnectionGroup(
   });
 }
 
-export function updateConnectionGroup(
+function updateConnectionGroup(
   id: string,
   data: { name?: string; traitIds?: string[] },
 ) {
@@ -35,18 +35,18 @@ export function updateConnectionGroup(
   return prisma.connectionGroup.update({ where: { id }, data: updateData });
 }
 
-export function deleteConnectionGroup(id: string) {
+function deleteConnectionGroup(id: string) {
   return prisma.connectionGroup.delete({ where: { id } });
 }
 
-export function addTraitToGroup(groupId: string, traitId: string) {
+function addTraitToGroup(groupId: string, traitId: string) {
   return prisma.connectionGroup.update({
     where: { id: groupId },
     data: { traits: { connect: { id: traitId } } },
   });
 }
 
-export function removeTraitFromGroup(groupId: string, traitId: string) {
+function removeTraitFromGroup(groupId: string, traitId: string) {
   return prisma.connectionGroup.update({
     where: { id: groupId },
     data: { traits: { disconnect: [{ id: traitId }] } },
@@ -54,17 +54,17 @@ export function removeTraitFromGroup(groupId: string, traitId: string) {
   });
 }
 
-export function findAccountForGroup(accountId: string) {
+function findAccountForGroup(accountId: string) {
   return prisma.account.findUnique({ where: { id: accountId } });
 }
 
-export function findConnectionsForGroup(groupId: string) {
+function findConnectionsForGroup(groupId: string) {
   return prisma.connection.findMany({
     where: { connectionGroups: { some: { id: groupId } } },
   });
 }
 
-export function findTraitsForGroup(groupId: string) {
+function findTraitsForGroup(groupId: string) {
   return prisma.trait.findMany({
     where: { visibleGroups: { some: { id: groupId } } },
   });

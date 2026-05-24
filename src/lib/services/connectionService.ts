@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/database/prisma";
 
-export function findConnectionsByAccountId(accountId: string, status?: string) {
+function findConnectionsByAccountId(accountId: string, status?: string) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = { accountId, ...(status !== null && { status }) };
   if (status !== null) {
     where.status = status;
@@ -11,13 +12,13 @@ export function findConnectionsByAccountId(accountId: string, status?: string) {
   });
 }
 
-export function findPendingConnectionsForAccount(accountId: string) {
+function findPendingConnectionsForAccount(accountId: string) {
   return prisma.connection.findMany({
     where: { connectedAccountId: accountId, status: "PENDING" },
   });
 }
 
-export function findConnectionBetweenAccounts(
+function findConnectionBetweenAccounts(
   accountId: string,
   connectedAccountId: string,
 ) {
@@ -26,11 +27,11 @@ export function findConnectionBetweenAccounts(
   });
 }
 
-export function findConnectionById(id: string) {
+function findConnectionById(id: string) {
   return prisma.connection.findUnique({ where: { id } });
 }
 
-export async function findConnectionPair(id: string) {
+async function findConnectionPair(id: string) {
   const connection = await prisma.connection.findUnique({ where: { id } });
   if (!connection) return null;
   const otherSide = await prisma.connection.findFirst({
@@ -42,7 +43,7 @@ export async function findConnectionPair(id: string) {
   return { connection, otherSide };
 }
 
-export async function checkConnectionExists(
+async function checkConnectionExists(
   accountId: string,
   connectedAccountId: string,
 ) {
@@ -56,7 +57,7 @@ export async function checkConnectionExists(
   });
 }
 
-export async function createConnectionPair(
+async function createConnectionPair(
   fromAccountId: string,
   toAccountId: string,
   groupIds?: string[],
@@ -86,10 +87,7 @@ export async function createConnectionPair(
   return created.find((c) => c.accountId === fromAccountId);
 }
 
-export async function acceptConnectionPair(
-  connectionId: string,
-  otherId: string,
-) {
+async function acceptConnectionPair(connectionId: string, otherId: string) {
   const results = await prisma.$transaction([
     prisma.connection.update({
       where: { id: connectionId },
@@ -103,10 +101,7 @@ export async function acceptConnectionPair(
   return results[0];
 }
 
-export async function declineConnectionPair(
-  connectionId: string,
-  otherId: string,
-) {
+async function declineConnectionPair(connectionId: string, otherId: string) {
   const results = await prisma.$transaction([
     prisma.connection.update({
       where: { id: connectionId },
@@ -120,7 +115,7 @@ export async function declineConnectionPair(
   return results[0];
 }
 
-export async function deleteConnectionPair(
+async function deleteConnectionPair(
   id: string,
   otherAccountId: string,
   otherConnectedAccountId: string,
@@ -136,24 +131,21 @@ export async function deleteConnectionPair(
   ]);
 }
 
-export function addConnectionToGroup(connectionId: string, groupId: string) {
+function addConnectionToGroup(connectionId: string, groupId: string) {
   return prisma.connection.update({
     where: { id: connectionId },
     data: { connectionGroups: { connect: { id: groupId } } },
   });
 }
 
-export function removeConnectionFromGroup(
-  connectionId: string,
-  groupId: string,
-) {
+function removeConnectionFromGroup(connectionId: string, groupId: string) {
   return prisma.connection.update({
     where: { id: connectionId },
     data: { connectionGroups: { disconnect: { id: groupId } } },
   });
 }
 
-export async function updateConnectionTraitGroups(
+async function updateConnectionTraitGroups(
   connectionId: string,
   traitIds: string[],
 ) {
@@ -170,17 +162,17 @@ export async function updateConnectionTraitGroups(
   });
 }
 
-export function findGroupsForConnection(connectionId: string) {
+function findGroupsForConnection(connectionId: string) {
   return prisma.connectionGroup.findMany({
     where: { connections: { some: { id: connectionId } } },
   });
 }
 
-export function findAccountForConnection(accountId: string) {
+function findAccountForConnection(accountId: string) {
   return prisma.account.findUnique({ where: { id: accountId } });
 }
 
-export function findConnectedAccountForConnection(connectedAccountId: string) {
+function findConnectedAccountForConnection(connectedAccountId: string) {
   return prisma.account.findUnique({ where: { id: connectedAccountId } });
 }
 
