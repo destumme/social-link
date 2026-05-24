@@ -1,21 +1,23 @@
-import { createSchema, createYoga, useLogger } from "graphql-yoga";
+import { createSchema, createYoga, useErrorHandler, useLogger } from "graphql-yoga";
 import { schema } from "@/lib/graphql";
-import { createContext } from "@/lib/graphql/resolvers/context";
+import { createContext, GraphQLContext } from "@/lib/graphql/resolvers/context";
+import { NextRequest } from "next/server";
+import { logger } from "@/lib/logger";
 
-
-
-const { handleRequest } = createYoga({
+const { handleRequest } = createYoga<any, GraphQLContext>({
   schema: createSchema(schema),
   graphqlEndpoint: "/api/graphql",
   fetchAPI: { Response },
-  context: ({ request }) => createContext(request),
-  // plugins: [
-  //   useLogger(logger)
-  // ]
+  context: async ({ request }) => createContext(request),
+  plugins: [
+    useLogger({
+      skipIntrospection: true,
+      logFn: (event, args) => logger.info({event, args}, 'graphql-yoga handler')
+    }),
+  ]
 });
 
-export {
-  handleRequest as GET,
-  handleRequest as POST,
-  handleRequest as OPTIONS,
-};
+//Nextjs Context for route handler is the url params, yoga request context is a context factory function
+const NextHandler = (request: NextRequest) => handleRequest(request, {});
+
+export { NextHandler as GET, NextHandler as POST, NextHandler as OPTIONS };

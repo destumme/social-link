@@ -1,5 +1,23 @@
-import { prisma } from "@/lib/database/prisma";
 import { GraphQLContext } from "./context";
+import { GraphQLAppError, NotFoundError } from "../errors";
+import {
+  findConnectionsByAccountId,
+  findPendingConnectionsForAccount,
+  findConnectionBetweenAccounts,
+  findConnectionById,
+  findConnectionPair,
+  checkConnectionExists,
+  createConnectionPair,
+  acceptConnectionPair,
+  declineConnectionPair,
+  deleteConnectionPair,
+  addConnectionToGroup,
+  removeConnectionFromGroup,
+  updateConnectionTraitGroups,
+  findGroupsForConnection,
+  findAccountForConnection,
+  findConnectedAccountForConnection,
+} from "@/lib/services/connectionService";
 
 interface RequestConnectionInput {
   groupIds?: string[];
@@ -8,17 +26,13 @@ interface RequestConnectionInput {
 
 export const Connection = {
   account: (parent: { accountId: string }) => {
-    return prisma.account.findUnique({ where: { id: parent.accountId } });
+    return findAccountForConnection(parent.accountId);
   },
   connectedAccount: (parent: { connectedAccountId: string }) => {
-    return prisma.account.findUnique({
-      where: { id: parent.connectedAccountId },
-    });
+    return findConnectedAccountForConnection(parent.connectedAccountId);
   },
   groups: (parent: { id: string }) => {
-    return prisma.connectionGroup.findMany({
-      where: { connections: { some: { id: parent.id } } },
-    });
+    return findGroupsForConnection(parent.id);
   },
 };
 
@@ -28,30 +42,24 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    return prisma.connection.findMany({
-      where: { accountId: context.authedAccountId },
-    });
+    return findConnectionsByAccountId(context.authedAccountId, "ACCEPTED");
   },
   pendingConnections: (
     _parent: unknown,
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    return prisma.connection.findMany({
-      where: { connectedAccountId: context.authedAccountId, status: "PENDING" },
-    });
+    return findPendingConnectionsForAccount(context.authedAccountId);
   },
   connectionByAccount: (
     _parent: unknown,
     args: { accountId: string },
     context: GraphQLContext,
   ) => {
-    return prisma.connection.findFirst({
-      where: {
-        accountId: context.authedAccountId,
-        connectedAccountId: args.accountId,
-      },
-    });
+    return findConnectionBetweenAccounts(
+      context.authedAccountId,
+      args.accountId,
+    );
   },
 };
 
@@ -61,48 +69,78 @@ export const Mutation = {
     args: { accountId: string; input: RequestConnectionInput },
     context: GraphQLContext,
   ) => {
-    const groupIds = args.input.groupIds ?? [];
-    return prisma.connection.create({
-      data: {
-        accountId: context.authedAccountId,
-        connectedAccountId: args.accountId,
-        status: "PENDING",
-        ...(groupIds.length > 0
-          ? {
-              connectionGroups: {
-                connect: groupIds.map((id) => ({ id })),
-              },
-            }
-          : {}),
-      },
-    });
+    //agent-done: verify no existing connection in either direction before creating
+    const existing = await checkConnectionExists(
+      context.authedAccountId,
+      args.accountId,
+    );
+    if (existing) {
+      throw new GraphQLAppError("Connection already exists", {
+        code: "CONFLICT",
+        statusCode: 409,
+      });
+    }
+    return createConnectionPair(
+      context.authedAccountId,
+      args.accountId,
+      args.input.groupIds,
+    );
   },
   acceptConnection: async (
     _parent: unknown,
     args: { connectionId: string },
     _context: GraphQLContext,
   ) => {
-    return prisma.connection.update({
-      where: { id: args.connectionId },
-      data: { status: "ACCEPTED" },
-    });
+    //agent-done: verify both sides are PENDING, then update both to ACCEPTED in a transaction
+    const pair = await findConnectionPair(args.connectionId);
+    if (!pair || !pair.connection)
+      throw new NotFoundError("Connection not found");
+    if (
+      !pair.otherSide ||
+      pair.connection.status !== "PENDING" ||
+      pair.otherSide.status !== "PENDING"
+    ) {
+      throw new GraphQLAppError("Connection must be PENDING on both sides", {
+        code: "BAD_REQUEST",
+        statusCode: 400,
+      });
+    }
+    return acceptConnectionPair(pair.connection.id, pair.otherSide.id);
   },
   declineConnection: async (
     _parent: unknown,
     args: { connectionId: string },
     _context: GraphQLContext,
   ) => {
-    return prisma.connection.update({
-      where: { id: args.connectionId },
-      data: { status: "DECLINED" },
-    });
+    //agent-done: verify both sides are PENDING, then update both to DECLINED in a transaction
+    const pair = await findConnectionPair(args.connectionId);
+    if (!pair || !pair.connection)
+      throw new NotFoundError("Connection not found");
+    if (
+      !pair.otherSide ||
+      pair.connection.status !== "PENDING" ||
+      pair.otherSide.status !== "PENDING"
+    ) {
+      throw new GraphQLAppError("Connection must be PENDING on both sides", {
+        code: "BAD_REQUEST",
+        statusCode: 400,
+      });
+    }
+    return declineConnectionPair(pair.connection.id, pair.otherSide.id);
   },
   removeConnection: async (
     _parent: unknown,
     args: { id: string },
     _context: GraphQLContext,
   ) => {
-    await prisma.connection.delete({ where: { id: args.id } });
+    //agent-done: delete both sides in a transaction; Prisma auto-cleans connectionGroups join records
+    const connection = await findConnectionById(args.id);
+    if (!connection) throw new NotFoundError("Connection not found");
+    await deleteConnectionPair(
+      connection.id,
+      connection.connectedAccountId ?? "",
+      connection.accountId ?? "",
+    );
     return true;
   },
   addConnectionToGroup: async (
@@ -110,36 +148,31 @@ export const Mutation = {
     args: { connectionId: string; groupId: string },
     _context: GraphQLContext,
   ) => {
-    return prisma.connection.update({
-      where: { id: args.connectionId },
-      data: { connectionGroups: { connect: { id: args.groupId } } },
-    });
+    //agent-done: verify connection is ACCEPTED before adding to group
+    const connection = await findConnectionById(args.connectionId);
+    if (!connection) throw new NotFoundError("Connection not found");
+    if (connection.status !== "ACCEPTED") {
+      throw new GraphQLAppError(
+        "Only accepted connections can be added to groups",
+        { code: "BAD_REQUEST", statusCode: 400 },
+      );
+    }
+    return addConnectionToGroup(args.connectionId, args.groupId);
   },
   removeConnectionFromGroup: async (
     _parent: unknown,
     args: { connectionId: string; groupId: string },
     _context: GraphQLContext,
   ) => {
-    return prisma.connection.update({
-      where: { id: args.connectionId },
-      data: { connectionGroups: { disconnect: { id: args.groupId } } },
-    });
+    return removeConnectionFromGroup(args.connectionId, args.groupId);
   },
   updateConnectionTraits: async (
     _parent: unknown,
     args: { connectionId: string; traitIds: string[] },
     _context: GraphQLContext,
   ) => {
-    const groups = await prisma.connectionGroup.findMany({
-      where: { traits: { some: { id: { in: args.traitIds } } } },
-    });
-    return prisma.connection.update({
-      where: { id: args.connectionId },
-      data: {
-        connectionGroups: {
-          set: groups.map((g) => ({ id: g.id })),
-        },
-      },
-    });
+    //agent-todo:
+    // update this function to do a full replacement of the related traits to a group when this is called
+    return updateConnectionTraitGroups(args.connectionId, args.traitIds);
   },
 };

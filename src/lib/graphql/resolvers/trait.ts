@@ -1,5 +1,13 @@
-import { prisma } from "@/lib/database/prisma";
 import { GraphQLContext } from "./context";
+import {
+  findTraitsByAccountId,
+  findTraitById,
+  createTrait,
+  updateTrait,
+  deleteTrait,
+  findVisibleGroupsForTrait,
+  findAccountForTrait,
+} from "@/lib/services/traitService";
 
 interface CreateTraitInput {
   key: string;
@@ -17,23 +25,19 @@ interface UpdateTraitInput {
 
 export const Trait = {
   account: (parent: { accountId: string }) => {
-    return prisma.account.findUnique({ where: { id: parent.accountId } });
+    return findAccountForTrait(parent.accountId);
   },
   visibleGroups: (parent: { id: string }) => {
-    return prisma.connectionGroup.findMany({
-      where: { traits: { some: { id: parent.id } } },
-    });
+    return findVisibleGroupsForTrait(parent.id);
   },
 };
 
 export const Query = {
   myTraits: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
-    return prisma.trait.findMany({
-      where: { accountId: context.authedAccountId },
-    });
+    return findTraitsByAccountId(context.authedAccountId);
   },
   traitById: (_parent: unknown, args: { id: string }) => {
-    return prisma.trait.findUnique({ where: { id: args.id } });
+    return findTraitById(args.id);
   },
 };
 
@@ -43,32 +47,21 @@ export const Mutation = {
     args: { input: CreateTraitInput },
     context: GraphQLContext,
   ) => {
-    return prisma.trait.create({
-      data: {
-        key: args.input.key,
-        value: args.input.value,
-        category: args.input.category,
-        icon: args.input.icon,
-        accountId: context.authedAccountId,
-      },
-    });
+    return createTrait(args.input, context.authedAccountId);
   },
   updateTrait: (
     _parent: unknown,
     args: { id: string; input: UpdateTraitInput },
     _context: GraphQLContext,
   ) => {
-    return prisma.trait.update({
-      where: { id: args.id },
-      data: args.input,
-    });
+    return updateTrait(args.id, args.input);
   },
-  deleteTrait: (
+  deleteTrait: async (
     _parent: unknown,
     args: { id: string },
     _context: GraphQLContext,
   ) => {
-    await prisma.trait.delete({ where: { id: args.id } });
+    await deleteTrait(args.id);
     return true;
   },
 };

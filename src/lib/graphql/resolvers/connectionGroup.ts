@@ -1,6 +1,17 @@
-import { prisma } from "@/lib/database/prisma";
 import { NotFoundError } from "../errors";
 import { GraphQLContext } from "./context";
+import {
+  findConnectionGroupsByAccountId,
+  findConnectionGroupById,
+  createConnectionGroup,
+  updateConnectionGroup,
+  deleteConnectionGroup,
+  addTraitToGroup,
+  removeTraitFromGroup,
+  findAccountForGroup,
+  findConnectionsForGroup,
+  findTraitsForGroup,
+} from "@/lib/services/connectionGroupService";
 
 interface CreateConnectionGroupInput {
   name: string;
@@ -14,17 +25,13 @@ interface UpdateConnectionGroupInput {
 
 export const ConnectionGroup = {
   account: (parent: { accountId: string }) => {
-    return prisma.account.findUnique({ where: { id: parent.accountId } });
+    return findAccountForGroup(parent.accountId);
   },
   connections: (parent: { id: string }) => {
-    return prisma.connection.findMany({
-      where: { connectionGroups: { some: { id: parent.id } } },
-    });
+    return findConnectionsForGroup(parent.id);
   },
   traits: (parent: { id: string }) => {
-    return prisma.trait.findMany({
-      where: { visibleGroups: { some: { id: parent.id } } },
-    });
+    return findTraitsForGroup(parent.id);
   },
 };
 
@@ -34,9 +41,7 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    return prisma.connectionGroup.findMany({
-      where: { accountId: context.authedAccountId },
-    });
+    return findConnectionGroupsByAccountId(context.authedAccountId);
   },
 };
 
@@ -46,49 +51,33 @@ export const Mutation = {
     args: { input: CreateConnectionGroupInput },
     context: GraphQLContext,
   ) => {
-    const traits =
-      args.input.traitIds !== undefined
-        ? args.input.traitIds?.map((t) => {
-            return { id: t };
-          })
-        : [];
-
-    return prisma.connectionGroup.create({
-      data: {
-        name: args.input.name,
-        ...(traits.length !== 0 ? { traits: { connect: traits } } : {}),
-        accountId: context.authedAccountId,
-      },
-    });
+    return createConnectionGroup(
+      args.input.name,
+      context.authedAccountId,
+      args.input.traitIds,
+    );
   },
   updateConnectionGroup: async (
     _parent: unknown,
     args: { id: string; input: UpdateConnectionGroupInput },
     _context: GraphQLContext,
   ) => {
-    const group = await prisma.connectionGroup.findUnique({
-      where: { id: args.id },
-    });
+    const group = await findConnectionGroupById(args.id);
     if (group === null) {
       throw new NotFoundError("Connection group not found");
     }
-    return prisma.connectionGroup.update({
-      where: { id: args.id },
-      data: args.input,
-    });
+    return updateConnectionGroup(args.id, args.input);
   },
   deleteConnectionGroup: async (
     _parent: unknown,
     args: { id: string },
     _context: GraphQLContext,
   ) => {
-    const group = await prisma.connectionGroup.findUnique({
-      where: { id: args.id },
-    });
+    const group = await findConnectionGroupById(args.id);
     if (group === null) {
       throw new NotFoundError("Connection group not found");
     }
-    await prisma.connectionGroup.delete({ where: { id: args.id } });
+    await deleteConnectionGroup(args.id);
     return true;
   },
   addTraitToGroup: async (
@@ -96,26 +85,17 @@ export const Mutation = {
     args: { groupId: string; traitId: string },
     _context: GraphQLContext,
   ) => {
-    const group = await prisma.connectionGroup.findUnique({
-      where: { id: args.groupId },
-    });
+    const group = await findConnectionGroupById(args.groupId);
     if (group === null) {
       throw new NotFoundError("Connection group not found");
     }
-    return prisma.connectionGroup.update({
-      where: { id: args.groupId },
-      data: { traits: { connect: { id: args.traitId } } },
-    });
+    return addTraitToGroup(args.groupId, args.traitId);
   },
   removeTraitFromGroup: async (
     _parent: unknown,
     args: { groupId: string; traitId: string },
     _context: GraphQLContext,
   ) => {
-    return prisma.connectionGroup.update({
-      where: { id: args.groupId },
-      data: { traits: { disconnect: [{ id: args.traitId }] } },
-      include: { traits: true },
-    });
+    return removeTraitFromGroup(args.groupId, args.traitId);
   },
 };
