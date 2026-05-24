@@ -12,7 +12,7 @@ const { handleRequest } = createYoga<any, GraphQLContext>({
   plugins: [
     useLogger({
       skipIntrospection: true,
-      logFn: (event, args) => logger.info({event, args}, 'graphql-yoga handler')
+      logFn: (event, args) => logger.debug({event, args}, 'graphql-yoga handler')
     }),
   ]
 });

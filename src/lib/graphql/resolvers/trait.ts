@@ -1,3 +1,4 @@
+import { TraitCategory } from "@/generated/prisma/enums";
 import { GraphQLContext } from "./context";
 import {
   findTraitsByAccountId,
@@ -12,7 +13,7 @@ import {
 interface CreateTraitInput {
   key: string;
   value: string;
-  category: string;
+  category: TraitCategory;
   icon?: string;
 }
 
