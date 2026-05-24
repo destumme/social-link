@@ -52,3 +52,4 @@ data/
 !data/init-scripts
 /generated/prisma
 src/generated/prisma
+/.opencode/plans
