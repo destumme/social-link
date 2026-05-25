@@ -30,11 +30,31 @@ Package manager is **yarn 4.14.1** (`packageManager` field). Use `yarn`, not `np
 ## Architecture
 
 - **GraphQL** at `/api/graphql` — single Yoga endpoint (`src/app/api/graphql/route.ts`). Uses `typeDefs` (code-first SDL in `src/lib/graphql/typeDefs.ts`) + resolvers in `src/lib/graphql/resolvers/`.
-- **Resolvers** are split by domain: `account.ts`, `trait.ts`, `connection.ts`, `connectionGroup.ts`. All merged in `resolvers/index.ts`.
-- **No service layer** — resolver functions call Prisma directly. `GraphqlContext` only carries `authedAccountId`.
-- **Prisma client** is generated to `src/generated/prisma/client` (custom output path). Adapter is `@prisma/adapter-pg` for PostgreSQL.
+- **Resolvers** are split by domain: `account.ts`, `trait.ts`, `connection.ts`, `connectionGroup.ts`. All merged in `resolvers/index.ts`. Resolvers call the service layer, never Prisma directly.
+- **Service layer** in `src/lib/services/` — four domain services (`accountService`, `traitService`, `connectionService`, `connectionGroupService`). Each exports namespaced sub-objects: `account.*` / `trait.*` / `connection.*` / `connectionGroup.*` for CRUD, `search.*` for queries, and `connectionPair.*` for pair operations. Services call Prisma directly.
+- **Prisma client** is generated to `src/generated/prisma/` (custom output path). Adapter is `@prisma/adapter-pg` for PostgreSQL. Client imported from `@/generated/prisma/client`.
 - **Auth** uses Better Auth (not yet wired into context — hardcoded account ID in `context.ts`).
 - **Env** loaded via `direnv` (`.envrc`). Prisma reads `DATABASE_URL` from environment.
+
+## Testing
+
+- **Framework**: Vitest (`vitest.config.ts`) — `fileParallelism: false` to avoid DB interference
+- **Setup**: `src/tests/setup.ts` extends `@testing-library/jest-dom` matchers
+
+| Task | Command |
+|---|---|
+| Watch mode | `yarn test` |
+| Run once | `yarn test:run` |
+| Coverage | `yarn test:coverage` |
+
+- **Unit tests** in `src/tests/unit/lib/services/` — one per service file. Use `createMockPrisma()` from `src/tests/helpers/mockPrisma.ts` to mock Prisma models. Mock objects must include all required Prisma fields (`id`, `createdAt`, `updatedAt`, etc.).
+- **Integration tests** in `src/tests/integration/` — test real Prisma connections and GraphQL operations.
+  - `prisma-connection.test.ts` — basic Prisma CRUD
+  - `graphql/` — GraphQL query/mutation tests using `createTestGraphQLClient()` from `src/tests/helpers/graphqlClient.ts`. This helper calls Yoga's handler directly (no HTTP server). Each test creates its own account via Prisma in `beforeEach`, passes the account ID to the client, and cleans the DB between tests.
+  - Use `result.errors` (array) for GraphQL errors, `result.data` for successful responses.
+  - `TEST_AUTHED_ACCOUNT_ID` env var overrides the hardcoded account ID in `context.ts` for tests.
+- Mock Prisma supports `$transaction` with both array and callback patterns.
+- Yoga test instance has `maskedErrors: false` so actual error messages are visible.
 
 ## Key Constraints
 
