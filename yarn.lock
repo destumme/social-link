@@ -2979,7 +2979,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/expect@npm:4.1.7":
+"@vitest/expect@npm:4.1.7, @vitest/expect@npm:^4.1.7":
   version: 4.1.7
   resolution: "@vitest/expect@npm:4.1.7"
   dependencies:
@@ -8780,6 +8780,7 @@ __metadata:
     "@types/react": "npm:^19"
     "@types/react-dom": "npm:^19"
     "@vitest/coverage-v8": "npm:^4.1.7"
+    "@vitest/expect": "npm:^4.1.7"
     babel-plugin-react-compiler: "npm:1.0.0"
     better-auth: "npm:^1.6.11"
     class-variance-authority: "npm:^0.7.1"

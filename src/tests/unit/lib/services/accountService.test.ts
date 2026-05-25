@@ -30,6 +30,9 @@ describe("accountService.account", () => {
         id: "test-id",
         displayName: "Test",
         username: "test",
+        publicListed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
       vi.mocked(prisma.account.findUnique).mockResolvedValue(mockAccount);
 
@@ -56,6 +59,9 @@ describe("accountService.account", () => {
         id: "test-id",
         displayName: "New Name",
         username: "test",
+        publicListed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
       vi.mocked(prisma.account.update).mockResolvedValue(updated);
 
@@ -75,7 +81,16 @@ describe("accountService.account", () => {
 describe("accountService.search", () => {
   describe("findAccountsByUsername", () => {
     it("uses partial case-insensitive search", async () => {
-      const mockResults = [{ id: "1", username: "testuser" }];
+      const mockResults = [
+        {
+          id: "1",
+          username: "testuser",
+          displayName: "Test User",
+          publicListed: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
       vi.mocked(prisma.account.findMany).mockResolvedValue(mockResults);
 
       const result = await service.search.findAccountsByUsername("test");
