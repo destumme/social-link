@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { getCategoryIcon } from "@/lib/icons";
 
 // TODO: wire up accountByUsername query
 async function getAccount(username: string) {
@@ -24,8 +25,8 @@ async function getAccount(username: string) {
         id: "trait-2",
         key: "twitter",
         value: "@janedoe",
-        category: "SOCIAL_MEDIA_LINK",
-        icon: "twitter",
+        category: "INSTAGRAM",
+        icon: "instagram",
       },
     ],
   };
@@ -60,8 +61,8 @@ export default async function UserPage({
           <div className="rounded-lg border border-border divide-y divide-border">
             {account.traits.map((trait) => (
               <div key={trait.id} className="flex items-center gap-3 px-4 py-3">
-                <span className="text-muted-foreground text-sm">
-                  {trait.icon || trait.category}
+                <span className="text-muted-foreground text-sm shrink-0">
+                  {getCategoryIcon(trait.category) ?? trait.icon}
                 </span>
                 <div>
                   <p className="text-sm font-medium">{trait.key}</p>

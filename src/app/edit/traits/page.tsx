@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { getCategoryIcon, traitCategoryGroups } from "@/lib/icons";
 
 export default function TraitsPage() {
   return (
@@ -30,7 +31,8 @@ export default function TraitsPage() {
               user@example.com
             </div>
             <div>
-              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2 py-0.5 text-xs">
+                {getCategoryIcon("EMAIL")}
                 EMAIL
               </span>
             </div>
@@ -49,11 +51,12 @@ export default function TraitsPage() {
             <div className="font-medium">twitter</div>
             <div className="text-muted-foreground truncate">@username</div>
             <div>
-              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">
-                SOCIAL_MEDIA_LINK
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2 py-0.5 text-xs">
+                {getCategoryIcon("INSTAGRAM")}
+                INSTAGRAM
               </span>
             </div>
-            <div className="text-muted-foreground">twitter</div>
+            <div className="text-muted-foreground">instagram</div>
             <div className="flex gap-2">
               <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
                 Public
@@ -112,10 +115,15 @@ export default function TraitsPage() {
                 className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
                 <option value="">Select...</option>
-                <option value="PHONE_NUMBER">Phone Number</option>
-                <option value="EMAIL">Email</option>
-                <option value="SOCIAL_MEDIA_LINK">Social Media Link</option>
-                <option value="WEBSITE_LINK">Website Link</option>
+                {traitCategoryGroups.map((group) => (
+                  <optgroup key={group.label} label={group.label}>
+                    {group.options.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
             </div>
 
