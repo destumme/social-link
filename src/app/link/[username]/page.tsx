@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { getCategoryIcon } from "@/lib/icons";
 
 // TODO: wire up accountByUsername query
@@ -20,6 +22,7 @@ async function getAccount(username: string) {
         value: "jane@example.com",
         category: "EMAIL",
         icon: "mail",
+        isPublic: true,
       },
       {
         id: "trait-2",
@@ -27,6 +30,15 @@ async function getAccount(username: string) {
         value: "@janedoe",
         category: "INSTAGRAM",
         icon: "instagram",
+        isPublic: true,
+      },
+      {
+        id: "trait-3",
+        key: "phone",
+        value: "+1 555-0123",
+        category: "PHONE",
+        icon: "phone",
+        isPublic: false,
       },
     ],
   };
@@ -45,7 +57,7 @@ export default async function UserPage({
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="container px-6 lg:px-12 py-12 lg:py-16 space-y-12 max-w-2xl">
+      <div className="container flex flex-col items-center px-6 py-12 lg:px-12 lg:py-16 space-y-12 text-center">
         {/* Profile header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -54,32 +66,66 @@ export default async function UserPage({
           <p className="text-muted-foreground">@{account.username}</p>
         </div>
 
-        {/* Visible traits */}
+        {/* Links */}
         {/* TODO: filter traits by visibleGroups based on connection status */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold">Shared Traits</h2>
-          <div className="rounded-lg border border-border divide-y divide-border">
-            {account.traits.map((trait) => (
-              <div key={trait.id} className="flex items-center gap-3 px-4 py-3">
-                <span className="text-muted-foreground text-sm shrink-0">
-                  {getCategoryIcon(trait.category) ?? trait.icon}
-                </span>
-                <div>
-                  <p className="text-sm font-medium">{trait.key}</p>
-                  <p className="text-sm text-muted-foreground">{trait.value}</p>
-                </div>
-              </div>
-            ))}
+        <section className="w-full max-w-3xl space-y-8 text-left">
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Links</h2>
+            <div className="rounded-lg border border-border">
+              {account.traits
+                .filter((t) => t.isPublic)
+                .map((trait, index, arr) => (
+                  <div key={trait.id}>
+                    {index > 0 && <Separator />}
+                    <div className="flex items-center gap-3 px-4 py-3">
+                      <span className="text-muted-foreground shrink-0">
+                        {getCategoryIcon(trait.category) ?? trait.icon}
+                      </span>
+                      <span className="text-sm font-medium">{trait.key}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {trait.value}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+            </div>
           </div>
+
+          {isConnected && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">Private Links</h2>
+              <div className="rounded-lg border border-border">
+                {account.traits
+                  .filter((t) => !t.isPublic)
+                  .map((trait, index, arr) => (
+                    <div key={trait.id}>
+                      {index > 0 && <Separator />}
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <span className="text-muted-foreground shrink-0">
+                          {getCategoryIcon(trait.category) ?? trait.icon}
+                        </span>
+                        <span className="text-sm font-medium">{trait.key}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {trait.value}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* Connection actions */}
         {isConnected ? (
-          <div className="space-y-4">
+          <div className="w-full max-w-3xl space-y-4 text-left">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-sm text-emerald-500">
+              <Badge
+                variant="secondary"
+                className="text-emerald-500 bg-emerald-500/10 px-3 py-1 text-sm"
+              >
                 Connected
-              </span>
+              </Badge>
             </div>
             {/* TODO: wire up removeConnection mutation */}
             <Button variant="destructive" disabled>

@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function CreateAccountPage() {
   return (
@@ -16,48 +19,18 @@ export default function CreateAccountPage() {
         {/* TODO: wire up updateAccount mutation after OAuth signup */}
         <form className="space-y-4">
           <div className="space-y-2">
-            <label
-              htmlFor="displayName"
-              className="text-sm font-medium leading-none"
-            >
-              Display Name
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              placeholder="Your name"
-              className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
-            />
+            <Label htmlFor="displayName">Display Name</Label>
+            <Input id="displayName" type="text" placeholder="Your name" />
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="username"
-              className="text-sm font-medium leading-none"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              type="text"
-              placeholder="unique-username"
-              className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
-            />
+            <Label htmlFor="username">Username</Label>
+            <Input id="username" type="text" placeholder="unique-username" />
           </div>
 
           <div className="flex items-center gap-2">
-            <input
-              id="publicListed"
-              type="checkbox"
-              defaultChecked
-              className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
-            />
-            <label
-              htmlFor="publicListed"
-              className="text-sm font-medium leading-none"
-            >
-              Make my profile searchable
-            </label>
+            <Checkbox id="publicListed" defaultChecked />
+            <Label htmlFor="publicListed">Make my profile searchable</Label>
           </div>
 
           <Button type="submit" className="w-full">

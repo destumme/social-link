@@ -1,4 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SettingsPage() {
   return (
@@ -13,92 +17,80 @@ export default function SettingsPage() {
 
         {/* Account settings */}
         {/* TODO: wire up me query for initial values, updateAccount mutation for changes */}
-        <section className="space-y-4 rounded-lg border border-border p-6">
-          <h2 className="text-lg font-semibold">Account</h2>
-          <form className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="displayName"
-                className="text-sm font-medium leading-none"
-              >
-                Display Name
-              </label>
-              <input
-                id="displayName"
-                type="text"
-                defaultValue="Current Name"
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-            </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="displayName">Display Name</Label>
+                <Input
+                  id="displayName"
+                  type="text"
+                  defaultValue="Current Name"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="username"
-                className="text-sm font-medium leading-none"
-              >
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                defaultValue="current-username"
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  defaultValue="current-username"
+                />
+              </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                id="publicListed"
-                type="checkbox"
-                defaultChecked
-                className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
-              />
-              <label
-                htmlFor="publicListed"
-                className="text-sm font-medium leading-none"
-              >
-                Make my profile searchable
-              </label>
-            </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="publicListed" defaultChecked />
+                <Label htmlFor="publicListed">Make my profile searchable</Label>
+              </div>
 
-            <Button type="submit">Save Changes</Button>
-          </form>
-        </section>
+              <Button type="submit">Save Changes</Button>
+            </form>
+          </CardContent>
+        </Card>
 
         {/* OAuth providers */}
         {/* TODO: wire up Better Auth session to list connected providers */}
-        <section className="space-y-4 rounded-lg border border-border p-6">
-          <h2 className="text-lg font-semibold">Connected Providers</h2>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
-              <div>
-                <p className="text-sm font-medium">Google</p>
-                <p className="text-xs text-muted-foreground">user@gmail.com</p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Connected Providers</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium">Google</p>
+                  <p className="text-xs text-muted-foreground">
+                    user@gmail.com
+                  </p>
+                </div>
+                {/* TODO: wire up unlink provider */}
+                <Button variant="outline" size="sm" disabled>
+                  Unlink
+                </Button>
               </div>
-              {/* TODO: wire up unlink provider */}
-              <Button variant="outline" size="sm" disabled>
-                Unlink
-              </Button>
+
+              <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium">GitHub</p>
+                  <p className="text-xs text-muted-foreground">@username</p>
+                </div>
+                <Button variant="outline" size="sm" disabled>
+                  Unlink
+                </Button>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
-              <div>
-                <p className="text-sm font-medium">GitHub</p>
-                <p className="text-xs text-muted-foreground">@username</p>
-              </div>
+            <div className="pt-2">
+              {/* TODO: wire up link new provider via Better Auth */}
               <Button variant="outline" size="sm" disabled>
-                Unlink
+                Link another provider
               </Button>
             </div>
-          </div>
-
-          <div className="pt-2">
-            {/* TODO: wire up link new provider via Better Auth */}
-            <Button variant="outline" size="sm" disabled>
-              Link another provider
-            </Button>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

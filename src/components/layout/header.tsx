@@ -3,6 +3,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import AccountMenu from "@/components/layout/account-menu";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Header() {
   return (
@@ -15,10 +16,10 @@ export default function Header() {
         {/* TODO: wire up searchAccounts query */}
         <form className="flex flex-1 justify-center">
           <div className="flex w-full max-w-2xl gap-2">
-            <input
+            <Input
               type="search"
               placeholder="Search accounts..."
-              className="flex-1 h-9 rounded-md border border-input bg-transparent px-4 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+              className="flex-1 h-9"
             />
             <Button type="submit" size="sm" className="px-3">
               <HugeiconsIcon icon={Search01Icon} size={18} />

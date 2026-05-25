@@ -20,15 +20,16 @@ export default function AccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="sm" className="px-4 py-2" />
-        }
+        render={<Button variant="ghost" size="sm" className="px-4 py-2" />}
       >
         Account
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {menuItems.map((item) => (
-          <DropdownMenuLinkItem key={item.href} render={<Link href={item.href} />}>
+          <DropdownMenuLinkItem
+            key={item.href}
+            render={<Link href={item.href} />}
+          >
             {item.label}
           </DropdownMenuLinkItem>
         ))}

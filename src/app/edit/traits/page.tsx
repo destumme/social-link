@@ -1,4 +1,24 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getCategoryIcon, traitCategoryGroups } from "@/lib/icons";
 
 export default function TraitsPage() {
@@ -15,67 +35,68 @@ export default function TraitsPage() {
 
         {/* Existing traits table */}
         {/* TODO: wire up myTraits query */}
-        <section className="rounded-lg border border-border">
-          <div className="grid grid-cols-5 gap-4 border-b border-border px-4 py-3 text-sm font-medium text-muted-foreground">
-            <div>Key</div>
-            <div>Value</div>
-            <div>Category</div>
-            <div>Icon</div>
-            <div>Visible Groups</div>
-          </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Key</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Icon</TableHead>
+              <TableHead>Visible Groups</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {/* Placeholder rows */}
+            <TableRow>
+              <TableCell className="font-medium">email</TableCell>
+              <TableCell className="text-muted-foreground truncate">
+                user@example.com
+              </TableCell>
+              <TableCell>
+                <Badge variant="secondary" className="gap-1.5">
+                  {getCategoryIcon("EMAIL")}
+                  EMAIL
+                </Badge>
+              </TableCell>
+              <TableCell className="text-muted-foreground">mail</TableCell>
+              <TableCell>
+                <div className="flex gap-2">
+                  <Badge variant="outline">Friends</Badge>
+                  <Badge variant="outline">Colleagues</Badge>
+                </div>
+              </TableCell>
+            </TableRow>
 
-          {/* Placeholder rows */}
-          <div className="grid grid-cols-5 gap-4 px-4 py-3 text-sm">
-            <div className="font-medium">email</div>
-            <div className="text-muted-foreground truncate">
-              user@example.com
-            </div>
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2 py-0.5 text-xs">
-                {getCategoryIcon("EMAIL")}
-                EMAIL
-              </span>
-            </div>
-            <div className="text-muted-foreground">mail</div>
-            <div className="flex gap-2">
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                Friends
-              </span>
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                Colleagues
-              </span>
-            </div>
-          </div>
+            <TableRow>
+              <TableCell className="font-medium">twitter</TableCell>
+              <TableCell className="text-muted-foreground truncate">
+                @username
+              </TableCell>
+              <TableCell>
+                <Badge variant="secondary" className="gap-1.5">
+                  {getCategoryIcon("INSTAGRAM")}
+                  INSTAGRAM
+                </Badge>
+              </TableCell>
+              <TableCell className="text-muted-foreground">instagram</TableCell>
+              <TableCell>
+                <div className="flex gap-2">
+                  <Badge variant="outline">Public</Badge>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
 
-          <div className="grid grid-cols-5 gap-4 px-4 py-3 text-sm border-t border-border">
-            <div className="font-medium">twitter</div>
-            <div className="text-muted-foreground truncate">@username</div>
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2 py-0.5 text-xs">
-                {getCategoryIcon("INSTAGRAM")}
-                INSTAGRAM
-              </span>
-            </div>
-            <div className="text-muted-foreground">instagram</div>
-            <div className="flex gap-2">
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                Public
-              </span>
-            </div>
-          </div>
-
-          <div className="border-t border-border px-4 py-3">
-            {/* TODO: per-row edit/delete buttons, visible groups checkboxes */}
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm" disabled>
-                Edit
-              </Button>
-              <Button variant="ghost" size="sm" disabled>
-                Delete
-              </Button>
-            </div>
-          </div>
-        </section>
+        <div className="flex gap-2">
+          {/* TODO: per-row edit/delete buttons, visible groups checkboxes */}
+          <Button variant="ghost" size="sm" disabled>
+            Edit
+          </Button>
+          <Button variant="ghost" size="sm" disabled>
+            Delete
+          </Button>
+        </div>
 
         {/* Create trait form */}
         {/* TODO: wire up createTrait mutation */}
@@ -83,60 +104,43 @@ export default function TraitsPage() {
           <h2 className="text-lg font-semibold">Add a trait</h2>
           <form className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div className="space-y-2">
-              <label htmlFor="key" className="text-sm font-medium">
-                Key
-              </label>
-              <input
-                id="key"
-                type="text"
-                placeholder="e.g. email"
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
-              />
+              <Label htmlFor="key">Key</Label>
+              <Input id="key" type="text" placeholder="e.g. email" />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="value" className="text-sm font-medium">
-                Value
-              </label>
-              <input
+              <Label htmlFor="value">Value</Label>
+              <Input
                 id="value"
                 type="text"
                 placeholder="e.g. user@example.com"
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="category" className="text-sm font-medium">
-                Category
-              </label>
-              <select
-                id="category"
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value="">Select...</option>
-                {traitCategoryGroups.map((group) => (
-                  <optgroup key={group.label} label={group.label}>
-                    {group.options.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+              <Label htmlFor="category">Category</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {traitCategoryGroups.map((group) => (
+                    <SelectGroup key={group.label}>
+                      <SelectLabel>{group.label}</SelectLabel>
+                      {group.options.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="icon" className="text-sm font-medium">
-                Icon (optional)
-              </label>
-              <input
-                id="icon"
-                type="text"
-                placeholder="e.g. mail"
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
-              />
+              <Label htmlFor="icon">Icon (optional)</Label>
+              <Input id="icon" type="text" placeholder="e.g. mail" />
             </div>
 
             <div className="flex items-end">

@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function LinkPage() {
   return (
@@ -15,114 +18,120 @@ export default function LinkPage() {
         {/* TODO: wire up pendingConnections query */}
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Pending Requests</h2>
-          <div className="rounded-lg border border-border divide-y divide-border">
-            {/* Placeholder pending connection */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className="text-sm font-medium">Jane Doe</p>
-                <p className="text-xs text-muted-foreground">
-                  @janedoe &middot; Requested 2 days ago
-                </p>
+          <Card>
+            <CardContent className="p-0">
+              {/* Placeholder pending connection */}
+              <div className="flex items-center justify-between px-6 py-4">
+                <div>
+                  <p className="text-sm font-medium">Jane Doe</p>
+                  <p className="text-xs text-muted-foreground">
+                    @janedoe &middot; Requested 2 days ago
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  {/* TODO: wire up acceptConnection mutation */}
+                  <Button size="sm" disabled>
+                    Accept
+                  </Button>
+                  {/* TODO: wire up declineConnection mutation */}
+                  <Button variant="outline" size="sm" disabled>
+                    Decline
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                {/* TODO: wire up acceptConnection mutation */}
-                <Button size="sm" disabled>
-                  Accept
-                </Button>
-                {/* TODO: wire up declineConnection mutation */}
-                <Button variant="outline" size="sm" disabled>
-                  Decline
-                </Button>
+              <Separator />
+              <div className="flex items-center justify-between px-6 py-4">
+                <div>
+                  <p className="text-sm font-medium">John Smith</p>
+                  <p className="text-xs text-muted-foreground">
+                    @johnsmith &middot; Requested 1 week ago
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" disabled>
+                    Accept
+                  </Button>
+                  <Button variant="outline" size="sm" disabled>
+                    Decline
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className="text-sm font-medium">John Smith</p>
-                <p className="text-xs text-muted-foreground">
-                  @johnsmith &middot; Requested 1 week ago
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" disabled>
-                  Accept
-                </Button>
-                <Button variant="outline" size="sm" disabled>
-                  Decline
-                </Button>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </section>
 
         {/* All connections */}
         {/* TODO: wire up myConnections query */}
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">All Connections</h2>
-          <div className="rounded-lg border border-border">
-            <div className="grid grid-cols-4 gap-4 border-b border-border px-4 py-3 text-sm font-medium text-muted-foreground">
-              <div>Account</div>
-              <div>Status</div>
-              <div>Groups</div>
-              <div>Actions</div>
-            </div>
+          <Card>
+            <CardContent className="p-0">
+              <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+                <div>Account</div>
+                <div>Status</div>
+                <div>Groups</div>
+                <div>Actions</div>
+              </div>
 
-            {/* Placeholder connection rows */}
-            <div className="grid grid-cols-4 gap-4 px-4 py-3 text-sm">
-              <div>
-                <p className="font-medium">Alice Johnson</p>
-                <p className="text-xs text-muted-foreground">@alicej</p>
+              {/* Placeholder connection rows */}
+              <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
+                <div>
+                  <p className="font-medium">Alice Johnson</p>
+                  <p className="text-xs text-muted-foreground">@alicej</p>
+                </div>
+                <div>
+                  <Badge
+                    variant="secondary"
+                    className="text-emerald-500 bg-emerald-500/10"
+                  >
+                    Accepted
+                  </Badge>
+                </div>
+                <div className="inline-flex gap-1 flex-wrap items-center">
+                  <Badge variant="outline">Friends</Badge>
+                </div>
+                <div className="flex gap-2">
+                  {/* TODO: wire up removeConnection mutation */}
+                  <Button variant="ghost" size="sm" disabled>
+                    Remove
+                  </Button>
+                  {/* TODO: wire up addConnectionToGroup mutation */}
+                  <Button variant="outline" size="sm" disabled>
+                    Add to group
+                  </Button>
+                </div>
               </div>
-              <div>
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-500">
-                  Accepted
-                </span>
-              </div>
-              <div className="inline-flex gap-1 flex-wrap items-center">
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                  Friends
-                </span>
-              </div>
-              <div className="flex gap-2">
-                {/* TODO: wire up removeConnection mutation */}
-                <Button variant="ghost" size="sm" disabled>
-                  Remove
-                </Button>
-                {/* TODO: wire up addConnectionToGroup mutation */}
-                <Button variant="outline" size="sm" disabled>
-                  Add to group
-                </Button>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-4 gap-4 px-4 py-3 text-sm border-t border-border">
-              <div>
-                <p className="font-medium">Bob Williams</p>
-                <p className="text-xs text-muted-foreground">@bobw</p>
+              <Separator />
+
+              <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
+                <div>
+                  <p className="font-medium">Bob Williams</p>
+                  <p className="text-xs text-muted-foreground">@bobw</p>
+                </div>
+                <div>
+                  <Badge
+                    variant="secondary"
+                    className="text-emerald-500 bg-emerald-500/10"
+                  >
+                    Accepted
+                  </Badge>
+                </div>
+                <div className="inline-flex gap-1 flex-wrap items-center">
+                  <Badge variant="outline">Colleagues</Badge>
+                  <Badge variant="outline">Friends</Badge>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" disabled>
+                    Remove
+                  </Button>
+                  <Button variant="outline" size="sm" disabled>
+                    Add to group
+                  </Button>
+                </div>
               </div>
-              <div>
-                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-500">
-                  Accepted
-                </span>
-              </div>
-              <div className="inline-flex gap-1 flex-wrap items-center">
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                  Colleagues
-                </span>
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                  Friends
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" disabled>
-                  Remove
-                </Button>
-                <Button variant="outline" size="sm" disabled>
-                  Add to group
-                </Button>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </section>
       </div>
     </div>

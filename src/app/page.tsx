@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function LandingPage() {
   return (
@@ -9,10 +10,10 @@ export default function LandingPage() {
       <div className="flex justify-center px-4 py-8">
         {/* TODO: wire up searchAccounts query */}
         <form className="flex w-full max-w-2xl gap-2">
-          <input
+          <Input
             type="search"
             placeholder="Search accounts..."
-            className="flex-1 rounded-md border border-input bg-transparent px-4 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex-1"
           />
           <Button type="submit" size="sm" className="px-3">
             <HugeiconsIcon icon={Search01Icon} size={18} />
