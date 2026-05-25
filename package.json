@@ -44,6 +44,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@urql/core": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.7",
     "@vitest/expect": "^4.1.7",
     "babel-plugin-react-compiler": "1.0.0",
@@ -58,6 +59,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.22.1",
     "typescript": "^5",
+    "urql": "^5.0.2",
     "vitest": "^4.1.7"
   },
   "packageManager": "yarn@4.14.1"
