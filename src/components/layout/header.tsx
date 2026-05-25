@@ -1,0 +1,33 @@
+import Link from "next/link";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Search01Icon } from "@hugeicons/core-free-icons";
+import AccountMenu from "@/components/layout/account-menu";
+import { Button } from "@/components/ui/button";
+
+export default function Header() {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center gap-6">
+        <Link href="/" className="text-lg font-semibold">
+          Social Links
+        </Link>
+
+        {/* TODO: wire up searchAccounts query */}
+        <form className="flex flex-1 justify-center">
+          <div className="flex w-full max-w-2xl gap-2">
+            <input
+              type="search"
+              placeholder="Search accounts..."
+              className="flex-1 h-9 rounded-md border border-input bg-transparent px-4 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <Button type="submit" size="sm" className="px-3">
+              <HugeiconsIcon icon={Search01Icon} size={18} />
+            </Button>
+          </div>
+        </form>
+
+        <AccountMenu />
+      </div>
+    </header>
+  );
+}
