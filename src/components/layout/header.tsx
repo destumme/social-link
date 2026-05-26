@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 import AccountMenu from "@/components/layout/account-menu";
+import ThemeSelector from "@/components/layout/theme-selector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -27,6 +28,7 @@ export default function Header() {
           </div>
         </form>
 
+        <ThemeSelector />
         <AccountMenu />
       </div>
     </header>
