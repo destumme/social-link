@@ -2,6 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function LinkPage() {
   return (
@@ -20,15 +25,32 @@ export default function LinkPage() {
           <h2 className="text-xl font-semibold">Pending Requests</h2>
           <Card>
             <CardContent className="p-0">
-              {/* Placeholder pending connection */}
-              <div className="flex items-center justify-between px-6 py-4">
+              <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+                <div>Account</div>
+                <div>Requested</div>
+                <div>Status</div>
+                <div className="flex justify-end">Actions</div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
                 <div>
-                  <p className="text-sm font-medium">Jane Doe</p>
-                  <p className="text-xs text-muted-foreground">
-                    @janedoe &middot; Requested 2 days ago
-                  </p>
+                  <p className="font-medium">Jane Doe</p>
+                  <p className="text-xs text-muted-foreground">@janedoe</p>
                 </div>
-                <div className="flex gap-2">
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger className="text-sm text-muted-foreground">
+                      2 days ago
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Requested on May 23, 2026</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div>
+                  <Badge variant="secondary">Pending</Badge>
+                </div>
+                <div className="flex justify-end gap-2">
                   {/* TODO: wire up acceptConnection mutation */}
                   <Button size="sm" disabled>
                     Accept
@@ -39,15 +61,28 @@ export default function LinkPage() {
                   </Button>
                 </div>
               </div>
+
               <Separator />
-              <div className="flex items-center justify-between px-6 py-4">
+
+              <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
                 <div>
-                  <p className="text-sm font-medium">John Smith</p>
-                  <p className="text-xs text-muted-foreground">
-                    @johnsmith &middot; Requested 1 week ago
-                  </p>
+                  <p className="font-medium">John Smith</p>
+                  <p className="text-xs text-muted-foreground">@johnsmith</p>
                 </div>
-                <div className="flex gap-2">
+                <div>
+                  <Tooltip>
+                    <TooltipTrigger className="text-sm text-muted-foreground">
+                      1 week ago
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Requested on May 18, 2026</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div>
+                  <Badge variant="secondary">Pending</Badge>
+                </div>
+                <div className="flex justify-end gap-2">
                   <Button size="sm" disabled>
                     Accept
                   </Button>
@@ -70,7 +105,7 @@ export default function LinkPage() {
                 <div>Account</div>
                 <div>Status</div>
                 <div>Groups</div>
-                <div>Actions</div>
+                <div className="flex justify-end">Actions</div>
               </div>
 
               {/* Placeholder connection rows */}
@@ -90,7 +125,7 @@ export default function LinkPage() {
                 <div className="inline-flex gap-1 flex-wrap items-center">
                   <Badge variant="outline">Friends</Badge>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex justify-end gap-2">
                   {/* TODO: wire up removeConnection mutation */}
                   <Button variant="ghost" size="sm" disabled>
                     Remove
@@ -121,7 +156,7 @@ export default function LinkPage() {
                   <Badge variant="outline">Colleagues</Badge>
                   <Badge variant="outline">Friends</Badge>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex justify-end gap-2">
                   <Button variant="ghost" size="sm" disabled>
                     Remove
                   </Button>
