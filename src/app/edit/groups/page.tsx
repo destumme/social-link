@@ -46,7 +46,7 @@ export default function GroupsPage() {
         >
           <Card>
             <CardContent className="p-0">
-              <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+              <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
                 <div>Name</div>
                 <div>Connections</div>
                 <div>Traits</div>
@@ -86,7 +86,7 @@ export default function GroupsPage() {
           <h2 className="text-xl font-semibold">Create a group</h2>
           <Card>
             <CardContent className="p-0">
-              <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+              <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
                 <div>Name</div>
                 <div>Connections</div>
                 <div>Traits</div>
@@ -96,8 +96,8 @@ export default function GroupsPage() {
                 <div>
                   <Input type="text" placeholder="Group name" />
                 </div>
-                <div className="text-muted-foreground">—</div>
-                <div className="text-muted-foreground">—</div>
+                <div className="text-tertiary-foreground">—</div>
+                <div className="text-tertiary-foreground">—</div>
                 <div className="flex justify-end gap-2">
                   <Button type="submit">Create</Button>
                   <Button type="submit" variant="ghost" size="sm">

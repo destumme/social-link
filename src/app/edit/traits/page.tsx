@@ -71,7 +71,7 @@ export default function TraitsPage() {
         {/* TODO: wire up myTraits query */}
         <Card>
           <CardContent className="p-0">
-            <div className="grid grid-cols-5 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+            <div className="grid grid-cols-5 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
               <div>Key</div>
               <div>Value</div>
               <div>Category</div>
@@ -140,7 +140,7 @@ export default function TraitsPage() {
           <h2 className="text-xl font-semibold">Add a trait</h2>
           <Card>
             <CardContent className="p-0">
-              <div className="grid grid-cols-5 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+              <div className="grid grid-cols-5 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
                 <div>Key</div>
                 <div>Value</div>
                 <div>Category</div>

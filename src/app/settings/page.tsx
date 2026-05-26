@@ -62,7 +62,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
                 <div>
                   <p className="text-sm font-medium">Google</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-tertiary-foreground">
                     user@gmail.com
                   </p>
                 </div>
@@ -75,7 +75,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between rounded-md border border-border px-4 py-3">
                 <div>
                   <p className="text-sm font-medium">GitHub</p>
-                  <p className="text-xs text-muted-foreground">@username</p>
+                  <p className="text-xs text-tertiary-foreground">@username</p>
                 </div>
                 <Button variant="outline" size="sm" disabled>
                   Unlink

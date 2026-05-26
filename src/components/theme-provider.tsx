@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-type Theme = "light" | "dark";
+type Theme = "github" | "tokyo" | "catppuccin" | "one";
 
 interface ThemeContextType {
   theme: Theme;
@@ -13,24 +13,41 @@ const ThemeContext = React.createContext<ThemeContextType | undefined>(
   undefined,
 );
 
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
+const themeSubscribers = new Set<() => void>();
+
+function notifySubscribers() {
+  themeSubscribers.forEach((fn) => fn());
+}
+
+function getThemeSnapshot(): Theme {
   const stored = localStorage.getItem("theme") as Theme | null;
-  return stored ?? "dark";
+  if (stored && ["github", "tokyo", "catppuccin", "one"].includes(stored)) {
+    return stored;
+  }
+  return "tokyo";
+}
+
+function getServerSnapshot(): Theme {
+  return "tokyo";
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = React.useState<Theme>(getInitialTheme);
+  const theme = React.useSyncExternalStore(
+    (onStoreChange) => {
+      themeSubscribers.add(onStoreChange);
+      return () => {
+        themeSubscribers.delete(onStoreChange);
+      };
+    },
+    getThemeSnapshot,
+    getServerSnapshot,
+  );
 
-  React.useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+  const setTheme = React.useCallback((newTheme: Theme) => {
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    notifySubscribers();
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
