@@ -23,9 +23,9 @@ const themePalettes: Record<
   { primary: string; secondary: string; tertiary: string }
 > = {
   github: {
-    primary: "oklch(0.5299 0.1896 257.41)",
-    secondary: "oklch(0.9782 0.0034 247.86)",
-    tertiary: "oklch(0.9177 0.0063 255.48)",
+    primary: "oklch(0.654 0.162 249.6)",
+    secondary: "oklch(0.178 0.010 247.8)",
+    tertiary: "oklch(0.220 0.012 245.4)",
   },
   tokyo: {
     primary: "oklch(0.719 0.1322 264.2)",
@@ -69,7 +69,7 @@ export default function ThemeSelector() {
 
   return (
     <Select value={theme} onValueChange={(value) => setTheme(value as Theme)}>
-      <SelectTrigger size="sm" className="h-8 gap-2 px-3">
+      <SelectTrigger size="sm" className="h-8 w-[165px] gap-2 px-3">
         <SelectValue>
           {(value) => (
             <span className="flex items-center gap-2">
