@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { getCategoryIcon } from "@/lib/icons";
+import { getCategoryIcon } from "@/components/icons";
 
 // TODO: wire up accountByUsername query
 async function getAccount(username: string) {

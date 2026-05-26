@@ -7,15 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function GroupsPage() {
   return (
@@ -33,22 +26,20 @@ export default function GroupsPage() {
 
         {/* Existing groups list */}
         {/* TODO: wire up myConnectionGroups query */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Connections</TableHead>
-              <TableHead>Traits</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {/* Placeholder rows */}
-            <TableRow>
-              <TableCell className="font-medium">Friends</TableCell>
-              <TableCell>3</TableCell>
-              <TableCell>2</TableCell>
-              <TableCell>
+        <Card>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+              <div>Name</div>
+              <div>Connections</div>
+              <div>Traits</div>
+              <div>Actions</div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
+              <div className="font-medium">Friends</div>
+              <div>3</div>
+              <div>2</div>
+              <div>
                 <div className="flex gap-2">
                   {/* TODO: wire up updateConnectionGroup mutation */}
                   <Button variant="ghost" size="sm" disabled>
@@ -59,14 +50,16 @@ export default function GroupsPage() {
                     Delete
                   </Button>
                 </div>
-              </TableCell>
-            </TableRow>
+              </div>
+            </div>
 
-            <TableRow>
-              <TableCell className="font-medium">Colleagues</TableCell>
-              <TableCell>5</TableCell>
-              <TableCell>1</TableCell>
-              <TableCell>
+            <Separator />
+
+            <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
+              <div className="font-medium">Colleagues</div>
+              <div>5</div>
+              <div>1</div>
+              <div>
                 <div className="flex gap-2">
                   <Button variant="ghost" size="sm" disabled>
                     Rename
@@ -75,10 +68,10 @@ export default function GroupsPage() {
                     Delete
                   </Button>
                 </div>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Create group form */}
         {/* TODO: wire up createConnectionGroup mutation */}

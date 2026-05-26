@@ -1,6 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -9,19 +11,51 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { getCategoryIcon } from "@/components/icons";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { getCategoryIcon, traitCategoryGroups } from "@/lib/icons";
+  getCategoryIconElement,
+  traitCategoryGroups,
+  overrideIconOptions,
+  getOverrideIconElement,
+} from "@/lib/icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 export default function TraitsPage() {
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedOverrideIcon, setSelectedOverrideIcon] = useState<string>("");
+
+  const categoryIcon = getCategoryIconElement(selectedCategory);
+  const overrideIcon = getOverrideIconElement(selectedOverrideIcon);
+
+  const handleCategoryChange = (value: string | null) => {
+    setSelectedCategory(value ?? "");
+  };
+
+  const handleOverrideIconChange = (value: string | null) => {
+    setSelectedOverrideIcon(value ?? "");
+  };
+
+  function getCategoryLabel(value: string) {
+    for (const group of traitCategoryGroups) {
+      for (const opt of group.options) {
+        if (opt.value === value) return opt.label;
+      }
+    }
+    return null;
+  }
+
+  function getOverrideIconLabel(value: string) {
+    for (const group of overrideIconOptions) {
+      for (const opt of group.options) {
+        if (opt.value === value) return opt.label;
+      }
+    }
+    return null;
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <div className="container px-6 lg:px-12 py-12 lg:py-16 space-y-12">
@@ -35,121 +69,172 @@ export default function TraitsPage() {
 
         {/* Existing traits table */}
         {/* TODO: wire up myTraits query */}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Key</TableHead>
-              <TableHead>Value</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Icon</TableHead>
-              <TableHead>Visible Groups</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {/* Placeholder rows */}
-            <TableRow>
-              <TableCell className="font-medium">email</TableCell>
-              <TableCell className="text-muted-foreground truncate">
+        <Card>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-5 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+              <div>Key</div>
+              <div>Value</div>
+              <div>Category</div>
+              <div>Visible Groups</div>
+              <div className="flex justify-end">Actions</div>
+            </div>
+
+            <div className="grid grid-cols-5 gap-4 px-6 py-4 text-sm">
+              <div className="font-medium">email</div>
+              <div className="text-muted-foreground truncate">
                 user@example.com
-              </TableCell>
-              <TableCell>
+              </div>
+              <div>
                 <Badge variant="secondary" className="gap-1.5">
                   {getCategoryIcon("EMAIL")}
                   EMAIL
                 </Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">mail</TableCell>
-              <TableCell>
+              </div>
+              <div>
                 <div className="flex gap-2">
                   <Badge variant="outline">Friends</Badge>
                   <Badge variant="outline">Colleagues</Badge>
                 </div>
-              </TableCell>
-            </TableRow>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" size="sm" disabled>
+                  Edit
+                </Button>
+                <Button variant="ghost" size="sm" disabled>
+                  Delete
+                </Button>
+              </div>
+            </div>
 
-            <TableRow>
-              <TableCell className="font-medium">twitter</TableCell>
-              <TableCell className="text-muted-foreground truncate">
-                @username
-              </TableCell>
-              <TableCell>
+            <Separator />
+
+            <div className="grid grid-cols-5 gap-4 px-6 py-4 text-sm">
+              <div className="font-medium">twitter</div>
+              <div className="text-muted-foreground truncate">@username</div>
+              <div>
                 <Badge variant="secondary" className="gap-1.5">
                   {getCategoryIcon("INSTAGRAM")}
                   INSTAGRAM
                 </Badge>
-              </TableCell>
-              <TableCell className="text-muted-foreground">instagram</TableCell>
-              <TableCell>
+              </div>
+              <div>
                 <div className="flex gap-2">
                   <Badge variant="outline">Public</Badge>
                 </div>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" size="sm" disabled>
+                  Edit
+                </Button>
+                <Button variant="ghost" size="sm" disabled>
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="flex gap-2">
-          {/* TODO: per-row edit/delete buttons, visible groups checkboxes */}
-          <Button variant="ghost" size="sm" disabled>
-            Edit
-          </Button>
-          <Button variant="ghost" size="sm" disabled>
-            Delete
-          </Button>
-        </div>
-
-        {/* Create trait form */}
+        {/* Add trait section */}
         {/* TODO: wire up createTrait mutation */}
-        <section className="space-y-4 rounded-lg border border-border p-6">
-          <h2 className="text-lg font-semibold">Add a trait</h2>
-          <form className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="space-y-2">
-              <Label htmlFor="key">Key</Label>
-              <Input id="key" type="text" placeholder="e.g. email" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="value">Value</Label>
-              <Input
-                id="value"
-                type="text"
-                placeholder="e.g. user@example.com"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {traitCategoryGroups.map((group) => (
-                    <SelectGroup key={group.label}>
-                      <SelectLabel>{group.label}</SelectLabel>
-                      {group.options.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Add a trait</h2>
+          <Card>
+            <CardContent className="p-0">
+              <div className="grid grid-cols-5 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-muted-foreground">
+                <div>Key</div>
+                <div>Value</div>
+                <div>Category</div>
+                <div>Override Icon</div>
+                <div className="flex justify-end">Actions</div>
+              </div>
+              <form className="grid grid-cols-5 gap-4 px-6 py-4 text-sm">
+                <div>
+                  <Input type="text" placeholder="e.g. email" />
+                </div>
+                <div>
+                  <Input type="text" placeholder="e.g. user@example.com" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={handleCategoryChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <span className="flex items-center gap-2">
+                        {categoryIcon && (
+                          <HugeiconsIcon icon={categoryIcon} size={16} />
+                        )}
+                        {selectedCategory
+                          ? getCategoryLabel(selectedCategory)
+                          : "Select..."}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {traitCategoryGroups.map((group) => (
+                        <SelectGroup key={group.label}>
+                          <SelectLabel>{group.label}</SelectLabel>
+                          {group.options.map((opt) => {
+                            const icon = getCategoryIconElement(opt.value);
+                            return (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                <span className="flex items-center gap-2">
+                                  {icon && (
+                                    <HugeiconsIcon icon={icon} size={16} />
+                                  )}
+                                  {opt.label}
+                                </span>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectGroup>
                       ))}
-                    </SelectGroup>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="icon">Icon (optional)</Label>
-              <Input id="icon" type="text" placeholder="e.g. mail" />
-            </div>
-
-            <div className="flex items-end">
-              <Button type="submit" className="w-full">
-                Add Trait
-              </Button>
-            </div>
-          </form>
-        </section>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={selectedOverrideIcon}
+                    onValueChange={handleOverrideIconChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <span className="flex items-center gap-2">
+                        {overrideIcon && (
+                          <HugeiconsIcon icon={overrideIcon} size={16} />
+                        )}
+                        {selectedOverrideIcon
+                          ? getOverrideIconLabel(selectedOverrideIcon)
+                          : "Select..."}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {overrideIconOptions.map((group) => (
+                        <SelectGroup key={group.label}>
+                          <SelectLabel>{group.label}</SelectLabel>
+                          {group.options.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              <span className="flex items-center gap-2">
+                                <HugeiconsIcon icon={opt.icon} size={16} />
+                                {opt.label}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button type="submit" variant="ghost" size="sm">
+                    Add
+                  </Button>
+                  <Button type="submit" variant="ghost" size="sm">
+                    Clear
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
