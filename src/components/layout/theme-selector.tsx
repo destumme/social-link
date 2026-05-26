@@ -23,24 +23,24 @@ const themePalettes: Record<
   { primary: string; secondary: string; tertiary: string }
 > = {
   github: {
-    primary: "oklch(0.205 0 0)",
-    secondary: "oklch(0.967 0.003 264)",
-    tertiary: "oklch(0.88 0.005 264)",
+    primary: "oklch(0.5299 0.1896 257.41)",
+    secondary: "oklch(0.9782 0.0034 247.86)",
+    tertiary: "oklch(0.9177 0.0063 255.48)",
   },
   tokyo: {
-    primary: "oklch(0.85 0.02 260)",
-    secondary: "oklch(0.28 0.025 265)",
-    tertiary: "oklch(0.40 0.03 265)",
+    primary: "oklch(0.719 0.1322 264.2)",
+    secondary: "oklch(0.2819 0.0355 274.75)",
+    tertiary: "oklch(0.4094 0.0546 274.27)",
   },
   catppuccin: {
-    primary: "oklch(0.88 0.02 270)",
-    secondary: "oklch(0.30 0.03 280)",
-    tertiary: "oklch(0.42 0.035 280)",
+    primary: "oklch(0.7871 0.1187 304.77)",
+    secondary: "oklch(0.324 0.0319 281.98)",
+    tertiary: "oklch(0.4037 0.032 280.15)",
   },
   one: {
-    primary: "oklch(0.2 0.01 50)",
-    secondary: "oklch(0.965 0.015 70)",
-    tertiary: "oklch(0.88 0.01 70)",
+    primary: "oklch(0.6017 0.193 263.25)",
+    secondary: "oklch(0.9551 0 0)",
+    tertiary: "oklch(0.9219 0 0)",
   },
 };
 
