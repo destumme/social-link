@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCategoryIcon } from "@/components/icons";
 
 // TODO: wire up accountByUsername query
@@ -57,7 +58,7 @@ export default async function UserPage({
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="container flex flex-col items-center px-6 py-12 lg:px-12 lg:py-16 space-y-12 text-center">
+      <div className="w-full px-6 py-12 lg:px-12 lg:py-16 space-y-12">
         {/* Profile header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -68,57 +69,71 @@ export default async function UserPage({
 
         {/* Links */}
         {/* TODO: filter traits by visibleGroups based on connection status */}
-        <section className="w-full max-w-3xl space-y-8 text-left">
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Links</h2>
-            <div className="rounded-lg border border-border">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Links</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-3 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
+              <div></div>
+              <div>Key</div>
+              <div>Value</div>
+            </div>
+
+            {account.traits
+              .filter((t) => t.isPublic)
+              .map((trait, index, arr) => (
+                <div key={trait.id}>
+                  {index > 0 && <Separator />}
+                  <div className="grid grid-cols-3 gap-4 px-6 py-4 text-sm">
+                    <div className="text-muted-foreground shrink-0">
+                      {getCategoryIcon(trait.category) ?? trait.icon}
+                    </div>
+                    <div className="font-medium">{trait.key}</div>
+                    <div className="text-muted-foreground truncate">
+                      {trait.value}
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </CardContent>
+        </Card>
+
+        {isConnected && (
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Private Links</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="grid grid-cols-3 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
+                <div></div>
+                <div>Key</div>
+                <div>Value</div>
+              </div>
+
               {account.traits
-                .filter((t) => t.isPublic)
+                .filter((t) => !t.isPublic)
                 .map((trait, index, arr) => (
                   <div key={trait.id}>
                     {index > 0 && <Separator />}
-                    <div className="flex items-center gap-3 px-4 py-3">
-                      <span className="text-muted-foreground shrink-0">
+                    <div className="grid grid-cols-3 gap-4 px-6 py-4 text-sm">
+                      <div className="text-muted-foreground shrink-0">
                         {getCategoryIcon(trait.category) ?? trait.icon}
-                      </span>
-                      <span className="text-sm font-medium">{trait.key}</span>
-                      <span className="text-sm text-muted-foreground">
+                      </div>
+                      <div className="font-medium">{trait.key}</div>
+                      <div className="text-muted-foreground truncate">
                         {trait.value}
-                      </span>
+                      </div>
                     </div>
                   </div>
                 ))}
-            </div>
-          </div>
-
-          {isConnected && (
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Private Links</h2>
-              <div className="rounded-lg border border-border">
-                {account.traits
-                  .filter((t) => !t.isPublic)
-                  .map((trait, index, arr) => (
-                    <div key={trait.id}>
-                      {index > 0 && <Separator />}
-                      <div className="flex items-center gap-3 px-4 py-3">
-                        <span className="text-muted-foreground shrink-0">
-                          {getCategoryIcon(trait.category) ?? trait.icon}
-                        </span>
-                        <span className="text-sm font-medium">{trait.key}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {trait.value}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
-        </section>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Connection actions */}
         {isConnected ? (
-          <div className="w-full max-w-3xl space-y-4 text-left">
+          <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Badge
                 variant="secondary"

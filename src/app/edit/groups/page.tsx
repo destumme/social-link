@@ -27,7 +27,7 @@ const wireframeTraits = [
 export default function GroupsPage() {
   return (
     <div className="flex flex-col flex-1">
-      <div className="container px-6 lg:px-12 py-12 lg:py-16 space-y-12">
+      <div className="w-full px-6 lg:px-12 py-12 lg:py-16 space-y-12">
         <div className="space-y-4">
           <h1 className="text-3xl font-bold tracking-tight">
             Connection Groups

@@ -9,7 +9,7 @@ export default function LandingPage() {
     <div className="flex flex-col flex-1">
       <div className="flex justify-center px-4 py-8">
         {/* TODO: wire up searchAccounts query */}
-        <form className="flex w-full max-w-2xl gap-2">
+        <form className="flex w-full gap-2">
           <Input
             type="search"
             placeholder="Search accounts..."
@@ -25,7 +25,7 @@ export default function LandingPage() {
         <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
           Share your connections on your terms
         </h1>
-        <p className="max-w-2xl text-lg text-muted-foreground">
+        <p className="text-lg text-muted-foreground">
           Organize your contacts into groups, control who sees what, and share
           your social links, email, phone, and more with the people who matter.
         </p>
