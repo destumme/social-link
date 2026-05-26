@@ -2,7 +2,15 @@
 
 import * as React from "react";
 
-type Theme = "github" | "tokyo" | "catppuccin" | "one";
+type Theme =
+  | "github"
+  | "tokyo"
+  | "catppuccin"
+  | "one"
+  | "serika"
+  | "honey"
+  | "mint"
+  | "lavender";
 
 interface ThemeContextType {
   theme: Theme;
@@ -21,7 +29,19 @@ function notifySubscribers() {
 
 function getThemeSnapshot(): Theme {
   const stored = localStorage.getItem("theme") as Theme | null;
-  if (stored && ["github", "tokyo", "catppuccin", "one"].includes(stored)) {
+  if (
+    stored &&
+    [
+      "github",
+      "tokyo",
+      "catppuccin",
+      "one",
+      "serika",
+      "honey",
+      "mint",
+      "lavender",
+    ].includes(stored)
+  ) {
     return stored;
   }
   return "tokyo";

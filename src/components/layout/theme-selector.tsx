@@ -14,9 +14,21 @@ const themeLabels: Record<Theme, string> = {
   tokyo: "Tokyo",
   catppuccin: "Catppuccin",
   one: "One",
+  serika: "Serika",
+  honey: "Honey",
+  mint: "Mint",
+  lavender: "Lavender",
 };
 
-type Theme = "github" | "tokyo" | "catppuccin" | "one";
+type Theme =
+  | "github"
+  | "tokyo"
+  | "catppuccin"
+  | "one"
+  | "serika"
+  | "honey"
+  | "mint"
+  | "lavender";
 
 const themePalettes: Record<
   Theme,
@@ -41,6 +53,26 @@ const themePalettes: Record<
     primary: "oklch(0.6017 0.193 263.25)",
     secondary: "oklch(0.9551 0 0)",
     tertiary: "oklch(0.9219 0 0)",
+  },
+  serika: {
+    primary: "oklch(0.710 0.180 25)",
+    secondary: "oklch(0.260 0.010 250)",
+    tertiary: "oklch(0.310 0.012 250)",
+  },
+  honey: {
+    primary: "oklch(0.720 0.170 75)",
+    secondary: "oklch(0.930 0.025 85)",
+    tertiary: "oklch(0.900 0.030 80)",
+  },
+  mint: {
+    primary: "oklch(0.780 0.180 170)",
+    secondary: "oklch(0.275 0.015 175)",
+    tertiary: "oklch(0.325 0.018 175)",
+  },
+  lavender: {
+    primary: "oklch(0.620 0.200 295)",
+    secondary: "oklch(0.940 0.015 300)",
+    tertiary: "oklch(0.910 0.020 300)",
   },
 };
 
@@ -102,6 +134,30 @@ export default function ThemeSelector() {
           <span className="flex items-center gap-2">
             <ColorSwatches theme="one" />
             <span>One</span>
+          </span>
+        </SelectItem>
+        <SelectItem value="serika">
+          <span className="flex items-center gap-2">
+            <ColorSwatches theme="serika" />
+            <span>Serika</span>
+          </span>
+        </SelectItem>
+        <SelectItem value="honey">
+          <span className="flex items-center gap-2">
+            <ColorSwatches theme="honey" />
+            <span>Honey</span>
+          </span>
+        </SelectItem>
+        <SelectItem value="mint">
+          <span className="flex items-center gap-2">
+            <ColorSwatches theme="mint" />
+            <span>Mint</span>
+          </span>
+        </SelectItem>
+        <SelectItem value="lavender">
+          <span className="flex items-center gap-2">
+            <ColorSwatches theme="lavender" />
+            <span>Lavender</span>
           </span>
         </SelectItem>
       </SelectContent>
