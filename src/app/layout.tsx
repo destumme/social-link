@@ -4,6 +4,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ThemeScript from "@/components/theme-script";
 import { cn } from "@/lib/utils";
+import Footer from "@/components/layout/footer";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -44,6 +45,7 @@ export default function RootLayout({
         <body className="min-h-full flex flex-col relative">
         <ThemeScript />
         <TooltipProvider>{children}</TooltipProvider>
+        <Footer />
       </body>
     </html>
   );

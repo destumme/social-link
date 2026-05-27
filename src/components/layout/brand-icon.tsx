@@ -6,15 +6,7 @@ export default function BrandIcon({ className }: { className?: string }) {
       fill="none"
       className={className}
     >
-      {/* Background rounded square */}
-      <rect
-        x="1"
-        y="0.5"
-        width="20"
-        height="21"
-        rx="4"
-        className="fill-secondary"
-      />
+
       {/* Bookmark outline */}
       <g transform="translate(1,1) scale(0.80)">
         <path
