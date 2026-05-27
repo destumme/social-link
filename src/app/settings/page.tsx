@@ -6,8 +6,8 @@ export default function SettingsPage() {
     <div className="flex flex-col flex-1">
       <div className="w-full px-6 lg:px-12 py-12 lg:py-16 space-y-12">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight bg-background/80">Settings</h1>
+          <p className="text-muted-foreground bg-background/80">
             Manage your account profile and connected login providers.
           </p>
         </div>
