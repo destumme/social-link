@@ -6,13 +6,14 @@ import ThemeSelector from "@/components/layout/theme-selector";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import BrandIcon from "@/components/layout/brand-icon";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="w-full flex h-16 items-center gap-6 px-6 lg:px-12">
-        <Link href="/" className="text-lg font-semibold pl-4">
-          Social Links
+    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 notebook-vertical-line relative">
+      <div className="w-full flex h-24 items-center gap-6 px-0 lg:px-2">
+        <Link href="/" className="pl-0">
+          <BrandIcon className="w-20 h-20" />
         </Link>
 
         {/* TODO: wire up searchAccounts query */}

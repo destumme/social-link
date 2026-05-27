@@ -1,4 +1,5 @@
 import Header from "@/components/layout/header";
+import Main from "@/components/layout/main";
 
 export default function EditLayout({
   children,
@@ -8,7 +9,7 @@ export default function EditLayout({
   return (
     <>
       <Header />
-      {children}
+      <Main>{children}</Main>
     </>
   );
 }

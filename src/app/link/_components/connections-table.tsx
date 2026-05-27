@@ -28,7 +28,7 @@ export function ConnectionsTable() {
       <h2 className="text-xl font-semibold">All Connections</h2>
       <Card>
         <CardContent className="p-0">
-          <div className="grid grid-cols-4 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
+          <div className="-mt-6 grid grid-cols-4 gap-4 border-b border-border bg-tertiary px-6 py-3 text-sm font-medium text-tertiary-foreground">
             <div>Account</div>
             <div>Status</div>
             <div>Groups</div>

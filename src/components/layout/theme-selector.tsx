@@ -37,42 +37,42 @@ const themePalettes: Record<
   github: {
     primary: "oklch(0.654 0.162 249.6)",
     secondary: "oklch(0.178 0.010 247.8)",
-    tertiary: "oklch(0.220 0.012 245.4)",
+    tertiary: "oklch(0.320 0.040 220)",
   },
   tokyo: {
     primary: "oklch(0.719 0.1322 264.2)",
     secondary: "oklch(0.2819 0.0355 274.75)",
-    tertiary: "oklch(0.4094 0.0546 274.27)",
+    tertiary: "oklch(0.380 0.060 230)",
   },
   catppuccin: {
     primary: "oklch(0.7871 0.1187 304.77)",
     secondary: "oklch(0.324 0.0319 281.98)",
-    tertiary: "oklch(0.4037 0.032 280.15)",
+    tertiary: "oklch(0.380 0.045 270)",
   },
   one: {
     primary: "oklch(0.6017 0.193 263.25)",
     secondary: "oklch(0.9551 0 0)",
-    tertiary: "oklch(0.9219 0 0)",
+    tertiary: "oklch(0.910 0.030 230)",
   },
   serika: {
     primary: "oklch(0.710 0.180 25)",
     secondary: "oklch(0.260 0.010 250)",
-    tertiary: "oklch(0.310 0.012 250)",
+    tertiary: "oklch(0.310 0.030 50)",
   },
   honey: {
     primary: "oklch(0.720 0.170 75)",
     secondary: "oklch(0.930 0.025 85)",
-    tertiary: "oklch(0.900 0.030 80)",
+    tertiary: "oklch(0.900 0.020 50)",
   },
   mint: {
     primary: "oklch(0.780 0.180 170)",
     secondary: "oklch(0.275 0.015 175)",
-    tertiary: "oklch(0.325 0.018 175)",
+    tertiary: "oklch(0.310 0.035 140)",
   },
   lavender: {
     primary: "oklch(0.620 0.200 295)",
     secondary: "oklch(0.940 0.015 300)",
-    tertiary: "oklch(0.910 0.020 300)",
+    tertiary: "oklch(0.900 0.025 280)",
   },
 };
 

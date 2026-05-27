@@ -74,7 +74,7 @@ export default async function UserPage({
             <CardTitle>Links</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="grid grid-cols-3 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
+            <div className="grid grid-cols-3 gap-4 border-b border-border bg-tertiary px-6 py-3 text-sm font-medium text-tertiary-foreground">
               <div></div>
               <div>Key</div>
               <div>Value</div>
@@ -82,7 +82,7 @@ export default async function UserPage({
 
             {account.traits
               .filter((t) => t.isPublic)
-              .map((trait, index, arr) => (
+              .map((trait, index) => (
                 <div key={trait.id}>
                   {index > 0 && <Separator />}
                   <div className="grid grid-cols-3 gap-4 px-6 py-4 text-sm">
@@ -105,7 +105,7 @@ export default async function UserPage({
               <CardTitle>Private Links</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="grid grid-cols-3 gap-4 border-b border-border px-6 py-3 text-sm font-medium text-secondary-foreground">
+              <div className="grid grid-cols-3 gap-4 border-b border-border bg-tertiary px-6 py-3 text-sm font-medium text-tertiary-foreground">
                 <div></div>
                 <div>Key</div>
                 <div>Value</div>
@@ -113,7 +113,7 @@ export default async function UserPage({
 
               {account.traits
                 .filter((t) => !t.isPublic)
-                .map((trait, index, arr) => (
+                .map((trait, index) => (
                   <div key={trait.id}>
                     {index > 0 && <Separator />}
                     <div className="grid grid-cols-3 gap-4 px-6 py-4 text-sm">
