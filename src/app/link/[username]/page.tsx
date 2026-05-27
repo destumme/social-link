@@ -65,7 +65,9 @@ export default async function UserPage({
             <h1 className="text-3xl font-bold tracking-tight bg-background/80">
               {account.displayName}
             </h1>
-            <p className="text-muted-foreground bg-background/80">@{account.username}</p>
+            <p className="text-muted-foreground bg-background/80">
+              @{account.username}
+            </p>
           </div>
           {!isConnected && <Button disabled>Request Connection</Button>}
         </div>

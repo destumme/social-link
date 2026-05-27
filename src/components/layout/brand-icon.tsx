@@ -6,7 +6,6 @@ export default function BrandIcon({ className }: { className?: string }) {
       fill="none"
       className={className}
     >
-
       {/* Bookmark outline */}
       <g transform="translate(1,1) scale(0.80)">
         <path

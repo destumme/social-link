@@ -27,11 +27,7 @@ export default function CreateAccountPage() {
 
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="unique-username"
-              />
+              <Input id="username" type="text" placeholder="unique-username" />
             </div>
 
             <div className="flex items-center gap-2">

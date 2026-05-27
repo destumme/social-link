@@ -42,7 +42,7 @@ export default function RootLayout({
         figtree.variable,
       )}
     >
-        <body className="min-h-full flex flex-col relative">
+      <body className="min-h-full flex flex-col relative">
         <ThemeScript />
         <TooltipProvider>{children}</TooltipProvider>
         <Footer />
