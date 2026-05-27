@@ -90,7 +90,6 @@ model Connection {
   connectedAccount   Account?          @relation("connectedTo", fields: [connectedAccountId], references: [id])
   connectedAccountId String?
   status             ConnectionStatus
-  groups             String[]
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   account            Account?          @relation("connections", fields: [accountId], references: [id])

@@ -9,6 +9,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Prefer simple over complex.
 - Keep changes small and incremental.
 - Only make changes that are confirmed.
+- Use the `todowrite` tool to create todo checklists for any plan with 3+ steps before starting implementation.
 
 # Project
 
@@ -21,11 +22,12 @@ Social links app — Next.js 16.2.6 + GraphQL Yoga + Prisma 7 + Better Auth + Po
 | Dev server | `yarn dev` |
 | Production build | `yarn build` |
 | Lint | `yarn lint` (eslint, no separate typecheck script — build runs TS) |
-| Prisma generate | `npx prisma generate` |
-| DB push (dev) | `npx prisma db push` |
-| Seed DB | `npx tsx prisma/seed.ts` |
+| Prisma generate | `yarn run prisma generate` |
+| DB push (dev) | `yarn run prisma db push` |
+| Seed DB | `yarn run prisma db seed` |
 
 Package manager is **yarn 4.14.1** (`packageManager` field). Use `yarn`, not `npm install`.
+Use `yarn run prisma` for Prisma CLI commands (not `npx`). If a `yarn run` command fails, do not retry — report the error instead.
 
 ## Architecture
 
@@ -35,6 +37,26 @@ Package manager is **yarn 4.14.1** (`packageManager` field). Use `yarn`, not `np
 - **Prisma client** is generated to `src/generated/prisma/` (custom output path). Adapter is `@prisma/adapter-pg` for PostgreSQL. Client imported from `@/generated/prisma/client`.
 - **Auth** uses Better Auth (not yet wired into context — hardcoded account ID in `context.ts`).
 - **Env** loaded via `direnv` (`.envrc`). Prisma reads `DATABASE_URL` from environment.
+
+## UI & Theming
+
+- **UI stack**: Base UI (`@base-ui/react`) headless primitives + Tailwind v4 + shadcn component registry + CVA (`class-variance-authority`) for component variants.
+- **Component patterns**: `cn()` utility (`src/lib/utils.ts`) combines clsx + tailwind-merge. Components use `data-slot` attributes for targeting. `render` prop enables Next.js Link composition in dropdown items.
+- **UI primitives** in `src/components/ui/` — explore for current components (button, dialog, select, dropdown, input, etc.).
+- **Layout components** in `src/components/layout/` — explore for header, footer, main shell, theme selector.
+- **Icons**: `@hugeicons/react` with category mappings in `src/lib/icons.ts`.
+
+### Dynamic Theming
+
+- **Architecture**: CSS custom properties scoped to `[data-theme="..."]` on `<html>`. Each theme defines semantic tokens: `--background`, `--foreground`, `--primary`, `--card`, `--sidebar-*`, `--chart-*`, `--notebook-*`, etc.
+- **Color format**: OKLCH exclusively.
+- **Tailwind mapping**: `@theme inline` block in `src/app/globals.css` maps CSS vars to utility classes (`bg-background`, `text-primary`, `rounded-lg`).
+- **ThemeProvider** (`src/components/theme-provider.tsx`): React context using `useSyncExternalStore`, persists theme to localStorage, sets default theme.
+- **ThemeScript** (`src/components/theme-script.tsx`): inline `<script>` injected in `<body>` for FOUC prevention — runs before hydration.
+- **Theme selector** (`src/components/layout/theme-selector.tsx`): dropdown UI with color swatch previews.
+- **Dark mode**: `@custom-variant dark` in `globals.css` classifies which themes trigger `dark:` Tailwind variants.
+- **Notebook effect**: decorative vertical/horizontal lines via `--notebook-vertical-line` / `--notebook-horizontal-line` CSS vars, colors vary per theme.
+- Explore `src/app/globals.css` for all available themes and their color tokens.
 
 ## Testing
 
@@ -76,11 +98,16 @@ Always check if an available skill applies before starting work. Load the releva
 src/
 ├── app/              # Presentation layer — Next.js App Router pages, layouts, and API routes
 │   ├── api/          # Backend API routes (GraphQL Yoga endpoint, health check)
-│   ├── edit/         # Profile editing UI
+│   ├── traits/       # Trait management UI
+│   ├── groups/       # Connection groups management UI
 │   ├── link/         # Public link page
 │   ├── login/        # Authentication UI
 │   └── settings/     # Account settings UI
 ├── components/       # Reusable UI layer — layout shells, shared icon components, and shadcn/ui primitives
+│   ├── ui/           # shadcn-style primitive components (Base UI + Tailwind)
+│   ├── layout/       # App shell components (header, footer, main, theme selector)
+│   ├── theme-provider.tsx   # Theme context + localStorage persistence
+│   └── theme-script.tsx     # SSR-safe theme injection (FOUC prevention)
 ├── generated/        # Auto-generated code — Prisma client output
 ├── lib/              # Business logic layer — services, GraphQL schema/resolvers, utilities
 │   ├── database/     # Database connection and low-level utilities

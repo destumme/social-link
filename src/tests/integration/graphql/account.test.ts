@@ -29,6 +29,17 @@ const ACCOUNT_BY_USERNAME_QUERY = `
   }
 `;
 
+const SEARCH_ACCOUNTS_QUERY = `
+  query($query: String!) {
+    searchAccounts(query: $query) {
+      id
+      displayName
+      username
+      publicListed
+    }
+  }
+`;
+
 const ACCOUNT_BY_SHARE_ID_QUERY = `
   query($shareId: String!) {
     accountByShareId(shareId: $shareId) {
@@ -134,6 +145,53 @@ describe("GraphQL Account", () => {
 
       expect(result.error).toBeDefined();
       expect(result.error?.message).toContain("Not implemented");
+    });
+  });
+
+  describe("searchAccounts", () => {
+    it("returns matching public accounts", async () => {
+      const prisma = getTestPrisma();
+      await prisma.account.create({
+        data: {
+          displayName: "Alice Smith",
+          username: `alice-${Date.now()}`,
+          publicListed: true,
+        },
+      });
+
+      const result = await client.query(SEARCH_ACCOUNTS_QUERY, {
+        query: "alice",
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data?.searchAccounts.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("excludes private accounts from search", async () => {
+      const prisma = getTestPrisma();
+      await prisma.account.create({
+        data: {
+          displayName: "Private User",
+          username: `private-${Date.now()}`,
+          publicListed: false,
+        },
+      });
+
+      const result = await client.query(SEARCH_ACCOUNTS_QUERY, {
+        query: "private",
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data?.searchAccounts).toEqual([]);
+    });
+
+    it("returns empty array when no matches", async () => {
+      const result = await client.query(SEARCH_ACCOUNTS_QUERY, {
+        query: "nonexistent-account-xyz",
+      });
+
+      expect(result.error).toBeUndefined();
+      expect(result.data?.searchAccounts).toEqual([]);
     });
   });
 

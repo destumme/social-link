@@ -6,7 +6,7 @@ export default function Footer() {
 
   return (
     <footer className="relative w-full overflow-hidden bg-background">
-      <div className="absolute right-12 bottom-0 pointer-events-none translate-y-3/8">
+      <div className="absolute right-36 bottom-0 pointer-events-none translate-y-3/8">
         <BrandIcon className="w-56 h-56 text-tertiary/20" />
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">

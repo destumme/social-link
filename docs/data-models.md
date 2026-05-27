@@ -47,11 +47,7 @@ The `category` and `icon` fields are optional.
 
 ### Trait category
 
-A trait can be one of the following:
-- PHONE_NUMBER
-- EMAIL
-- SOCIAL_MEDIA_LINK
-- WEBSITE_LINK
+A trait can be one of many categories including PHONE_NUMBER, EMAIL, SOCIAL_MEDIA_LINK, WEBSITE_LINK, and platform-specific categories like FACEBOOK, INSTAGRAM, LINKEDIN, YOUTUBE, GITHUB, SPOTIFY, and more. See the Prisma schema for the full list.
 
 The category determines the default icon of the trait.
 
@@ -61,7 +57,7 @@ The category determines the default icon of the trait.
 A connection is a link an account creates with another account 
 When an account requests to connect with another account, each account gets a connection entry.
 Each account assigns their connection entry one or more groups.
-The account can also add individual traits of theirs to a connection. This allows the connected account to see the data in that trait.
+Trait visibility is controlled through connection groups — traits are shared with connections based on group membership (`trait.visibleGroups`).
 These are one sided, only the account that owns the connection can see the data in it.
 
 The `status` field is one of: PENDING, ACCEPTED, DECLINED.
@@ -74,7 +70,6 @@ The `createdAt` field is the timestamp when the connection was created.
     "connectedAccount":"",
     "status": "",
     "groups":[],
-    "traits":[],
     "createdAt": ""
 }
 ```

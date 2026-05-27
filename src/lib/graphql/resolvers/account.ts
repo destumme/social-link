@@ -62,6 +62,13 @@ export const Query = {
   ) => {
     return accountService.search.findAccountsByUsername(args.username);
   },
+  searchAccounts: (
+    _parent: unknown,
+    args: { query: string },
+    _context: GraphQLContext,
+  ) => {
+    return accountService.search.findAccountsByUsername(args.query);
+  },
   accountByShareId: (_parent: unknown, _args: { shareId: string }) => {
     throw new Error("Not implemented");
   },

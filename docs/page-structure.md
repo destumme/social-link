@@ -8,8 +8,8 @@ See `./data-models` for their definition.
 /login - Login Page, allows an "account" to login via social oauth
 /login/create-account 
 
-/edit/traits - traits page, allows an "account" to create, update, and delete their "traits"
-/edit/groups - group page, allows an "account" to create, update, delete "connection" groups and assign "trait" visibility to groups
+/traits - traits page, allows an "account" to create, update, and delete their "traits"
+/groups - group page, allows an "account" to create, update, delete "connection" groups and assign "trait" visibility to groups
 /settings - account settings page, allows an "account" to change their account settings and manage their OAuth Social Login connections
 
 /link - Connections inbox, shows pending requests and all connections
@@ -36,7 +36,7 @@ See `./data-models` for their definition.
 - `publicListed` toggle (controls search visibility)
 - Continue/Submit button
 
-### /edit/traits - Traits Page
+### /traits - Traits Page
 
 - List of existing traits showing: key, value, category, icon, visible groups
 - Create trait form: key input, value input, category dropdown (`PHONE_NUMBER`, `EMAIL`, `SOCIAL_MEDIA_LINK`, `WEBSITE_LINK`), optional icon input
@@ -44,7 +44,7 @@ See `./data-models` for their definition.
 - Delete trait button per row (with confirmation)
 - Visible groups controls per trait: checkboxes/toggles for each connection group to control `visibleGroups`
 
-### /edit/groups - Groups Page
+### /groups - Groups Page
 
 - List of existing connection groups showing: name, connection count, trait count
 - Create group form: name input
