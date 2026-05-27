@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -25,7 +26,12 @@ export function PendingConnectionRow({
     <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
       <div>
         <p className="font-medium">{connection.name}</p>
-        <p className="text-xs text-muted-foreground">@{connection.username}</p>
+        <Link
+          href={`/link/${connection.username}`}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          @{connection.username}
+        </Link>
       </div>
       <div>
         <Tooltip>

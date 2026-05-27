@@ -11,8 +11,8 @@ import {
 
 const menuItems = [
   { href: "/link", label: "Connections" },
-  { href: "/edit/traits", label: "Edit Traits" },
-  { href: "/edit/groups", label: "Edit Groups" },
+  { href: "/traits", label: "Edit Traits" },
+  { href: "/groups", label: "Edit Groups" },
   { href: "/settings", label: "Settings" },
 ];
 

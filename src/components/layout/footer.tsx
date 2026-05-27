@@ -25,13 +25,13 @@ export default function Footer() {
               Links
             </Link>
             <Link
-              href="/edit/groups"
+              href="/groups"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Groups
             </Link>
             <Link
-              href="/edit/traits"
+              href="/traits"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Traits

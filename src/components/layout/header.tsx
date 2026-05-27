@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 notebook-vertical-line relative">
+    <header className="sticky top-0 z-50 w-full bg-background notebook-vertical-line relative">
       <div className="w-full flex h-24 items-center gap-6 px-0 lg:px-2">
         {/* TODO: wire up searchAccounts query */}
         <form className="flex flex-1 justify-center">
