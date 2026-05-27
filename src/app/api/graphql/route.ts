@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createSchema,
   createYoga,
@@ -9,7 +10,6 @@ import { createContext, GraphQLContext } from "@/lib/graphql/resolvers/context";
 import { NextRequest } from "next/server";
 import { logger } from "@/lib/logger";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const yoga: YogaServerInstance<any, GraphQLContext> = createYoga<
   any,
   GraphQLContext

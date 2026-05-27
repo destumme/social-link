@@ -6,6 +6,40 @@ export const typeDefs = /* GraphQL */ `
     EMAIL
     SOCIAL_MEDIA_LINK
     WEBSITE_LINK
+    FACEBOOK
+    INSTAGRAM
+    LINKEDIN
+    YOUTUBE
+    REDDIT
+    PINTEREST
+    SNAPCHAT
+    THREADS
+    BLUESKY
+    MASTODON
+    TUMBLR
+    WHATSAPP
+    TELEGRAM
+    DISCORD
+    SIGNAL
+    WECHAT
+    MESSENGER
+    SKYPE
+    GITHUB
+    GITLAB
+    SPOTIFY
+    SOUNDCLOUD
+    LAST_FM
+    TWITCH
+    KICKSTARTER
+    SHOPIFY
+    PAYPAL
+    STRIPE
+    WEBFLOW
+    WORDPRESS
+    ZOOM
+    WIKIPEDIA
+    PEXELS
+    UNSPLASH
   }
 
   enum ConnectionStatus {

@@ -56,6 +56,43 @@ Package manager is **yarn 4.14.1** (`packageManager` field). Use `yarn`, not `np
 - Mock Prisma supports `$transaction` with both array and callback patterns.
 - Yoga test instance has `maskedErrors: false` so actual error messages are visible.
 
+## Skills
+
+Always check if an available skill applies before starting work. Load the relevant skill via the `skill` tool when its trigger conditions are met.
+
+| Skill | When to use |
+|---|---|
+| `better-auth-best-practices` | Configuring Better Auth server/client, database adapters, sessions, plugins, env vars |
+| `create-auth-skill` | Scaffolding auth with Better Auth — login, sign-up, OAuth, auth UI pages |
+| `customize-opencode` | Editing opencode config (`opencode.json`, `.opencode/`, agents, skills, MCP servers) |
+| `graphql-schema` | Designing or reviewing GraphQL schemas, types, nullability, pagination, errors, security |
+| `next-best-practices` | Next.js patterns — file conventions, RSC boundaries, data patterns, metadata, route handlers |
+| `prisma-client-api` | Writing Prisma queries — CRUD, filters, operators, `$transaction`, client configuration |
+| `shadcn` | Working with shadcn/ui components, component registry, styling, presets |
+
+## Project Structure
+
+```
+src/
+├── app/              # Presentation layer — Next.js App Router pages, layouts, and API routes
+│   ├── api/          # Backend API routes (GraphQL Yoga endpoint, health check)
+│   ├── edit/         # Profile editing UI
+│   ├── link/         # Public link page
+│   ├── login/        # Authentication UI
+│   └── settings/     # Account settings UI
+├── components/       # Reusable UI layer — layout shells, shared icon components, and shadcn/ui primitives
+├── generated/        # Auto-generated code — Prisma client output
+├── lib/              # Business logic layer — services, GraphQL schema/resolvers, utilities
+│   ├── database/     # Database connection and low-level utilities
+│   ├── graphql/      # GraphQL layer — SDL type definitions, domain resolvers, error types, context
+│   ├── services/     # Service layer — namespaced CRUD and search operations per domain
+│   └── utils/        # Shared helpers (logging, general utilities)
+└── tests/            # Test suite — unit tests for services, integration tests for Prisma and GraphQL
+    ├── helpers/      # Test fixtures and utilities (mock Prisma, GraphQL client, test DB)
+    ├── integration/  # End-to-end tests against real Prisma and GraphQL handler
+    └── unit/         # Isolated service-layer tests with mocked Prisma
+```
+
 ## Key Constraints
 
 - Do **not** implement resolvers that currently throw `"Not implemented"` unless explicitly asked.
