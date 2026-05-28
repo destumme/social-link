@@ -30,7 +30,7 @@ describe("traitService.trait", () => {
         id: "trait-1",
         key: "twitter",
         value: "@user",
-        category: "SOCIAL_MEDIA_LINK" as TraitCategory,
+        category: "SOCIAL_LINK" as TraitCategory,
         icon: "twitter-icon",
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -130,7 +130,7 @@ describe("traitService.trait", () => {
         id: "trait-1",
         key: "new-key",
         value: "new-value",
-        category: "PHONE_NUMBER" as TraitCategory,
+        category: "CONTACT_INFO" as TraitCategory,
         icon: null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -141,7 +141,7 @@ describe("traitService.trait", () => {
       const result = await service.trait.updateTrait("trait-1", {
         key: "new-key",
         value: "new-value",
-        category: "PHONE_NUMBER",
+        category: "CONTACT_INFO",
       });
 
       expect(prisma.trait.update).toHaveBeenCalledWith({
@@ -149,7 +149,7 @@ describe("traitService.trait", () => {
         data: {
           key: "new-key",
           value: "new-value",
-          category: "PHONE_NUMBER",
+          category: "CONTACT_INFO",
         },
       });
       expect(result).toEqual(updated);
@@ -162,7 +162,7 @@ describe("traitService.trait", () => {
         id: "trait-1",
         key: "twitter",
         value: "@user",
-        category: "SOCIAL_MEDIA_LINK" as TraitCategory,
+        category: "SOCIAL_LINK" as TraitCategory,
         icon: null,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -188,7 +188,7 @@ describe("traitService.search", () => {
           id: "trait-1",
           key: "twitter",
           value: "@user",
-          category: "SOCIAL_MEDIA_LINK" as TraitCategory,
+          category: "SOCIAL_LINK" as TraitCategory,
           icon: null,
           createdAt: new Date(),
           updatedAt: new Date(),

@@ -39,7 +39,7 @@ See `./data-models` for their definition.
 ### /traits - Traits Page
 
 - List of existing traits showing: key, value, category, icon, visible groups
-- Create trait form: key input, value input, category dropdown (`PHONE_NUMBER`, `EMAIL`, `SOCIAL_MEDIA_LINK`, `WEBSITE_LINK`), optional icon input
+- Create trait form: key input, value input, category dropdown (`CONTACT_INFO`, `MAILING_ADDRESS`, `SOCIAL_LINK`, `PROFESSIONAL_LINK`, `WEBSITE_LINK`, `MESSAGING_HANDLE`, `OTHER`), optional icon input
 - Edit trait button per row (opens inline edit or modal)
 - Delete trait button per row (with confirmation)
 - Visible groups controls per trait: checkboxes/toggles for each connection group to control `visibleGroups`

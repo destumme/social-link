@@ -4,10 +4,13 @@
 
 ```graphql
 enum TraitCategory {
-  PHONE_NUMBER
-  EMAIL
-  SOCIAL_MEDIA_LINK
+  CONTACT_INFO
+  MAILING_ADDRESS
+  SOCIAL_LINK
+  PROFESSIONAL_LINK
   WEBSITE_LINK
+  MESSAGING_HANDLE
+  OTHER
 }
 
 enum ConnectionStatus {

@@ -87,7 +87,7 @@ async function main() {
       data: {
         key: "email",
         value: "alice@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: alice.id,
       },
     });
@@ -96,7 +96,7 @@ async function main() {
       data: {
         key: "phone",
         value: "+1234567890",
-        category: "PHONE_NUMBER",
+        category: "CONTACT_INFO",
         accountId: alice.id,
       },
     });
@@ -105,7 +105,7 @@ async function main() {
       data: {
         key: "linkedin",
         value: "https://linkedin.com/in/alice",
-        category: "LINKEDIN",
+        category: "PROFESSIONAL_LINK",
         accountId: alice.id,
       },
     });
@@ -114,7 +114,7 @@ async function main() {
       data: {
         key: "instagram",
         value: "https://instagram.com/alice",
-        category: "INSTAGRAM",
+        category: "SOCIAL_LINK",
         accountId: alice.id,
       },
     });
@@ -123,7 +123,7 @@ async function main() {
       data: {
         key: "discord",
         value: "alice#1234",
-        category: "DISCORD",
+        category: "MESSAGING_HANDLE",
         accountId: alice.id,
       },
     });
@@ -133,7 +133,7 @@ async function main() {
       data: {
         key: "twitter",
         value: "https://twitter.com/bob",
-        category: "SOCIAL_MEDIA_LINK",
+        category: "SOCIAL_LINK",
         accountId: bob.id,
       },
     });
@@ -151,7 +151,7 @@ async function main() {
       data: {
         key: "linkedin",
         value: "https://linkedin.com/in/bob",
-        category: "LINKEDIN",
+        category: "PROFESSIONAL_LINK",
         accountId: bob.id,
       },
     });
@@ -160,7 +160,7 @@ async function main() {
       data: {
         key: "spotify",
         value: "https://open.spotify.com/user/bob",
-        category: "SPOTIFY",
+        category: "OTHER",
         accountId: bob.id,
       },
     });
@@ -169,7 +169,7 @@ async function main() {
       data: {
         key: "twitch",
         value: "https://twitch.tv/bob",
-        category: "TWITCH",
+        category: "OTHER",
         accountId: bob.id,
       },
     });
@@ -179,7 +179,7 @@ async function main() {
       data: {
         key: "email",
         value: "charlie@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: charlie.id,
       },
     });
@@ -188,7 +188,7 @@ async function main() {
       data: {
         key: "github",
         value: "https://github.com/charlie",
-        category: "GITHUB",
+        category: "PROFESSIONAL_LINK",
         accountId: charlie.id,
       },
     });
@@ -197,7 +197,7 @@ async function main() {
       data: {
         key: "linkedin",
         value: "https://linkedin.com/in/charlie",
-        category: "LINKEDIN",
+        category: "PROFESSIONAL_LINK",
         accountId: charlie.id,
       },
     });
@@ -206,7 +206,7 @@ async function main() {
       data: {
         key: "telegram",
         value: "https://t.me/charlie",
-        category: "TELEGRAM",
+        category: "MESSAGING_HANDLE",
         accountId: charlie.id,
       },
     });
@@ -215,7 +215,7 @@ async function main() {
       data: {
         key: "bluesky",
         value: "https://bsky.app/profile/charlie",
-        category: "BLUESKY",
+        category: "SOCIAL_LINK",
         accountId: charlie.id,
       },
     });
@@ -225,7 +225,7 @@ async function main() {
       data: {
         key: "phone",
         value: "+0987654321",
-        category: "PHONE_NUMBER",
+        category: "CONTACT_INFO",
         accountId: diana.id,
       },
     });
@@ -243,7 +243,7 @@ async function main() {
       data: {
         key: "instagram",
         value: "https://instagram.com/diana",
-        category: "INSTAGRAM",
+        category: "SOCIAL_LINK",
         accountId: diana.id,
       },
     });
@@ -252,7 +252,7 @@ async function main() {
       data: {
         key: "youtube",
         value: "https://youtube.com/@diana",
-        category: "YOUTUBE",
+        category: "SOCIAL_LINK",
         accountId: diana.id,
       },
     });
@@ -261,7 +261,7 @@ async function main() {
       data: {
         key: "whatsapp",
         value: "+0987654321",
-        category: "WHATSAPP",
+        category: "MESSAGING_HANDLE",
         accountId: diana.id,
       },
     });
@@ -271,7 +271,7 @@ async function main() {
       data: {
         key: "email",
         value: "eve@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: eve.id,
       },
     });
@@ -280,7 +280,7 @@ async function main() {
       data: {
         key: "twitter",
         value: "https://twitter.com/eve",
-        category: "SOCIAL_MEDIA_LINK",
+        category: "SOCIAL_LINK",
         accountId: eve.id,
       },
     });
@@ -289,7 +289,7 @@ async function main() {
       data: {
         key: "instagram",
         value: "https://instagram.com/eve",
-        category: "INSTAGRAM",
+        category: "SOCIAL_LINK",
         accountId: eve.id,
       },
     });
@@ -298,7 +298,7 @@ async function main() {
       data: {
         key: "github",
         value: "https://github.com/eve",
-        category: "GITHUB",
+        category: "PROFESSIONAL_LINK",
         accountId: eve.id,
       },
     });
@@ -307,7 +307,7 @@ async function main() {
       data: {
         key: "reddit",
         value: "https://reddit.com/user/eve",
-        category: "REDDIT",
+        category: "SOCIAL_LINK",
         accountId: eve.id,
       },
     });
@@ -317,7 +317,7 @@ async function main() {
       data: {
         key: "email",
         value: "frank@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: frank.id,
       },
     });
@@ -326,7 +326,7 @@ async function main() {
       data: {
         key: "linkedin",
         value: "https://linkedin.com/in/frank",
-        category: "LINKEDIN",
+        category: "PROFESSIONAL_LINK",
         accountId: frank.id,
       },
     });
@@ -335,7 +335,7 @@ async function main() {
       data: {
         key: "twitch",
         value: "https://twitch.tv/frank",
-        category: "TWITCH",
+        category: "OTHER",
         accountId: frank.id,
       },
     });
@@ -344,7 +344,7 @@ async function main() {
       data: {
         key: "spotify",
         value: "https://open.spotify.com/user/frank",
-        category: "SPOTIFY",
+        category: "OTHER",
         accountId: frank.id,
       },
     });
@@ -353,7 +353,7 @@ async function main() {
       data: {
         key: "discord",
         value: "frank#5678",
-        category: "DISCORD",
+        category: "MESSAGING_HANDLE",
         accountId: frank.id,
       },
     });
@@ -363,7 +363,7 @@ async function main() {
       data: {
         key: "email",
         value: "grace@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: grace.id,
       },
     });
@@ -372,7 +372,7 @@ async function main() {
       data: {
         key: "phone",
         value: "+1122334455",
-        category: "PHONE_NUMBER",
+        category: "CONTACT_INFO",
         accountId: grace.id,
       },
     });
@@ -381,7 +381,7 @@ async function main() {
       data: {
         key: "instagram",
         value: "https://instagram.com/grace",
-        category: "INSTAGRAM",
+        category: "SOCIAL_LINK",
         accountId: grace.id,
       },
     });
@@ -390,7 +390,7 @@ async function main() {
       data: {
         key: "youtube",
         value: "https://youtube.com/@grace",
-        category: "YOUTUBE",
+        category: "SOCIAL_LINK",
         accountId: grace.id,
       },
     });
@@ -399,7 +399,7 @@ async function main() {
       data: {
         key: "bluesky",
         value: "https://bsky.app/profile/grace",
-        category: "BLUESKY",
+        category: "SOCIAL_LINK",
         accountId: grace.id,
       },
     });
@@ -409,7 +409,7 @@ async function main() {
       data: {
         key: "email",
         value: "henry@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: henry.id,
       },
     });
@@ -418,7 +418,7 @@ async function main() {
       data: {
         key: "phone",
         value: "+5566778899",
-        category: "PHONE_NUMBER",
+        category: "CONTACT_INFO",
         accountId: henry.id,
       },
     });
@@ -427,7 +427,7 @@ async function main() {
       data: {
         key: "github",
         value: "https://github.com/henry",
-        category: "GITHUB",
+        category: "PROFESSIONAL_LINK",
         accountId: henry.id,
       },
     });
@@ -436,7 +436,7 @@ async function main() {
       data: {
         key: "telegram",
         value: "https://t.me/henry",
-        category: "TELEGRAM",
+        category: "MESSAGING_HANDLE",
         accountId: henry.id,
       },
     });
@@ -445,7 +445,7 @@ async function main() {
       data: {
         key: "reddit",
         value: "https://reddit.com/user/henry",
-        category: "REDDIT",
+        category: "SOCIAL_LINK",
         accountId: henry.id,
       },
     });
@@ -455,7 +455,7 @@ async function main() {
       data: {
         key: "email",
         value: "iris@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: iris.id,
       },
     });
@@ -464,7 +464,7 @@ async function main() {
       data: {
         key: "linkedin",
         value: "https://linkedin.com/in/iris",
-        category: "LINKEDIN",
+        category: "PROFESSIONAL_LINK",
         accountId: iris.id,
       },
     });
@@ -473,7 +473,7 @@ async function main() {
       data: {
         key: "instagram",
         value: "https://instagram.com/iris",
-        category: "INSTAGRAM",
+        category: "SOCIAL_LINK",
         accountId: iris.id,
       },
     });
@@ -482,7 +482,7 @@ async function main() {
       data: {
         key: "whatsapp",
         value: "+1231231234",
-        category: "WHATSAPP",
+        category: "MESSAGING_HANDLE",
         accountId: iris.id,
       },
     });
@@ -491,7 +491,7 @@ async function main() {
       data: {
         key: "threads",
         value: "https://threads.net/@iris",
-        category: "THREADS",
+        category: "SOCIAL_LINK",
         accountId: iris.id,
       },
     });
@@ -501,7 +501,7 @@ async function main() {
       data: {
         key: "email",
         value: "jack@example.com",
-        category: "EMAIL",
+        category: "CONTACT_INFO",
         accountId: jack.id,
       },
     });
@@ -510,7 +510,7 @@ async function main() {
       data: {
         key: "phone",
         value: "+9998887776",
-        category: "PHONE_NUMBER",
+        category: "CONTACT_INFO",
         accountId: jack.id,
       },
     });
@@ -519,7 +519,7 @@ async function main() {
       data: {
         key: "twitter",
         value: "https://twitter.com/jack",
-        category: "SOCIAL_MEDIA_LINK",
+        category: "SOCIAL_LINK",
         accountId: jack.id,
       },
     });
@@ -528,7 +528,7 @@ async function main() {
       data: {
         key: "github",
         value: "https://github.com/jack",
-        category: "GITHUB",
+        category: "PROFESSIONAL_LINK",
         accountId: jack.id,
       },
     });
@@ -537,7 +537,7 @@ async function main() {
       data: {
         key: "spotify",
         value: "https://open.spotify.com/user/jack",
-        category: "SPOTIFY",
+        category: "OTHER",
         accountId: jack.id,
       },
     });
