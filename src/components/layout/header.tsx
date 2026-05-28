@@ -58,7 +58,12 @@ export default function Header() {
               placeholder="Search accounts..."
               className="flex-1 h-9"
             />
-            <Button type="submit" size="sm" className="px-3" disabled={isSearching}>
+            <Button
+              type="submit"
+              size="sm"
+              className="px-3"
+              disabled={isSearching}
+            >
               <HugeiconsIcon icon={Search01Icon} size={18} />
             </Button>
           </div>
