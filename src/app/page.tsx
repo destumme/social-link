@@ -14,9 +14,9 @@ export default function LandingPage() {
               Share your connections on your terms
             </h1>
             <p className="text-lg text-muted-foreground">
-              Organize your contacts into groups, control who sees what, and share
-              your social links, email, phone, and more with the people who
-              matter.
+              Organize your contacts into groups, control who sees what, and
+              share your social links, email, phone, and more with the people
+              who matter.
             </p>
 
             <div className="flex gap-4">

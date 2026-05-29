@@ -200,7 +200,12 @@ describe("GraphQL ConnectionGroup", () => {
     it("updates traits via traitIds", async () => {
       const prisma = getTestPrisma();
       const trait1 = await prisma.trait.create({
-        data: { key: "email", value: "a@b.com", category: "CONTACT_INFO", accountId },
+        data: {
+          key: "email",
+          value: "a@b.com",
+          category: "CONTACT_INFO",
+          accountId,
+        },
       });
       const trait2 = await prisma.trait.create({
         data: {
