@@ -473,7 +473,7 @@ describe("GraphQL Connection", () => {
         data: {
           key: "email",
           value: "test@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
           accountId,
         },
       });

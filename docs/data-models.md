@@ -47,9 +47,19 @@ The `category` and `icon` fields are optional.
 
 ### Trait category
 
-A trait can be one of many categories including PHONE_NUMBER, EMAIL, SOCIAL_MEDIA_LINK, WEBSITE_LINK, and platform-specific categories like FACEBOOK, INSTAGRAM, LINKEDIN, YOUTUBE, GITHUB, SPOTIFY, and more. See the Prisma schema for the full list.
+A trait category classifies the type of contact information or link. The 7 categories are:
 
-The category determines the default icon of the trait.
+| Category | Purpose | Examples |
+|---|---|---|
+| `CONTACT_INFO` | Direct contact methods | Email, phone number |
+| `MAILING_ADDRESS` | Physical/mail address | Street address, PO box |
+| `SOCIAL_LINK` | Social media profiles | Facebook, Instagram, YouTube, Reddit, Bluesky |
+| `PROFESSIONAL_LINK` | Professional/academic/dev profiles | LinkedIn, GitHub, GitLab |
+| `WEBSITE_LINK` | General websites | Blog, portfolio, storefront |
+| `MESSAGING_HANDLE` | Chat/messaging identifiers | Discord tag, Telegram username, WhatsApp |
+| `OTHER` | Anything else | Spotify, Twitch, PayPal, Zoom |
+
+The category determines the default icon. Users can override the icon per-trait using the `icon` field, which supports platform-specific icons (Facebook, Instagram, Spotify, etc.) as well as generic icons.
 
 
 ## Connection

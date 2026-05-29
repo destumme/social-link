@@ -146,7 +146,7 @@ describe("GraphQL ConnectionGroup", () => {
         data: {
           key: "email",
           value: "test@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
           accountId,
         },
       });
@@ -200,13 +200,18 @@ describe("GraphQL ConnectionGroup", () => {
     it("updates traits via traitIds", async () => {
       const prisma = getTestPrisma();
       const trait1 = await prisma.trait.create({
-        data: { key: "email", value: "a@b.com", category: "EMAIL", accountId },
+        data: {
+          key: "email",
+          value: "a@b.com",
+          category: "CONTACT_INFO",
+          accountId,
+        },
       });
       const trait2 = await prisma.trait.create({
         data: {
           key: "phone",
           value: "123",
-          category: "PHONE_NUMBER",
+          category: "CONTACT_INFO",
           accountId,
         },
       });
@@ -281,7 +286,7 @@ describe("GraphQL ConnectionGroup", () => {
         data: {
           key: "email",
           value: "test@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
           accountId,
         },
       });
@@ -313,7 +318,7 @@ describe("GraphQL ConnectionGroup", () => {
         data: {
           key: "email",
           value: "test@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
           accountId,
         },
       });

@@ -1,46 +1,29 @@
 import Link from "next/link";
 import BrandIcon from "@/components/layout/brand-icon";
+import ThemeSelector from "@/components/layout/theme-selector";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative w-full overflow-hidden bg-background">
-      <div className="absolute right-36 bottom-0 pointer-events-none translate-y-3/8">
-        <BrandIcon className="w-56 h-56 text-tertiary/20" />
-      </div>
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
-        <div className="flex flex-col md:flex-row justify-start items-center gap-8 pl-32">
-          <nav className="flex gap-6">
+    <footer className="static w-full overflow-hidden bg-background">
+      <div className="flex w-full flex-row">
+        <div className="xl:px-36 lg:px-18 md:px-6">
+          <ThemeProvider>
+            <ThemeSelector />
+          </ThemeProvider>
+        </div>
+        <div
+          data-id="sitemap"
+          className="flex flex-1 flex-row justify-between items-center gap-8"
+        >
+          <nav className="flex gap-6 pr-2 sm:flex-row">
             <Link
               href="/"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Home
-            </Link>
-            <Link
-              href="/link"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Links
-            </Link>
-            <Link
-              href="/groups"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Groups
-            </Link>
-            <Link
-              href="/traits"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Traits
-            </Link>
-            <Link
-              href="/settings"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Settings
             </Link>
             <Link
               href="/login"
@@ -55,10 +38,15 @@ export default function Footer() {
               Sign Up
             </Link>
           </nav>
-          <p className="text-sm text-muted-foreground">
-            &copy; {year} Social Links.
-          </p>
+          <div data-id="copyright" className="flex items-end gap-6 pr-12">
+            <p className="text-sm text-muted-foreground">
+              &copy; {year} Social Links.
+            </p>
+          </div>
         </div>
+      </div>
+      <div className="absolute right-36 bottom-0 pointer-events-none translate-y-4/8 translate-x-1/4">
+        <BrandIcon className="w-56 h-56 text-tertiary/20" />
       </div>
     </footer>
   );

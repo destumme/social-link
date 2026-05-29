@@ -93,7 +93,7 @@ describe("GraphQL Trait", () => {
         data: {
           key: "email",
           value: "test@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
           accountId,
         },
       });
@@ -104,7 +104,7 @@ describe("GraphQL Trait", () => {
       expect(result.data?.myTraits).toHaveLength(1);
       expect(result.data?.myTraits[0].key).toBe("email");
       expect(result.data?.myTraits[0].value).toBe("test@example.com");
-      expect(result.data?.myTraits[0].category).toBe("EMAIL");
+      expect(result.data?.myTraits[0].category).toBe("CONTACT_INFO");
     });
 
     it("returns empty array when no traits exist", async () => {
@@ -126,7 +126,7 @@ describe("GraphQL Trait", () => {
         data: {
           key: "twitter",
           value: "@other",
-          category: "SOCIAL_MEDIA_LINK",
+          category: "SOCIAL_LINK",
           accountId: otherAccount.id,
         },
       });
@@ -145,7 +145,7 @@ describe("GraphQL Trait", () => {
         data: {
           key: "phone",
           value: "+1234567890",
-          category: "PHONE_NUMBER",
+          category: "CONTACT_INFO",
           accountId,
         },
       });
@@ -174,7 +174,7 @@ describe("GraphQL Trait", () => {
         input: {
           key: "email",
           value: "new@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
         },
       });
 
@@ -182,7 +182,7 @@ describe("GraphQL Trait", () => {
       expect(result.data?.createTrait.id).toBeDefined();
       expect(result.data?.createTrait.key).toBe("email");
       expect(result.data?.createTrait.value).toBe("new@example.com");
-      expect(result.data?.createTrait.category).toBe("EMAIL");
+      expect(result.data?.createTrait.category).toBe("CONTACT_INFO");
     });
 
     it("creates a trait with optional icon", async () => {
@@ -204,7 +204,7 @@ describe("GraphQL Trait", () => {
         input: {
           key: "twitter",
           value: "@testuser",
-          category: "SOCIAL_MEDIA_LINK",
+          category: "SOCIAL_LINK",
         },
       });
 
@@ -223,7 +223,7 @@ describe("GraphQL Trait", () => {
         data: {
           key: "email",
           value: "old@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
           accountId,
         },
       });
@@ -250,11 +250,11 @@ describe("GraphQL Trait", () => {
 
       const result = await client.mutation(UPDATE_TRAIT_MUTATION, {
         id: trait.id,
-        input: { category: "SOCIAL_MEDIA_LINK" },
+        input: { category: "SOCIAL_LINK" },
       });
 
       expect(result.error).toBeUndefined();
-      expect(result.data?.updateTrait.category).toBe("SOCIAL_MEDIA_LINK");
+      expect(result.data?.updateTrait.category).toBe("SOCIAL_LINK");
     });
   });
 
@@ -265,7 +265,7 @@ describe("GraphQL Trait", () => {
         data: {
           key: "email",
           value: "test@example.com",
-          category: "EMAIL",
+          category: "CONTACT_INFO",
           accountId,
         },
       });

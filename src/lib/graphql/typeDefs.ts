@@ -2,44 +2,13 @@ export const typeDefs = /* GraphQL */ `
   scalar DateTime
 
   enum TraitCategory {
-    PHONE_NUMBER
-    EMAIL
-    SOCIAL_MEDIA_LINK
+    CONTACT_INFO
+    MAILING_ADDRESS
+    SOCIAL_LINK
+    PROFESSIONAL_LINK
     WEBSITE_LINK
-    FACEBOOK
-    INSTAGRAM
-    LINKEDIN
-    YOUTUBE
-    REDDIT
-    PINTEREST
-    SNAPCHAT
-    THREADS
-    BLUESKY
-    MASTODON
-    TUMBLR
-    WHATSAPP
-    TELEGRAM
-    DISCORD
-    SIGNAL
-    WECHAT
-    MESSENGER
-    SKYPE
-    GITHUB
-    GITLAB
-    SPOTIFY
-    SOUNDCLOUD
-    LAST_FM
-    TWITCH
-    KICKSTARTER
-    SHOPIFY
-    PAYPAL
-    STRIPE
-    WEBFLOW
-    WORDPRESS
-    ZOOM
-    WIKIPEDIA
-    PEXELS
-    UNSPLASH
+    MESSAGING_HANDLE
+    OTHER
   }
 
   enum ConnectionStatus {

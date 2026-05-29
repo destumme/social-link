@@ -271,7 +271,7 @@ describe("connectionGroupService.search", () => {
           id: "trait-1",
           key: "twitter",
           value: "@user",
-          category: TraitCategory.SOCIAL_MEDIA_LINK,
+          category: TraitCategory.SOCIAL_LINK,
           icon: null,
           createdAt: new Date(),
           updatedAt: new Date(),
