@@ -1,13 +1,21 @@
+import { auth } from "@/lib/auth";
+
 export interface GraphQLContext {
-  authedAccountId: string;
+  authedAccountId: string | null;
 }
 
-export function createContext(request: Request): GraphQLContext {
-  const accountId =
-    process.env.TEST_AUTHED_ACCOUNT_ID ??
-    "313847cb-6102-4455-9af9-86a769ccc2da";
+export async function createContext(request: Request): Promise<GraphQLContext> {
+  if (process.env.TEST_AUTHED_ACCOUNT_ID) {
+    return {
+      authedAccountId: process.env.TEST_AUTHED_ACCOUNT_ID,
+    };
+  }
+
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
 
   return {
-    authedAccountId: accountId,
+    authedAccountId: session?.user?.id ?? null,
   };
 }

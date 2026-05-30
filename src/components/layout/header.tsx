@@ -14,7 +14,7 @@ export default function Header() {
     pathname.startsWith("/settings");
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background notebook-vertical-line relative">
+    <header className="sticky top-0 z-50 w-full bg-background notebook-vertical-line">
       <div className="w-full flex h-24 items-center gap-6 px-6 lg:px-12">
         <SearchInput className="flex-1" />
         {showPageNav && <PageNav />}

@@ -14,6 +14,10 @@ export const Account = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
+
     if (parent.id === context.authedAccountId) {
       return accountService.search.findAccountTraitsForOwner(
         context.authedAccountId,
@@ -30,6 +34,10 @@ export const Account = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
+
     if (parent.id === context.authedAccountId) {
       return accountService.search.findAccountConnections(
         context.authedAccountId,
@@ -45,6 +53,10 @@ export const Account = {
 
 export const Query = {
   me: async (_parent: unknown, _args: unknown, context: GraphQLContext) => {
+    if (!context.authedAccountId) {
+      return null;
+    }
+
     const account = await accountService.account.findAccountById(
       context.authedAccountId,
     );
@@ -80,6 +92,10 @@ export const Mutation = {
     args: { input: UpdateAccountInput },
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
+
     const account = await accountService.account.findAccountById(
       context.authedAccountId,
     );

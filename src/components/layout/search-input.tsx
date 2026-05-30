@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
@@ -27,7 +27,7 @@ export default function SearchInput({ className }: SearchInputProps) {
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
 
-  async function handleSearch(e: FormEvent<HTMLFormElement>) {
+  async function handleSearch(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const query = formData.get("search") as string;

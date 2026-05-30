@@ -563,7 +563,7 @@ async function main() {
         accountId: alice.id,
         connectedAccountId: bob.id,
         status: "ACCEPTED",
-        groups: [aliceCloseFriends.id],
+        connectionGroups: { connect: [{ id: aliceCloseFriends.id }] },
       },
     });
 
@@ -572,7 +572,7 @@ async function main() {
         accountId: bob.id,
         connectedAccountId: alice.id,
         status: "ACCEPTED",
-        groups: [bobColleagues.id],
+        connectionGroups: { connect: [{ id: bobColleagues.id }] },
       },
     });
 

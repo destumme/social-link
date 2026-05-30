@@ -521,7 +521,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@better-auth/prisma-adapter@npm:1.6.11":
+"@better-auth/prisma-adapter@npm:1.6.11, @better-auth/prisma-adapter@npm:^1.6.11":
   version: 1.6.11
   resolution: "@better-auth/prisma-adapter@npm:1.6.11"
   peerDependencies:
@@ -8788,6 +8788,7 @@ __metadata:
   resolution: "social-links@workspace:."
   dependencies:
     "@base-ui/react": "npm:^1.4.1"
+    "@better-auth/prisma-adapter": "npm:^1.6.11"
     "@envelop/core": "npm:^5.5.1"
     "@hugeicons/core-free-icons": "npm:^4.1.3"
     "@hugeicons/react": "npm:^1.1.6"

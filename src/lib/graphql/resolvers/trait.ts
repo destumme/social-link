@@ -1,3 +1,4 @@
+import { UnauthorizedError } from "../errors";
 import { TraitCategory } from "@/generated/prisma/enums";
 import { GraphQLContext } from "./context";
 import traitService from "@/lib/services/traitService";
@@ -27,6 +28,9 @@ export const Trait = {
 
 export const Query = {
   myTraits: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return traitService.search.findTraitsByAccountId(context.authedAccountId);
   },
   traitById: (_parent: unknown, args: { id: string }) => {
@@ -40,6 +44,9 @@ export const Mutation = {
     args: { input: CreateTraitInput },
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return traitService.trait.createTrait(args.input, context.authedAccountId);
   },
   updateTrait: (

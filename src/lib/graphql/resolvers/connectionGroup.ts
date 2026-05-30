@@ -1,4 +1,4 @@
-import { NotFoundError } from "../errors";
+import { NotFoundError, UnauthorizedError } from "../errors";
 import { GraphQLContext } from "./context";
 import connectionGroupService from "@/lib/services/connectionGroupService";
 
@@ -30,6 +30,9 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionGroupService.search.findConnectionGroupsByAccountId(
       context.authedAccountId,
     );
@@ -42,6 +45,9 @@ export const Mutation = {
     args: { input: CreateConnectionGroupInput },
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionGroupService.connectionGroup.createConnectionGroup(
       args.input.name,
       context.authedAccountId,

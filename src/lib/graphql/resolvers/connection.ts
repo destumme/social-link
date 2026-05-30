@@ -1,5 +1,5 @@
 import { GraphQLContext } from "./context";
-import { GraphQLAppError, NotFoundError } from "../errors";
+import { GraphQLAppError, NotFoundError, UnauthorizedError } from "../errors";
 import connectionService from "@/lib/services/connectionService";
 
 interface RequestConnectionInput {
@@ -27,6 +27,9 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionService.search.findConnectionsByAccountId(
       context.authedAccountId,
       "ACCEPTED",
@@ -37,6 +40,9 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionService.search.findPendingConnectionsForAccount(
       context.authedAccountId,
     );
@@ -46,6 +52,9 @@ export const Query = {
     args: { accountId: string },
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionService.search.findConnectionBetweenAccounts(
       context.authedAccountId,
       args.accountId,
@@ -59,6 +68,9 @@ export const Mutation = {
     args: { accountId: string; input: RequestConnectionInput },
     context: GraphQLContext,
   ) => {
+    if (!context.authedAccountId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     const existing = await connectionService.search.checkConnectionExists(
       context.authedAccountId,
       args.accountId,
