@@ -1,4 +1,3 @@
-import { UnauthorizedError } from "../errors";
 import { TraitCategory } from "@/generated/prisma/enums";
 import { GraphQLContext } from "./context";
 import traitService from "@/lib/services/traitService";
@@ -28,10 +27,7 @@ export const Trait = {
 
 export const Query = {
   myTraits: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
-    return traitService.search.findTraitsByAccountId(context.authedUserId);
+    return traitService.search.findTraitsByAccountId(context.authedUserId!);
   },
   traitById: (_parent: unknown, args: { id: string }) => {
     return traitService.trait.findTraitById(args.id);
@@ -44,24 +40,25 @@ export const Mutation = {
     args: { input: CreateTraitInput },
     context: GraphQLContext,
   ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
-    return traitService.trait.createTrait(args.input, context.authedUserId);
+    return traitService.trait.createTrait(args.input, context.authedUserId!);
   },
   updateTrait: (
     _parent: unknown,
     args: { id: string; input: UpdateTraitInput },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
-    return traitService.trait.updateTrait(args.id, args.input);
+    return traitService.trait.updateTrait(
+      context.authedUserId!,
+      args.id,
+      args.input,
+    );
   },
   deleteTrait: async (
     _parent: unknown,
     args: { id: string },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
-    await traitService.trait.deleteTrait(args.id);
+    await traitService.trait.deleteTrait(context.authedUserId!, args.id);
     return true;
   },
 };

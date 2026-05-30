@@ -1,4 +1,4 @@
-import { NotFoundError, UnauthorizedError } from "../errors";
+import { AuthenticationError, NotFoundError } from "@/lib/services/errors";
 import { GraphQLContext } from "./context";
 import userService from "@/lib/services/userService";
 
@@ -15,11 +15,11 @@ export const User = {
     context: GraphQLContext,
   ) => {
     if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
+      throw new AuthenticationError("Not authenticated");
     }
 
     if (parent.id === context.authedUserId) {
-      return userService.search.findUserTraitsForOwner(context.authedUserId);
+      return userService.search.findUserTraitsForOwner(context.authedUserId!);
     }
 
     return userService.search.findUserTraitsForViewer(
@@ -33,14 +33,14 @@ export const User = {
     context: GraphQLContext,
   ) => {
     if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
+      throw new AuthenticationError("Not authenticated");
     }
 
     if (parent.id === context.authedUserId) {
-      return userService.search.findUserConnections(context.authedUserId);
+      return userService.search.findUserConnections(context.authedUserId!);
     }
 
-    throw new UnauthorizedError("Connections are private");
+    throw new AuthenticationError("Connections are private");
   },
   connectionGroups: (parent: { id: string }) => {
     return userService.search.findUserConnectionGroups(parent.id);
@@ -56,7 +56,7 @@ export const Query = {
     const user = await userService.user.findUserById(context.authedUserId);
 
     if (user === null) {
-      throw new UnauthorizedError("user not found");
+      throw new NotFoundError("user not found");
     }
 
     return user;
@@ -86,14 +86,6 @@ export const Mutation = {
     args: { input: UpdateUserInput },
     context: GraphQLContext,
   ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
-
-    const user = await userService.user.findUserById(context.authedUserId);
-    if (user === null) {
-      throw new NotFoundError("user not found");
-    }
-    return userService.user.updateUser(context.authedUserId, args.input);
+    return userService.user.updateUser(context.authedUserId!, args.input);
   },
 };

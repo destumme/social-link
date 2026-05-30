@@ -1,4 +1,6 @@
 import { betterAuth } from "better-auth";
+import { username } from "better-auth/plugins";
+
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/database/prisma";
 
@@ -12,9 +14,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [username()],
   user: {
     additionalFields: {
-      username: { type: "string", required: true },
       displayName: { type: "string", required: false },
       publicListed: { type: "boolean", required: false },
     },
@@ -23,14 +25,13 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          const defaults = {
-            displayName: user.name ?? "",
-            username:
-              user.email?.split("@")[0].split("+").pop() ??
-              crypto.randomUUID().slice(0, 8),
-            publicListed: true,
+          return {
+            data: {
+              ...user,
+              displayName: user.name ?? "",
+              publicListed: true,
+            },
           };
-          return { data: { ...user, ...defaults } };
         },
       },
     },

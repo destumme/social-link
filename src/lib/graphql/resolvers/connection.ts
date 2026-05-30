@@ -1,5 +1,9 @@
 import { GraphQLContext } from "./context";
-import { GraphQLAppError, NotFoundError, UnauthorizedError } from "../errors";
+import {
+  ConflictError,
+  BadRequestError,
+  NotFoundError,
+} from "@/lib/services/errors";
 import connectionService from "@/lib/services/connectionService";
 
 interface RequestConnectionInput {
@@ -27,11 +31,8 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
     return connectionService.search.findConnectionsByAccountId(
-      context.authedUserId,
+      context.authedUserId!,
       "ACCEPTED",
     );
   },
@@ -40,11 +41,8 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
     return connectionService.search.findPendingConnectionsForAccount(
-      context.authedUserId,
+      context.authedUserId!,
     );
   },
   connectionByAccount: (
@@ -52,11 +50,8 @@ export const Query = {
     args: { accountId: string },
     context: GraphQLContext,
   ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
     return connectionService.search.findConnectionBetweenAccounts(
-      context.authedUserId,
+      context.authedUserId!,
       args.accountId,
     );
   },
@@ -68,21 +63,15 @@ export const Mutation = {
     args: { accountId: string; input: RequestConnectionInput },
     context: GraphQLContext,
   ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
     const existing = await connectionService.search.checkConnectionExists(
-      context.authedUserId,
+      context.authedUserId!,
       args.accountId,
     );
     if (existing) {
-      throw new GraphQLAppError("Connection already exists", {
-        code: "CONFLICT",
-        statusCode: 409,
-      });
+      throw new ConflictError("Connection already exists");
     }
     return connectionService.connectionPair.createConnectionPair(
-      context.authedUserId,
+      context.authedUserId!,
       args.accountId,
       args.input.groupIds,
     );
@@ -90,7 +79,7 @@ export const Mutation = {
   acceptConnection: async (
     _parent: unknown,
     args: { connectionId: string },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
     const pair = await connectionService.connectionPair.findConnectionPair(
       args.connectionId,
@@ -102,20 +91,18 @@ export const Mutation = {
       pair.connection.status !== "PENDING" ||
       pair.otherSide.status !== "PENDING"
     ) {
-      throw new GraphQLAppError("Connection must be PENDING on both sides", {
-        code: "BAD_REQUEST",
-        statusCode: 400,
-      });
+      throw new BadRequestError("Connection must be PENDING on both sides");
     }
     return connectionService.connectionPair.acceptConnectionPair(
+      context.authedUserId!,
       pair.connection.id,
-      pair.otherSide.id,
+      pair.otherSide!.id,
     );
   },
   declineConnection: async (
     _parent: unknown,
     args: { connectionId: string },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
     const pair = await connectionService.connectionPair.findConnectionPair(
       args.connectionId,
@@ -127,26 +114,25 @@ export const Mutation = {
       pair.connection.status !== "PENDING" ||
       pair.otherSide.status !== "PENDING"
     ) {
-      throw new GraphQLAppError("Connection must be PENDING on both sides", {
-        code: "BAD_REQUEST",
-        statusCode: 400,
-      });
+      throw new BadRequestError("Connection must be PENDING on both sides");
     }
     return connectionService.connectionPair.declineConnectionPair(
+      context.authedUserId!,
       pair.connection.id,
-      pair.otherSide.id,
+      pair.otherSide!.id,
     );
   },
   removeConnection: async (
     _parent: unknown,
     args: { id: string },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
     const connection = await connectionService.connection.findConnectionById(
       args.id,
     );
     if (!connection) throw new NotFoundError("Connection not found");
     await connectionService.connectionPair.deleteConnectionPair(
+      context.authedUserId!,
       connection.id,
       connection.connectedAccountId ?? "",
       connection.accountId ?? "",
@@ -156,19 +142,19 @@ export const Mutation = {
   addConnectionToGroup: async (
     _parent: unknown,
     args: { connectionId: string; groupId: string },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
     const connection = await connectionService.connection.findConnectionById(
       args.connectionId,
     );
     if (!connection) throw new NotFoundError("Connection not found");
     if (connection.status !== "ACCEPTED") {
-      throw new GraphQLAppError(
+      throw new BadRequestError(
         "Only accepted connections can be added to groups",
-        { code: "BAD_REQUEST", statusCode: 400 },
       );
     }
     return connectionService.connection.addConnectionToGroup(
+      context.authedUserId!,
       args.connectionId,
       args.groupId,
     );
@@ -176,9 +162,10 @@ export const Mutation = {
   removeConnectionFromGroup: async (
     _parent: unknown,
     args: { connectionId: string; groupId: string },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
     return connectionService.connection.removeConnectionFromGroup(
+      context.authedUserId!,
       args.connectionId,
       args.groupId,
     );
@@ -186,9 +173,10 @@ export const Mutation = {
   updateConnectionTraits: async (
     _parent: unknown,
     args: { connectionId: string; traitIds: string[] },
-    _context: GraphQLContext,
+    context: GraphQLContext,
   ) => {
     return connectionService.connection.updateConnectionTraitGroups(
+      context.authedUserId!,
       args.connectionId,
       args.traitIds,
     );

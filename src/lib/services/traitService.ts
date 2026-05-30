@@ -1,7 +1,13 @@
 import { TraitCategory } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/database/prisma";
+import {
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+} from "./errors";
 
 function findTraitsByAccountId(accountId: string) {
+  if (!accountId) throw new AuthenticationError("Not authenticated");
   return prisma.trait.findMany({ where: { accountId } });
 }
 
@@ -13,6 +19,7 @@ function createTrait(
   data: { key: string; value: string; category: TraitCategory; icon?: string },
   accountId: string,
 ) {
+  if (!accountId) throw new AuthenticationError("Not authenticated");
   return prisma.trait.create({
     data: {
       ...data,
@@ -21,7 +28,8 @@ function createTrait(
   });
 }
 
-function updateTrait(
+async function updateTrait(
+  authedUserId: string,
   id: string,
   data: {
     key?: string;
@@ -30,10 +38,20 @@ function updateTrait(
     icon?: string;
   },
 ) {
+  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  const trait = await prisma.trait.findUnique({ where: { id } });
+  if (!trait) throw new NotFoundError("Trait not found");
+  if (trait.accountId !== authedUserId)
+    throw new AuthorizationError("Not authorized");
   return prisma.trait.update({ where: { id }, data });
 }
 
-function deleteTrait(id: string) {
+async function deleteTrait(authedUserId: string, id: string) {
+  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  const trait = await prisma.trait.findUnique({ where: { id } });
+  if (!trait) throw new NotFoundError("Trait not found");
+  if (trait.accountId !== authedUserId)
+    throw new AuthorizationError("Not authorized");
   return prisma.trait.delete({ where: { id } });
 }
 

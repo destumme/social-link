@@ -1,32 +1,38 @@
 "use client";
 
+import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryIcon } from "@/components/icons";
+import { deleteTraitAction } from "@/app/traits/actions";
 
-interface TraitGroup {
-  id: string;
-  name: string;
+function DeleteButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button variant="ghost" size="sm" disabled={pending} type="submit">
+      Delete
+    </Button>
+  );
 }
 
-interface TraitRowProps {
+export function TraitRow({
+  trait,
+}: {
   trait: {
     id: string;
     key: string;
     value: string;
-    category: string;
-    visibleGroups: TraitGroup[];
+    category: string | null;
+    visibleGroups: { id: string; name: string }[];
   };
-}
-
-export function TraitRow({ trait }: TraitRowProps) {
+}) {
   return (
     <div className="grid grid-cols-5 gap-4 px-6 py-4 text-sm">
       <div className="font-medium">{trait.key}</div>
       <div className="text-muted-foreground truncate">{trait.value}</div>
       <div>
         <Badge variant="secondary" className="gap-1.5">
-          {getCategoryIcon(trait.category)}
+          {getCategoryIcon(trait.category ?? "")}
           {trait.category}
         </Badge>
       </div>
@@ -43,9 +49,10 @@ export function TraitRow({ trait }: TraitRowProps) {
         <Button variant="ghost" size="sm" disabled>
           Edit
         </Button>
-        <Button variant="ghost" size="sm" disabled>
-          Delete
-        </Button>
+        <form action={deleteTraitAction}>
+          <input type="hidden" name="id" value={trait.id} />
+          <DeleteButton />
+        </form>
       </div>
     </div>
   );

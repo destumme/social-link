@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/database/prisma";
+import { AuthenticationError } from "./errors";
 
 function findUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
@@ -16,15 +17,19 @@ function findUsersByUsername(username: string) {
   });
 }
 
-function updateUser(
-  userId: string,
+async function updateUser(
+  authedUserId: string,
   data: { displayName?: string; username?: string; publicListed?: boolean },
 ) {
-  return prisma.user.update({ where: { id: userId }, data });
+  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  const user = await prisma.user.findUnique({ where: { id: authedUserId } });
+  if (!user) throw new AuthenticationError("User not found");
+  return prisma.user.update({ where: { id: authedUserId }, data });
 }
 
-function findUserTraitsForOwner(userId: string) {
-  return prisma.trait.findMany({ where: { accountId: userId } });
+function findUserTraitsForOwner(authedUserId: string) {
+  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  return prisma.trait.findMany({ where: { accountId: authedUserId } });
 }
 
 function findUserTraitsForViewer(userId: string, viewerUserId: string) {
@@ -46,8 +51,9 @@ function findUserTraitsForViewer(userId: string, viewerUserId: string) {
   });
 }
 
-function findUserConnections(userId: string) {
-  return prisma.connection.findMany({ where: { accountId: userId } });
+function findUserConnections(authedUserId: string) {
+  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  return prisma.connection.findMany({ where: { accountId: authedUserId } });
 }
 
 function findUserConnectionGroups(userId: string) {
