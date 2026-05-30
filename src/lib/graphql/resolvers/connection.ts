@@ -1,5 +1,5 @@
 import { GraphQLContext } from "./context";
-import { GraphQLAppError, NotFoundError } from "../errors";
+import { GraphQLAppError, NotFoundError, UnauthorizedError } from "../errors";
 import connectionService from "@/lib/services/connectionService";
 
 interface RequestConnectionInput {
@@ -27,8 +27,11 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
+    if (!context.authedUserId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionService.search.findConnectionsByAccountId(
-      context.authedAccountId,
+      context.authedUserId,
       "ACCEPTED",
     );
   },
@@ -37,8 +40,11 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
+    if (!context.authedUserId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionService.search.findPendingConnectionsForAccount(
-      context.authedAccountId,
+      context.authedUserId,
     );
   },
   connectionByAccount: (
@@ -46,8 +52,11 @@ export const Query = {
     args: { accountId: string },
     context: GraphQLContext,
   ) => {
+    if (!context.authedUserId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     return connectionService.search.findConnectionBetweenAccounts(
-      context.authedAccountId,
+      context.authedUserId,
       args.accountId,
     );
   },
@@ -59,8 +68,11 @@ export const Mutation = {
     args: { accountId: string; input: RequestConnectionInput },
     context: GraphQLContext,
   ) => {
+    if (!context.authedUserId) {
+      throw new UnauthorizedError("Not authenticated");
+    }
     const existing = await connectionService.search.checkConnectionExists(
-      context.authedAccountId,
+      context.authedUserId,
       args.accountId,
     );
     if (existing) {
@@ -70,7 +82,7 @@ export const Mutation = {
       });
     }
     return connectionService.connectionPair.createConnectionPair(
-      context.authedAccountId,
+      context.authedUserId,
       args.accountId,
       args.input.groupIds,
     );

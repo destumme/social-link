@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { SubmitEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
@@ -11,9 +11,9 @@ import {
   InputGroupButton,
 } from "@/components/ui/input-group";
 
-const SEARCH_ACCOUNTS_QUERY = `
+const SEARCH_USERS_QUERY = `
   query($query: String!) {
-    searchAccounts(query: $query) {
+    searchUsers(query: $query) {
       username
     }
   }
@@ -27,7 +27,7 @@ export default function SearchInput({ className }: SearchInputProps) {
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
 
-  async function handleSearch(e: FormEvent<HTMLFormElement>) {
+  async function handleSearch(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const query = formData.get("search") as string;
@@ -39,12 +39,12 @@ export default function SearchInput({ className }: SearchInputProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: SEARCH_ACCOUNTS_QUERY,
+          query: SEARCH_USERS_QUERY,
           variables: { query },
         }),
       });
       const { data } = await res.json();
-      const first = data?.searchAccounts?.[0];
+      const first = data?.searchUsers?.[0];
       if (first?.username) {
         router.push(`/link/${first.username}`);
       }

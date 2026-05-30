@@ -17,7 +17,7 @@ export const typeDefs = /* GraphQL */ `
     DECLINED
   }
 
-  type Account {
+  type User {
     id: ID!
     displayName: String!
     username: String!
@@ -29,7 +29,7 @@ export const typeDefs = /* GraphQL */ `
 
   type Trait {
     id: ID!
-    account: Account!
+    account: User!
     key: String!
     value: String!
     category: TraitCategory
@@ -39,8 +39,8 @@ export const typeDefs = /* GraphQL */ `
 
   type Connection {
     id: ID!
-    account: Account!
-    connectedAccount: Account!
+    account: User!
+    connectedAccount: User!
     status: ConnectionStatus!
     groups: [ConnectionGroup!]!
     createdAt: DateTime!
@@ -48,13 +48,13 @@ export const typeDefs = /* GraphQL */ `
 
   type ConnectionGroup {
     id: ID!
-    account: Account!
+    account: User!
     name: String!
     connections: [Connection!]!
     traits: [Trait!]!
   }
 
-  input UpdateAccountInput {
+  input UpdateUserInput {
     displayName: String
     username: String
     publicListed: Boolean
@@ -90,9 +90,9 @@ export const typeDefs = /* GraphQL */ `
   }
 
   type Query {
-    me: Account
-    accountByUsername(username: String!): Account
-    accountByShareId(shareId: String!): Account
+    me: User
+    userByUsername(username: String!): User
+    userByShareId(shareId: String!): User
 
     myTraits: [Trait!]!
     traitById(id: ID!): Trait
@@ -103,11 +103,11 @@ export const typeDefs = /* GraphQL */ `
     pendingConnections: [Connection!]!
     connectionByAccount(accountId: ID!): Connection
 
-    searchAccounts(query: String!): [Account!]!
+    searchUsers(query: String!): [User!]!
   }
 
   type Mutation {
-    updateAccount(input: UpdateAccountInput!): Account!
+    updateUser(input: UpdateUserInput!): User!
 
     createTrait(input: CreateTraitInput!): Trait!
     updateTrait(id: ID!, input: UpdateTraitInput!): Trait!

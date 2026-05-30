@@ -1,4 +1,5 @@
-¬
+# Functions
+
 Next.js function APIs.
 
 Reference: https://nextjs.org/docs/app/api-reference/functions

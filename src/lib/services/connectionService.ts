@@ -169,11 +169,11 @@ function findGroupsForConnection(connectionId: string) {
 }
 
 function findAccountForConnection(accountId: string) {
-  return prisma.account.findUnique({ where: { id: accountId } });
+  return prisma.user.findUnique({ where: { id: accountId } });
 }
 
 function findConnectedAccountForConnection(connectedAccountId: string) {
-  return prisma.account.findUnique({ where: { id: connectedAccountId } });
+  return prisma.user.findUnique({ where: { id: connectedAccountId } });
 }
 
 export const connection = {

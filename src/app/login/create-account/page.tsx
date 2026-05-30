@@ -1,10 +1,44 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { signUp } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function CreateAccountPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const { error: signUpError } = await signUp.email({
+      name,
+      email,
+      password,
+      callbackURL: "/",
+    });
+
+    setLoading(false);
+
+    if (signUpError) {
+      setError(signUpError.message ?? "Failed to create account");
+    } else {
+      router.push("/");
+      router.refresh();
+    }
+  }
+
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-24">
       <Card className="w-full max-w-sm">
@@ -18,27 +52,59 @@ export default function CreateAccountPage() {
             </p>
           </div>
 
-          {/* TODO: wire up updateAccount mutation after OAuth signup */}
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name</Label>
-              <Input id="displayName" type="text" placeholder="Your name" />
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" type="text" placeholder="unique-username" />
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
 
-            <div className="flex items-center gap-2">
-              <Checkbox id="publicListed" defaultChecked />
-              <Label htmlFor="publicListed">Make my profile searchable</Label>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+              />
             </div>
 
-            <Button type="submit" className="w-full">
-              Continue
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Creating account..." : "Create account"}
             </Button>
           </form>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              Sign in
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </div>

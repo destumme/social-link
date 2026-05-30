@@ -55,7 +55,7 @@ function removeTraitFromGroup(groupId: string, traitId: string) {
 }
 
 function findAccountForGroup(accountId: string) {
-  return prisma.account.findUnique({ where: { id: accountId } });
+  return prisma.user.findUnique({ where: { id: accountId } });
 }
 
 function findConnectionsForGroup(groupId: string) {
