@@ -11,9 +11,9 @@ import {
   InputGroupButton,
 } from "@/components/ui/input-group";
 
-const SEARCH_ACCOUNTS_QUERY = `
+const SEARCH_USERS_QUERY = `
   query($query: String!) {
-    searchAccounts(query: $query) {
+    searchUsers(query: $query) {
       username
     }
   }
@@ -39,12 +39,12 @@ export default function SearchInput({ className }: SearchInputProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: SEARCH_ACCOUNTS_QUERY,
+          query: SEARCH_USERS_QUERY,
           variables: { query },
         }),
       });
       const { data } = await res.json();
-      const first = data?.searchAccounts?.[0];
+      const first = data?.searchUsers?.[0];
       if (first?.username) {
         router.push(`/link/${first.username}`);
       }

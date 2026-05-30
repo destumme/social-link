@@ -1,9 +1,9 @@
 import { GraphQLDateTime as DateTime } from "graphql-scalars";
 import {
-  Account as AccountType,
-  Query as AccountQuery,
-  Mutation as AccountMutation,
-} from "./account";
+  User as UserType,
+  Query as UserQuery,
+  Mutation as UserMutation,
+} from "./user";
 import {
   Trait as TraitType,
   Query as TraitQuery,
@@ -23,18 +23,18 @@ import { GraphQLContext } from "./context";
 
 export const resolvers = {
   DateTime,
-  Account: AccountType,
+  User: UserType,
   Trait: TraitType,
   Connection: ConnectionType,
   ConnectionGroup: ConnectionGroupType,
   Query: {
-    ...AccountQuery,
+    ...UserQuery,
     ...TraitQuery,
     ...ConnectionQuery,
     ...ConnectionGroupQuery,
   },
   Mutation: {
-    ...AccountMutation,
+    ...UserMutation,
     ...TraitMutation,
     ...ConnectionMutation,
     ...ConnectionGroupMutation,

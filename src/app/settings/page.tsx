@@ -15,7 +15,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* TODO: wire up me query for initial values, updateAccount mutation for changes */}
+          {/* TODO: wire up me query for initial values, updateUser mutation for changes */}
           <AccountForm />
 
           {/* TODO: wire up Better Auth session to list connected providers */}

@@ -73,13 +73,17 @@ describe("GraphQL ConnectionGroup", () => {
   beforeEach(async () => {
     await cleanDatabase();
     const prisma = getTestPrisma();
-    const account = await prisma.account.create({
+    const user = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
+        name: "Test User",
+        email: `test-${Date.now()}@example.com`,
+        emailVerified: false,
         displayName: "Test User",
         username: `testuser-${Date.now()}`,
       },
     });
-    accountId = account.id;
+    accountId = user.id;
     client = createTestGraphQLClient(accountId);
   });
 
@@ -109,8 +113,12 @@ describe("GraphQL ConnectionGroup", () => {
 
     it("does not return groups from other accounts", async () => {
       const prisma = getTestPrisma();
-      const otherAccount = await prisma.account.create({
+      const otherUser = await prisma.user.create({
         data: {
+          id: crypto.randomUUID(),
+          name: "Other",
+          email: `other-${Date.now()}@example.com`,
+          emailVerified: false,
           displayName: "Other",
           username: `other-${Date.now()}`,
         },
@@ -118,7 +126,7 @@ describe("GraphQL ConnectionGroup", () => {
       await prisma.connectionGroup.create({
         data: {
           name: "Other Group",
-          accountId: otherAccount.id,
+          accountId: otherUser.id,
         },
       });
 

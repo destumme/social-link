@@ -1,10 +1,10 @@
 import { createClient, fetchExchange } from "@urql/core";
 import { yoga } from "@/app/api/graphql/route";
 
-export function createTestGraphQLClient(authedAccountId: string) {
+export function createTestGraphQLClient(authedUserId: string) {
   const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-    const previousAccountId = process.env.TEST_AUTHED_ACCOUNT_ID;
-    process.env.TEST_AUTHED_ACCOUNT_ID = authedAccountId;
+    const previousUserId = process.env.TEST_AUTHED_USER_ID;
+    process.env.TEST_AUTHED_USER_ID = authedUserId;
 
     let body: string;
     if (typeof input === "string" && input.includes("query=")) {
@@ -29,10 +29,10 @@ export function createTestGraphQLClient(authedAccountId: string) {
 
     const response = await yoga.fetch(request);
 
-    if (previousAccountId === undefined) {
-      delete process.env.TEST_AUTHED_ACCOUNT_ID;
+    if (previousUserId === undefined) {
+      delete process.env.TEST_AUTHED_USER_ID;
     } else {
-      process.env.TEST_AUTHED_ACCOUNT_ID = previousAccountId;
+      process.env.TEST_AUTHED_USER_ID = previousUserId;
     }
 
     return response;

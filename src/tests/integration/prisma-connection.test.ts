@@ -17,27 +17,31 @@ describe("Prisma DB connection", () => {
 
   it("connects and runs a basic query", async () => {
     const prisma = getTestPrisma();
-    const count = await prisma.account.count();
+    const count = await prisma.user.count();
     expect(typeof count).toBe("number");
   });
 
-  it("can create and delete an account", async () => {
+  it("can create and delete a user", async () => {
     const prisma = getTestPrisma();
 
-    const account = await prisma.account.create({
+    const user = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
+        name: "Integration Test",
+        email: `integration-test-${Date.now()}@example.com`,
+        emailVerified: false,
         displayName: "Integration Test",
         username: "integration-test-" + Date.now(),
       },
     });
 
-    expect(account.id).toBeDefined();
-    expect(account.displayName).toBe("Integration Test");
+    expect(user.id).toBeDefined();
+    expect(user.displayName).toBe("Integration Test");
 
-    await prisma.account.delete({ where: { id: account.id } });
+    await prisma.user.delete({ where: { id: user.id } });
 
-    const deleted = await prisma.account.findUnique({
-      where: { id: account.id },
+    const deleted = await prisma.user.findUnique({
+      where: { id: user.id },
     });
     expect(deleted).toBeNull();
   });
@@ -45,7 +49,7 @@ describe("Prisma DB connection", () => {
   it("cleans database between tests", async () => {
     await cleanDatabase();
     const prisma = getTestPrisma();
-    const count = await prisma.account.count();
+    const count = await prisma.user.count();
     expect(count).toBe(0);
   });
 });

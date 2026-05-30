@@ -28,10 +28,10 @@ export const Trait = {
 
 export const Query = {
   myTraits: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
-    if (!context.authedAccountId) {
+    if (!context.authedUserId) {
       throw new UnauthorizedError("Not authenticated");
     }
-    return traitService.search.findTraitsByAccountId(context.authedAccountId);
+    return traitService.search.findTraitsByAccountId(context.authedUserId);
   },
   traitById: (_parent: unknown, args: { id: string }) => {
     return traitService.trait.findTraitById(args.id);
@@ -44,10 +44,10 @@ export const Mutation = {
     args: { input: CreateTraitInput },
     context: GraphQLContext,
   ) => {
-    if (!context.authedAccountId) {
+    if (!context.authedUserId) {
       throw new UnauthorizedError("Not authenticated");
     }
-    return traitService.trait.createTrait(args.input, context.authedAccountId);
+    return traitService.trait.createTrait(args.input, context.authedUserId);
   },
   updateTrait: (
     _parent: unknown,

@@ -1,13 +1,13 @@
 import { auth } from "@/lib/auth";
 
 export interface GraphQLContext {
-  authedAccountId: string | null;
+  authedUserId: string | null;
 }
 
 export async function createContext(request: Request): Promise<GraphQLContext> {
-  if (process.env.TEST_AUTHED_ACCOUNT_ID) {
+  if (process.env.TEST_AUTHED_USER_ID) {
     return {
-      authedAccountId: process.env.TEST_AUTHED_ACCOUNT_ID,
+      authedUserId: process.env.TEST_AUTHED_USER_ID,
     };
   }
 
@@ -16,6 +16,6 @@ export async function createContext(request: Request): Promise<GraphQLContext> {
   });
 
   return {
-    authedAccountId: session?.user?.id ?? null,
+    authedUserId: session?.user?.id ?? null,
   };
 }

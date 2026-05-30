@@ -12,18 +12,25 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      username: { type: "string", required: true },
+      displayName: { type: "string", required: false },
+      publicListed: { type: "boolean", required: false },
+    },
+  },
   databaseHooks: {
     user: {
       create: {
-        after: async (user) => {
-          await prisma.account.create({
-            data: {
-              id: user.id,
-              displayName: user.name ?? "",
-              username: user.email?.split("@")[0] ?? user.id.slice(0, 8),
-              publicListed: true,
-            },
-          });
+        before: async (user) => {
+          const defaults = {
+            displayName: user.name ?? "",
+            username:
+              user.email?.split("@")[0].split("+").pop() ??
+              crypto.randomUUID().slice(0, 8),
+            publicListed: true,
+          };
+          return { data: { ...user, ...defaults } };
         },
       },
     },

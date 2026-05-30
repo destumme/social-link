@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCategoryIcon } from "@/components/icons";
 
-// TODO: wire up accountByUsername query
+// TODO: wire up userByUsername query
 async function getAccount(username: string) {
   // Placeholder - replace with GraphQL query
   if (!username) {

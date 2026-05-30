@@ -16,7 +16,7 @@ vi.mock("@/lib/database/prisma", () => ({
     connectionGroup: {
       findMany: vi.fn(),
     },
-    account: {
+    user: {
       findUnique: vi.fn(),
     },
   }),
@@ -424,44 +424,52 @@ describe("connectionService.search", () => {
 
   describe("findAccountForConnection", () => {
     it("finds account by id", async () => {
-      const mockAccount = {
+      const mockUser = {
         id: "acc-1",
+        name: "Test Name",
+        email: "test@example.com",
+        emailVerified: true,
+        image: null,
         displayName: "Test",
         username: "test",
         publicListed: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      vi.mocked(prisma.account.findUnique).mockResolvedValue(mockAccount);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
 
       const result = await service.search.findAccountForConnection("acc-1");
 
-      expect(prisma.account.findUnique).toHaveBeenCalledWith({
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: "acc-1" },
       });
-      expect(result).toEqual(mockAccount);
+      expect(result).toEqual(mockUser);
     });
   });
 
   describe("findConnectedAccountForConnection", () => {
     it("finds connected account by id", async () => {
-      const mockAccount = {
+      const mockUser = {
         id: "acc-2",
+        name: "Other Name",
+        email: "other@example.com",
+        emailVerified: true,
+        image: null,
         displayName: "Other",
         username: "other",
         publicListed: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      vi.mocked(prisma.account.findUnique).mockResolvedValue(mockAccount);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
 
       const result =
         await service.search.findConnectedAccountForConnection("acc-2");
 
-      expect(prisma.account.findUnique).toHaveBeenCalledWith({
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: "acc-2" },
       });
-      expect(result).toEqual(mockAccount);
+      expect(result).toEqual(mockUser);
     });
   });
 });

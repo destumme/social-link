@@ -30,11 +30,11 @@ export const Query = {
     _args: unknown,
     context: GraphQLContext,
   ) => {
-    if (!context.authedAccountId) {
+    if (!context.authedUserId) {
       throw new UnauthorizedError("Not authenticated");
     }
     return connectionGroupService.search.findConnectionGroupsByAccountId(
-      context.authedAccountId,
+      context.authedUserId,
     );
   },
 };
@@ -45,12 +45,12 @@ export const Mutation = {
     args: { input: CreateConnectionGroupInput },
     context: GraphQLContext,
   ) => {
-    if (!context.authedAccountId) {
+    if (!context.authedUserId) {
       throw new UnauthorizedError("Not authenticated");
     }
     return connectionGroupService.connectionGroup.createConnectionGroup(
       args.input.name,
-      context.authedAccountId,
+      context.authedUserId,
       args.input.traitIds,
     );
   },

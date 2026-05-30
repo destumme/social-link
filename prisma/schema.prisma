@@ -28,17 +28,25 @@ enum ConnectionStatus {
   DECLINED
 }
 
-model Account {
-  id               String            @id @default(uuid())
+model User {
+  id               String            @id
+  name             String
+  email            String
+  emailVerified    Boolean           @default(false)
+  image            String?
   displayName      String
   username         String            @unique
   publicListed     Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  sessions         Session[]
+  accounts         AuthAccount[]
   traits           Trait[]
   connections      Connection[]      @relation("connections")
   connectionGroups ConnectionGroup[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
   connectedTo      Connection[]      @relation("connectedTo")
+  @@unique([email])
+  @@map("user")
 }
 
 model Trait {
@@ -50,18 +58,18 @@ model Trait {
   visibleGroups ConnectionGroup[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
-  account       Account?          @relation(fields: [accountId], references: [id])
+  account       User?             @relation(fields: [accountId], references: [id])
   accountId     String?
 }
 
 model Connection {
   id                 String            @id @default(uuid())
-  connectedAccount   Account?          @relation("connectedTo", fields: [connectedAccountId], references: [id])
+  connectedAccount   User?             @relation("connectedTo", fields: [connectedAccountId], references: [id])
   connectedAccountId String?
   status             ConnectionStatus
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
-  account            Account?          @relation("connections", fields: [accountId], references: [id])
+  account            User?             @relation("connections", fields: [accountId], references: [id])
   accountId          String?
   connectionGroups   ConnectionGroup[]
 }
@@ -73,22 +81,8 @@ model ConnectionGroup {
   traits      Trait[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  account     Account?     @relation(fields: [accountId], references: [id])
+  account     User?          @relation(fields: [accountId], references: [id])
   accountId   String?
-}
-
-model User {
-  id            String        @id
-  name          String
-  email         String
-  emailVerified Boolean       @default(false)
-  image         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  sessions      Session[]
-  accounts      AuthAccount[]
-  @@unique([email])
-  @@map("user")
 }
 
 model Session {

@@ -44,7 +44,7 @@ function findVisibleGroupsForTrait(traitId: string) {
 }
 
 function findAccountForTrait(accountId: string) {
-  return prisma.account.findUnique({ where: { id: accountId } });
+  return prisma.user.findUnique({ where: { id: accountId } });
 }
 
 export const trait = { findTraitById, createTrait, updateTrait, deleteTrait };

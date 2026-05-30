@@ -107,20 +107,28 @@ describe("GraphQL Connection", () => {
   beforeEach(async () => {
     await cleanDatabase();
     const prisma = getTestPrisma();
-    const account = await prisma.account.create({
+    const user = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
+        name: "Test User",
+        email: `test-${Date.now()}@example.com`,
+        emailVerified: false,
         displayName: "Test User",
         username: `testuser-${Date.now()}`,
       },
     });
-    const otherAccount = await prisma.account.create({
+    const otherUser = await prisma.user.create({
       data: {
+        id: crypto.randomUUID(),
+        name: "Other User",
+        email: `other-${Date.now()}@example.com`,
+        emailVerified: false,
         displayName: "Other User",
         username: `other-${Date.now()}`,
       },
     });
-    accountId = account.id;
-    otherAccountId = otherAccount.id;
+    accountId = user.id;
+    otherAccountId = otherUser.id;
     client = createTestGraphQLClient(accountId);
   });
 

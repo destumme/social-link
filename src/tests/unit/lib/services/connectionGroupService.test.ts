@@ -16,7 +16,7 @@ vi.mock("@/lib/database/prisma", () => ({
     trait: {
       findMany: vi.fn(),
     },
-    account: {
+    user: {
       findUnique: vi.fn(),
     },
   }),
@@ -220,22 +220,26 @@ describe("connectionGroupService.search", () => {
 
   describe("findAccountForGroup", () => {
     it("finds account by id", async () => {
-      const mockAccount = {
+      const mockUser = {
         id: "acc-1",
+        name: "Test Name",
+        email: "test@example.com",
+        emailVerified: true,
+        image: null,
         displayName: "Test",
         username: "test",
         publicListed: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      vi.mocked(prisma.account.findUnique).mockResolvedValue(mockAccount);
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
 
       const result = await service.search.findAccountForGroup("acc-1");
 
-      expect(prisma.account.findUnique).toHaveBeenCalledWith({
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: "acc-1" },
       });
-      expect(result).toEqual(mockAccount);
+      expect(result).toEqual(mockUser);
     });
   });
 
