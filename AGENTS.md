@@ -60,14 +60,17 @@ Use `yarn run prisma` for Prisma CLI commands (not `npx`). If a `yarn run` comma
 
 ## Testing
 
-- **Framework**: Vitest (`vitest.config.ts`) — `fileParallelism: false` to avoid DB interference
+- **Framework**: Vitest (`vitest.config.ts`) — uses `test.projects` to define two projects: `unit` and `integration`.
+  - Unit tests: `fileParallelism: true` (mocked Prisma, no DB needed)
+  - Integration tests: `fileParallelism: false` (real DB, avoid interference)
 - **Setup**: `src/tests/setup.ts` extends `@testing-library/jest-dom` matchers
 
 | Task | Command |
 |---|---|
-| Watch mode | `yarn test` |
-| Run once | `yarn test:run` |
-| Coverage | `yarn test:coverage` |
+| Watch (unit) | `yarn test` |
+| Run once (unit) | `yarn test:run` |
+| Coverage (unit) | `yarn test:coverage` |
+| Run once (integration) | `make int-test` |
 
 - **Unit tests** in `src/tests/unit/lib/services/` — one per service file. Use `createMockPrisma()` from `src/tests/helpers/mockPrisma.ts` to mock Prisma models. Mock objects must include all required Prisma fields (`id`, `createdAt`, `updatedAt`, etc.).
 - **Integration tests** in `src/tests/integration/` — test real Prisma connections and GraphQL operations.
