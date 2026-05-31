@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   cleanDatabase,
   getTestPrisma,
@@ -6,6 +6,7 @@ import {
   teardownTestDb,
 } from "@/tests/helpers/testDb";
 import { createTestGraphQLClient } from "@/tests/helpers/graphqlClient";
+import { createTestUser, cleanupTestUser } from "@/tests/helpers/testAuth";
 
 const ME_QUERY = `
   query {
@@ -74,20 +75,13 @@ describe("GraphQL User", () => {
 
   beforeEach(async () => {
     await cleanDatabase();
-    const prisma = getTestPrisma();
-    const user = await prisma.user.create({
-      data: {
-        id: crypto.randomUUID(),
-        name: "Test User",
-        email: `test-${Date.now()}@example.com`,
-        emailVerified: false,
-        displayName: "Test User",
-        username: `testuser-${Date.now()}`,
-        publicListed: true,
-      },
-    });
+    const { user, headers } = await createTestUser();
     userId = user.id;
-    client = createTestGraphQLClient(userId);
+    client = createTestGraphQLClient(headers);
+  });
+
+  afterEach(async () => {
+    await cleanupTestUser(userId);
   });
 
   describe("me", () => {
