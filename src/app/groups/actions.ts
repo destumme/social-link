@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getAuthedAccountId } from "@/lib/auth-server";
 import connectionGroupService from "@/lib/services/connectionGroupService";
 import { ServiceError } from "@/lib/services/errors";
 
@@ -15,10 +14,8 @@ export async function createGroupAction(data: {
   }
 
   try {
-    const accountId = await getAuthedAccountId();
     await connectionGroupService.connectionGroup.createConnectionGroup(
       name.trim(),
-      accountId!,
     );
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
@@ -40,12 +37,10 @@ export async function updateGroupAction(data: {
   if (!name.trim()) return { error: "Group name is required" };
 
   try {
-    const accountId = await getAuthedAccountId();
-    await connectionGroupService.connectionGroup.updateConnectionGroup(
-      accountId!,
-      id,
-      { name: name.trim(), traitIds },
-    );
+    await connectionGroupService.connectionGroup.updateConnectionGroup(id, {
+      name: name.trim(),
+      traitIds,
+    });
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     throw e;
@@ -57,11 +52,7 @@ export async function updateGroupAction(data: {
 
 export async function deleteGroupAction(formData: FormData) {
   const id = formData.get("id") as string;
-  const accountId = await getAuthedAccountId();
 
-  await connectionGroupService.connectionGroup.deleteConnectionGroup(
-    accountId!,
-    id,
-  );
+  await connectionGroupService.connectionGroup.deleteConnectionGroup(id);
   revalidatePath("/groups");
 }

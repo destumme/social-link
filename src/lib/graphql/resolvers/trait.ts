@@ -1,5 +1,4 @@
 import { TraitCategory } from "@/generated/prisma/enums";
-import { GraphQLContext } from "./context";
 import traitService from "@/lib/services/traitService";
 
 interface CreateTraitInput {
@@ -26,8 +25,8 @@ export const Trait = {
 };
 
 export const Query = {
-  myTraits: (_parent: unknown, _args: unknown, context: GraphQLContext) => {
-    return traitService.search.findTraitsByAccountId(context.authedUserId!);
+  myTraits: async () => {
+    return traitService.search.findTraitsByAccountId();
   },
   traitById: (_parent: unknown, args: { id: string }) => {
     return traitService.trait.findTraitById(args.id);
@@ -35,30 +34,17 @@ export const Query = {
 };
 
 export const Mutation = {
-  createTrait: (
-    _parent: unknown,
-    args: { input: CreateTraitInput },
-    context: GraphQLContext,
-  ) => {
-    return traitService.trait.createTrait(args.input, context.authedUserId!);
+  createTrait: async (_parent: unknown, args: { input: CreateTraitInput }) => {
+    return traitService.trait.createTrait(args.input);
   },
-  updateTrait: (
+  updateTrait: async (
     _parent: unknown,
     args: { id: string; input: UpdateTraitInput },
-    context: GraphQLContext,
   ) => {
-    return traitService.trait.updateTrait(
-      context.authedUserId!,
-      args.id,
-      args.input,
-    );
+    return traitService.trait.updateTrait(args.id, args.input);
   },
-  deleteTrait: async (
-    _parent: unknown,
-    args: { id: string },
-    context: GraphQLContext,
-  ) => {
-    await traitService.trait.deleteTrait(context.authedUserId!, args.id);
+  deleteTrait: async (_parent: unknown, args: { id: string }) => {
+    await traitService.trait.deleteTrait(args.id);
     return true;
   },
 };

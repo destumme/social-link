@@ -285,7 +285,7 @@ describe("GraphQL Connection", () => {
       });
 
       const result = await client.mutation(ACCEPT_CONNECTION_MUTATION, {
-        connectionId: conn.id,
+        connectionId: otherConn.id,
       });
 
       expect(result.error).toBeUndefined();
@@ -316,7 +316,7 @@ describe("GraphQL Connection", () => {
           status: "PENDING",
         },
       });
-      await prisma.connection.create({
+      const otherConn = await prisma.connection.create({
         data: {
           accountId: otherAccountId,
           connectedAccountId: accountId,
@@ -325,18 +325,21 @@ describe("GraphQL Connection", () => {
       });
 
       const result = await client.mutation(DECLINE_CONNECTION_MUTATION, {
-        connectionId: conn.id,
+        connectionId: otherConn.id,
       });
 
-      expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain(
-        "Boolean cannot represent a non boolean value",
-      );
+      expect(result.error).toBeUndefined();
+      expect(result.data?.declineConnection).toBe(true);
 
       const updated = await prisma.connection.findUnique({
         where: { id: conn.id },
       });
       expect(updated?.status).toBe("DECLINED");
+
+      const updatedOther = await prisma.connection.findUnique({
+        where: { id: otherConn.id },
+      });
+      expect(updatedOther?.status).toBe("DECLINED");
     });
   });
 

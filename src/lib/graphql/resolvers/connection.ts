@@ -1,4 +1,3 @@
-import { GraphQLContext } from "./context";
 import {
   ConflictError,
   BadRequestError,
@@ -26,32 +25,17 @@ export const Connection = {
 };
 
 export const Query = {
-  myConnections: (
-    _parent: unknown,
-    _args: unknown,
-    context: GraphQLContext,
-  ) => {
-    return connectionService.search.findConnectionsByAccountId(
-      context.authedUserId!,
-      "ACCEPTED",
-    );
+  myConnections: async () => {
+    return connectionService.search.findConnectionsByAccountId("ACCEPTED");
   },
-  pendingConnections: (
-    _parent: unknown,
-    _args: unknown,
-    context: GraphQLContext,
-  ) => {
-    return connectionService.search.findPendingConnectionsForAccount(
-      context.authedUserId!,
-    );
+  pendingConnections: async () => {
+    return connectionService.search.findPendingConnectionsForAccount();
   },
-  connectionByAccount: (
+  connectionByAccount: async (
     _parent: unknown,
     args: { accountId: string },
-    context: GraphQLContext,
   ) => {
     return connectionService.search.findConnectionBetweenAccounts(
-      context.authedUserId!,
       args.accountId,
     );
   },
@@ -61,17 +45,14 @@ export const Mutation = {
   requestConnection: async (
     _parent: unknown,
     args: { accountId: string; input: RequestConnectionInput },
-    context: GraphQLContext,
   ) => {
     const existing = await connectionService.search.checkConnectionExists(
-      context.authedUserId!,
       args.accountId,
     );
     if (existing) {
       throw new ConflictError("Connection already exists");
     }
     return connectionService.connectionPair.createConnectionPair(
-      context.authedUserId!,
       args.accountId,
       args.input.groupIds,
     );
@@ -79,7 +60,6 @@ export const Mutation = {
   acceptConnection: async (
     _parent: unknown,
     args: { connectionId: string },
-    context: GraphQLContext,
   ) => {
     const pair = await connectionService.connectionPair.findConnectionPair(
       args.connectionId,
@@ -94,7 +74,6 @@ export const Mutation = {
       throw new BadRequestError("Connection must be PENDING on both sides");
     }
     return connectionService.connectionPair.acceptConnectionPair(
-      context.authedUserId!,
       pair.connection.id,
       pair.otherSide!.id,
     );
@@ -102,7 +81,6 @@ export const Mutation = {
   declineConnection: async (
     _parent: unknown,
     args: { connectionId: string },
-    context: GraphQLContext,
   ) => {
     const pair = await connectionService.connectionPair.findConnectionPair(
       args.connectionId,
@@ -116,23 +94,18 @@ export const Mutation = {
     ) {
       throw new BadRequestError("Connection must be PENDING on both sides");
     }
-    return connectionService.connectionPair.declineConnectionPair(
-      context.authedUserId!,
+    await connectionService.connectionPair.declineConnectionPair(
       pair.connection.id,
       pair.otherSide!.id,
     );
+    return true;
   },
-  removeConnection: async (
-    _parent: unknown,
-    args: { id: string },
-    context: GraphQLContext,
-  ) => {
+  removeConnection: async (_parent: unknown, args: { id: string }) => {
     const connection = await connectionService.connection.findConnectionById(
       args.id,
     );
     if (!connection) throw new NotFoundError("Connection not found");
     await connectionService.connectionPair.deleteConnectionPair(
-      context.authedUserId!,
       connection.id,
       connection.connectedAccountId ?? "",
       connection.accountId ?? "",
@@ -142,7 +115,6 @@ export const Mutation = {
   addConnectionToGroup: async (
     _parent: unknown,
     args: { connectionId: string; groupId: string },
-    context: GraphQLContext,
   ) => {
     const connection = await connectionService.connection.findConnectionById(
       args.connectionId,
@@ -154,7 +126,6 @@ export const Mutation = {
       );
     }
     return connectionService.connection.addConnectionToGroup(
-      context.authedUserId!,
       args.connectionId,
       args.groupId,
     );
@@ -162,10 +133,8 @@ export const Mutation = {
   removeConnectionFromGroup: async (
     _parent: unknown,
     args: { connectionId: string; groupId: string },
-    context: GraphQLContext,
   ) => {
     return connectionService.connection.removeConnectionFromGroup(
-      context.authedUserId!,
       args.connectionId,
       args.groupId,
     );
@@ -173,10 +142,8 @@ export const Mutation = {
   updateConnectionTraits: async (
     _parent: unknown,
     args: { connectionId: string; traitIds: string[] },
-    context: GraphQLContext,
   ) => {
     return connectionService.connection.updateConnectionTraitGroups(
-      context.authedUserId!,
       args.connectionId,
       args.traitIds,
     );

@@ -1,5 +1,8 @@
 import { createClient, fetchExchange } from "@urql/core";
-import { yoga } from "@/app/api/graphql/route";
+
+const GRAPHQL_ENDPOINT =
+  process.env.GRAPHQL_ENDPOINT ??
+  `http://localhost:${process.env.PORT ?? 3000}/api/graphql`;
 
 export function createTestGraphQLClient(headers: Headers) {
   const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -21,17 +24,17 @@ export function createTestGraphQLClient(headers: Headers) {
     const requestHeaders = new Headers(headers);
     requestHeaders.set("Content-Type", "application/json");
 
-    const request = new Request("http://localhost/api/graphql", {
+    const request = new Request(GRAPHQL_ENDPOINT, {
       method: "POST",
       headers: requestHeaders,
       body,
     });
 
-    return yoga.fetch(request);
+    return fetch(request);
   };
 
   return createClient({
-    url: "http://localhost/api/graphql",
+    url: GRAPHQL_ENDPOINT,
     exchanges: [fetchExchange],
     fetch: customFetch,
   });

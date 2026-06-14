@@ -1,15 +1,4 @@
 import { auth } from "@/lib/auth.test";
-import type { TestHelpers } from "better-auth/plugins";
-
-let testHelpers: TestHelpers | null = null;
-
-async function getTestHelpers(): Promise<TestHelpers> {
-  if (!testHelpers) {
-    const ctx = await auth.$context;
-    testHelpers = ctx.test;
-  }
-  return testHelpers;
-}
 
 export interface TestUserResult {
   user: { id: string; email: string; name: string };
@@ -20,19 +9,43 @@ export async function createTestUser(overrides?: {
   email?: string;
   name?: string;
 }): Promise<TestUserResult> {
-  const test = await getTestHelpers();
-  const username = `testuser-${Date.now()}`;
-  const user = test.createUser({
-    email: overrides?.email ?? `test-${Date.now()}@example.com`,
-    name: overrides?.name ?? "Test User",
-    username,
+  const email = overrides?.email ?? `test-${Date.now()}@example.com`;
+  const name = overrides?.name ?? "Test User";
+  const username = `tu${Date.now().toString(36)}`;
+  const password = "testpassword123";
+
+  await auth.api.signUpEmail({
+    body: {
+      email,
+      name,
+      username,
+      password,
+    },
   });
-  await test.saveUser(user);
-  const { headers } = await test.login({ userId: user.id });
-  return { user, headers };
+
+  const { headers, response } = await auth.api.signInEmail({
+    body: {
+      email,
+      password,
+    },
+    returnHeaders: true,
+  });
+
+  const sessionHeaders = new Headers();
+  for (const cookie of headers.getSetCookie()) {
+    sessionHeaders.append("Cookie", cookie.split(";")[0]);
+  }
+
+  return {
+    user: {
+      id: response.user.id,
+      email: response.user.email,
+      name: response.user.name,
+    },
+    headers: sessionHeaders,
+  };
 }
 
-export async function cleanupTestUser(userId: string): Promise<void> {
-  const test = await getTestHelpers();
-  await test.deleteUser(userId);
+export async function cleanupTestUser(_userId: string): Promise<void> {
+  // Cleanup is handled by cleanDatabase() in beforeEach
 }

@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getAuthedAccountId } from "@/lib/auth-server";
 import traitService from "@/lib/services/traitService";
 import { TraitCategory } from "@/generated/prisma/enums";
 import { ServiceError } from "@/lib/services/errors";
@@ -26,16 +25,12 @@ export async function createTraitAction(data: {
   }
 
   try {
-    const accountId = await getAuthedAccountId();
-    await traitService.trait.createTrait(
-      {
-        key: key.trim(),
-        value: value.trim(),
-        category: category as TraitCategory,
-        icon: icon || undefined,
-      },
-      accountId!,
-    );
+    await traitService.trait.createTrait({
+      key: key.trim(),
+      value: value.trim(),
+      category: category as TraitCategory,
+      icon: icon || undefined,
+    });
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     throw e;
@@ -47,8 +42,7 @@ export async function createTraitAction(data: {
 
 export async function deleteTraitAction(formData: FormData) {
   const id = formData.get("id") as string;
-  const accountId = await getAuthedAccountId();
 
-  await traitService.trait.deleteTrait(accountId!, id);
+  await traitService.trait.deleteTrait(id);
   revalidatePath("/traits");
 }

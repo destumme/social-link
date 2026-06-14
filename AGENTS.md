@@ -72,6 +72,8 @@ Use `yarn run prisma` for Prisma CLI commands (not `npx`). If a `yarn run` comma
 | Coverage (unit) | `yarn test:coverage` |
 | Run once (integration) | `make int-test` |
 
+- **NEVER run integration tests outside of `make int-test`**. The Makefile sets `DATABASE_URL` to the dedicated test database (`social_links_test`). Running integration tests directly (e.g. `yarn test:run`, `vitest run --project integration`) will use `.envrc`'s `DATABASE_URL` and mutate the **main** database.
+
 - **Unit tests** in `src/tests/unit/lib/services/` — one per service file. Use `createMockPrisma()` from `src/tests/helpers/mockPrisma.ts` to mock Prisma models. Mock objects must include all required Prisma fields (`id`, `createdAt`, `updatedAt`, etc.).
 - **Integration tests** in `src/tests/integration/` — test real Prisma connections and GraphQL operations.
   - `prisma-connection.test.ts` — basic Prisma CRUD

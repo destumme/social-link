@@ -1,37 +1,38 @@
 import { prisma } from "@/lib/database/prisma";
+import { getAuthedAccountId } from "@/lib/auth-server";
 import {
   AuthenticationError,
   AuthorizationError,
   NotFoundError,
 } from "./errors";
 
-function findConnectionsByAccountId(
-  authedUserId: string,
-  status?: string | null,
-) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+async function requireAuth() {
+  const accountId = await getAuthedAccountId();
+  if (!accountId) throw new AuthenticationError("Not authenticated");
+  return accountId;
+}
+
+async function findConnectionsByAccountId(status?: string | null) {
+  const accountId = await requireAuth();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = { accountId: authedUserId };
+  const where: any = { accountId };
   if (status !== null && status !== undefined) {
     where.status = status;
   }
   return prisma.connection.findMany({ where });
 }
 
-function findPendingConnectionsForAccount(authedUserId: string) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+async function findPendingConnectionsForAccount() {
+  const accountId = await requireAuth();
   return prisma.connection.findMany({
-    where: { connectedAccountId: authedUserId, status: "PENDING" },
+    where: { connectedAccountId: accountId, status: "PENDING" },
   });
 }
 
-function findConnectionBetweenAccounts(
-  authedUserId: string,
-  connectedAccountId: string,
-) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+async function findConnectionBetweenAccounts(connectedAccountId: string) {
+  const accountId = await requireAuth();
   return prisma.connection.findFirst({
-    where: { accountId: authedUserId, connectedAccountId },
+    where: { accountId, connectedAccountId },
   });
 }
 
@@ -51,10 +52,8 @@ async function findConnectionPair(id: string) {
   return { connection, otherSide };
 }
 
-async function checkConnectionExists(
-  accountId: string,
-  connectedAccountId: string,
-) {
+async function checkConnectionExists(connectedAccountId: string) {
+  const accountId = await requireAuth();
   return prisma.connection.findFirst({
     where: {
       OR: [
@@ -65,12 +64,8 @@ async function checkConnectionExists(
   });
 }
 
-async function createConnectionPair(
-  fromAccountId: string,
-  toAccountId: string,
-  groupIds?: string[],
-) {
-  if (!fromAccountId) throw new AuthenticationError("Not authenticated");
+async function createConnectionPair(toAccountId: string, groupIds?: string[]) {
+  const fromAccountId = await requireAuth();
   const gids = groupIds ?? [];
   const created = await prisma.connection.createManyAndReturn({
     data: [
@@ -96,17 +91,13 @@ async function createConnectionPair(
   return created.find((c) => c.accountId === fromAccountId);
 }
 
-async function acceptConnectionPair(
-  authedUserId: string,
-  connectionId: string,
-  otherId: string,
-) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+async function acceptConnectionPair(connectionId: string, otherId: string) {
+  const accountId = await requireAuth();
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
   if (!connection) throw new NotFoundError("Connection not found");
-  if (connection.connectedAccountId !== authedUserId)
+  if (connection.connectedAccountId !== accountId)
     throw new AuthorizationError("Not authorized");
   const results = await prisma.$transaction([
     prisma.connection.update({
@@ -121,17 +112,13 @@ async function acceptConnectionPair(
   return results[0];
 }
 
-async function declineConnectionPair(
-  authedUserId: string,
-  connectionId: string,
-  otherId: string,
-) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+async function declineConnectionPair(connectionId: string, otherId: string) {
+  const accountId = await requireAuth();
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
   if (!connection) throw new NotFoundError("Connection not found");
-  if (connection.connectedAccountId !== authedUserId)
+  if (connection.connectedAccountId !== accountId)
     throw new AuthorizationError("Not authorized");
   const results = await prisma.$transaction([
     prisma.connection.update({
@@ -147,17 +134,16 @@ async function declineConnectionPair(
 }
 
 async function deleteConnectionPair(
-  authedUserId: string,
   id: string,
   otherAccountId: string,
   otherConnectedAccountId: string,
 ) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  const accountId = await requireAuth();
   const connection = await prisma.connection.findUnique({ where: { id } });
   if (!connection) throw new NotFoundError("Connection not found");
   if (
-    connection.accountId !== authedUserId &&
-    connection.connectedAccountId !== authedUserId
+    connection.accountId !== accountId &&
+    connection.connectedAccountId !== accountId
   )
     throw new AuthorizationError("Not authorized");
   await prisma.$transaction([
@@ -171,23 +157,19 @@ async function deleteConnectionPair(
   ]);
 }
 
-async function addConnectionToGroup(
-  authedUserId: string,
-  connectionId: string,
-  groupId: string,
-) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+async function addConnectionToGroup(connectionId: string, groupId: string) {
+  const accountId = await requireAuth();
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
   if (!connection) throw new NotFoundError("Connection not found");
-  if (connection.accountId !== authedUserId)
+  if (connection.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
   const group = await prisma.connectionGroup.findUnique({
     where: { id: groupId },
   });
   if (!group) throw new NotFoundError("Connection group not found");
-  if (group.accountId !== authedUserId)
+  if (group.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
   return prisma.connection.update({
     where: { id: connectionId },
@@ -196,22 +178,21 @@ async function addConnectionToGroup(
 }
 
 async function removeConnectionFromGroup(
-  authedUserId: string,
   connectionId: string,
   groupId: string,
 ) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  const accountId = await requireAuth();
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
   if (!connection) throw new NotFoundError("Connection not found");
-  if (connection.accountId !== authedUserId)
+  if (connection.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
   const group = await prisma.connectionGroup.findUnique({
     where: { id: groupId },
   });
   if (!group) throw new NotFoundError("Connection group not found");
-  if (group.accountId !== authedUserId)
+  if (group.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
   return prisma.connection.update({
     where: { id: connectionId },
@@ -220,16 +201,15 @@ async function removeConnectionFromGroup(
 }
 
 async function updateConnectionTraitGroups(
-  authedUserId: string,
   connectionId: string,
   traitIds: string[],
 ) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  const accountId = await requireAuth();
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
   if (!connection) throw new NotFoundError("Connection not found");
-  if (connection.accountId !== authedUserId)
+  if (connection.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
   const groups = await prisma.connectionGroup.findMany({
     where: { traits: { some: { id: { in: traitIds } } } },

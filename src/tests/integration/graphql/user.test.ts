@@ -1,4 +1,12 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 import {
   cleanDatabase,
   getTestPrisma,
@@ -94,27 +102,26 @@ describe("GraphQL User", () => {
       expect(result.data?.me.displayName).toBe("Test User");
     });
 
-    it("throws error when user is deleted", async () => {
+    it("returns null when user is deleted", async () => {
       const prisma = getTestPrisma();
       await prisma.user.delete({ where: { id: userId } });
 
       const result = await client.query(ME_QUERY, {});
 
-      expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain("user not found");
+      expect(result.error).toBeUndefined();
+      expect(result.data?.me).toBeNull();
     });
   });
 
   describe("userByUsername", () => {
-    it("searches for users by partial username", async () => {
+    it("returns the first matching user by partial username", async () => {
       const result = await client.query(USER_BY_USERNAME_QUERY, {
-        username: "test",
+        username: "tu",
       });
 
-      expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain(
-        "Cannot return null for non-nullable field",
-      );
+      expect(result.error).toBeUndefined();
+      expect(result.data?.userByUsername).not.toBeNull();
+      expect(result.data?.userByUsername.displayName).toBe("Test User");
     });
 
     it("excludes private users from search", async () => {

@@ -1,13 +1,20 @@
 import { TraitCategory } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/database/prisma";
+import { getAuthedAccountId } from "@/lib/auth-server";
 import {
   AuthenticationError,
   AuthorizationError,
   NotFoundError,
 } from "./errors";
 
-function findTraitsByAccountId(accountId: string) {
+async function requireAuth() {
+  const accountId = await getAuthedAccountId();
   if (!accountId) throw new AuthenticationError("Not authenticated");
+  return accountId;
+}
+
+async function findTraitsByAccountId() {
+  const accountId = await requireAuth();
   return prisma.trait.findMany({ where: { accountId } });
 }
 
@@ -15,11 +22,13 @@ function findTraitById(id: string) {
   return prisma.trait.findUnique({ where: { id } });
 }
 
-function createTrait(
-  data: { key: string; value: string; category: TraitCategory; icon?: string },
-  accountId: string,
-) {
-  if (!accountId) throw new AuthenticationError("Not authenticated");
+async function createTrait(data: {
+  key: string;
+  value: string;
+  category: TraitCategory;
+  icon?: string;
+}) {
+  const accountId = await requireAuth();
   return prisma.trait.create({
     data: {
       ...data,
@@ -29,7 +38,6 @@ function createTrait(
 }
 
 async function updateTrait(
-  authedUserId: string,
   id: string,
   data: {
     key?: string;
@@ -38,19 +46,19 @@ async function updateTrait(
     icon?: string;
   },
 ) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+  const accountId = await requireAuth();
   const trait = await prisma.trait.findUnique({ where: { id } });
   if (!trait) throw new NotFoundError("Trait not found");
-  if (trait.accountId !== authedUserId)
+  if (trait.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
   return prisma.trait.update({ where: { id }, data });
 }
 
-async function deleteTrait(authedUserId: string, id: string) {
-  if (!authedUserId) throw new AuthenticationError("Not authenticated");
+async function deleteTrait(id: string) {
+  const accountId = await requireAuth();
   const trait = await prisma.trait.findUnique({ where: { id } });
   if (!trait) throw new NotFoundError("Trait not found");
-  if (trait.accountId !== authedUserId)
+  if (trait.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
   return prisma.trait.delete({ where: { id } });
 }
