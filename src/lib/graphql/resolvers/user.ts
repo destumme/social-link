@@ -1,5 +1,5 @@
-import { NotFoundError, UnauthorizedError } from "../errors";
-import { GraphQLContext } from "./context";
+import { AuthenticationError, NotFoundError } from "@/lib/services/errors";
+import { getAuthedAccountId } from "@/lib/auth-server";
 import userService from "@/lib/services/userService";
 
 interface UpdateUserInput {
@@ -9,38 +9,29 @@ interface UpdateUserInput {
 }
 
 export const User = {
-  traits: async (
-    parent: { id: string },
-    _args: unknown,
-    context: GraphQLContext,
-  ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
+  traits: async (parent: { id: string }) => {
+    const authedUserId = await getAuthedAccountId();
+    if (!authedUserId) {
+      throw new AuthenticationError("Not authenticated");
     }
 
-    if (parent.id === context.authedUserId) {
-      return userService.search.findUserTraitsForOwner(context.authedUserId);
+    if (parent.id === authedUserId) {
+      return userService.search.findUserTraitsForOwner();
     }
 
-    return userService.search.findUserTraitsForViewer(
-      parent.id,
-      context.authedUserId,
-    );
+    return userService.search.findUserTraitsForViewer(parent.id);
   },
-  connections: (
-    parent: { id: string },
-    _args: unknown,
-    context: GraphQLContext,
-  ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
+  connections: async (parent: { id: string }) => {
+    const authedUserId = await getAuthedAccountId();
+    if (!authedUserId) {
+      throw new AuthenticationError("Not authenticated");
     }
 
-    if (parent.id === context.authedUserId) {
-      return userService.search.findUserConnections(context.authedUserId);
+    if (parent.id === authedUserId) {
+      return userService.search.findUserConnections();
     }
 
-    throw new UnauthorizedError("Connections are private");
+    throw new AuthenticationError("Connections are private");
   },
   connectionGroups: (parent: { id: string }) => {
     return userService.search.findUserConnectionGroups(parent.id);
@@ -48,52 +39,34 @@ export const User = {
 };
 
 export const Query = {
-  me: async (_parent: unknown, _args: unknown, context: GraphQLContext) => {
-    if (!context.authedUserId) {
+  me: async () => {
+    const authedUserId = await getAuthedAccountId();
+    if (!authedUserId) {
       return null;
     }
 
-    const user = await userService.user.findUserById(context.authedUserId);
+    const user = await userService.user.findUserById(authedUserId);
 
     if (user === null) {
-      throw new UnauthorizedError("user not found");
+      throw new NotFoundError("user not found");
     }
 
     return user;
   },
-  userByUsername: (
-    _parent: unknown,
-    args: { username: string },
-    _context: GraphQLContext,
-  ) => {
-    return userService.search.findUsersByUsername(args.username);
+  userByUsername: async (_parent: unknown, args: { username: string }) => {
+    const users = await userService.search.findUsersByUsername(args.username);
+    return users[0] ?? null;
   },
-  searchUsers: (
-    _parent: unknown,
-    args: { query: string },
-    _context: GraphQLContext,
-  ) => {
+  searchUsers: (_parent: unknown, args: { query: string }) => {
     return userService.search.findUsersByUsername(args.query);
   },
-  userByShareId: (_parent: unknown, _args: { shareId: string }) => {
+  userByShareId: (_: unknown, __: { shareId: string }) => {
     throw new Error("Not implemented");
   },
 };
 
 export const Mutation = {
-  updateUser: async (
-    root: unknown,
-    args: { input: UpdateUserInput },
-    context: GraphQLContext,
-  ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
-
-    const user = await userService.user.findUserById(context.authedUserId);
-    if (user === null) {
-      throw new NotFoundError("user not found");
-    }
-    return userService.user.updateUser(context.authedUserId, args.input);
+  updateUser: async (root: unknown, args: { input: UpdateUserInput }) => {
+    return userService.user.updateUser(args.input);
   },
 };

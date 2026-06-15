@@ -1,6 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 import { createMockPrisma } from "@/tests/helpers/mockPrisma";
 
+vi.mock("next/headers", () => ({
+  headers: vi.fn(() => Promise.resolve(new Headers())),
+}));
+
+vi.mock("@/lib/auth", () => ({
+  auth: {
+    api: {
+      getSession: vi.fn(() => Promise.resolve({ user: { id: "acc-1" } })),
+    },
+  },
+}));
+
 vi.mock("@/lib/database/prisma", () => ({
   prisma: createMockPrisma({
     connectionGroup: {
@@ -74,10 +86,8 @@ describe("connectionGroupService.connectionGroup", () => {
       const mock = mockConnectionGroup();
       vi.mocked(prisma.connectionGroup.create).mockResolvedValue(mock);
 
-      const result = await service.connectionGroup.createConnectionGroup(
-        "Social",
-        "acc-1",
-      );
+      const result =
+        await service.connectionGroup.createConnectionGroup("Social");
 
       expect(prisma.connectionGroup.create).toHaveBeenCalledWith({
         data: {
@@ -94,7 +104,6 @@ describe("connectionGroupService.connectionGroup", () => {
 
       const result = await service.connectionGroup.createConnectionGroup(
         "Social",
-        "acc-1",
         ["trait-1", "trait-2"],
       );
 
@@ -111,6 +120,8 @@ describe("connectionGroupService.connectionGroup", () => {
 
   describe("updateConnectionGroup", () => {
     it("updates name only when traitIds not provided", async () => {
+      const mockGroup = mockConnectionGroup();
+      vi.mocked(prisma.connectionGroup.findUnique).mockResolvedValue(mockGroup);
       const updated = mockConnectionGroup({ name: "Updated" });
       vi.mocked(prisma.connectionGroup.update).mockResolvedValue(updated);
 
@@ -127,6 +138,8 @@ describe("connectionGroupService.connectionGroup", () => {
     });
 
     it("updates name and sets traits when traitIds provided", async () => {
+      const mockGroup = mockConnectionGroup();
+      vi.mocked(prisma.connectionGroup.findUnique).mockResolvedValue(mockGroup);
       const updated = mockConnectionGroup({ name: "Updated" });
       vi.mocked(prisma.connectionGroup.update).mockResolvedValue(updated);
 
@@ -148,6 +161,8 @@ describe("connectionGroupService.connectionGroup", () => {
 
   describe("deleteConnectionGroup", () => {
     it("calls prisma.connectionGroup.delete with id", async () => {
+      const mockGroup = mockConnectionGroup();
+      vi.mocked(prisma.connectionGroup.findUnique).mockResolvedValue(mockGroup);
       const deleted = mockConnectionGroup();
       vi.mocked(prisma.connectionGroup.delete).mockResolvedValue(deleted);
 
@@ -163,6 +178,8 @@ describe("connectionGroupService.connectionGroup", () => {
 
   describe("addTraitToGroup", () => {
     it("connects trait to group", async () => {
+      const mockGroup = mockConnectionGroup();
+      vi.mocked(prisma.connectionGroup.findUnique).mockResolvedValue(mockGroup);
       const updated = mockConnectionGroup();
       vi.mocked(prisma.connectionGroup.update).mockResolvedValue(updated);
 
@@ -181,6 +198,8 @@ describe("connectionGroupService.connectionGroup", () => {
 
   describe("removeTraitFromGroup", () => {
     it("disconnects trait from group and includes traits", async () => {
+      const mockGroup = mockConnectionGroup();
+      vi.mocked(prisma.connectionGroup.findUnique).mockResolvedValue(mockGroup);
       const updated = {
         ...mockConnectionGroup(),
         traits: [],
@@ -208,8 +227,7 @@ describe("connectionGroupService.search", () => {
       const mockGroups = [mockConnectionGroup()];
       vi.mocked(prisma.connectionGroup.findMany).mockResolvedValue(mockGroups);
 
-      const result =
-        await service.search.findConnectionGroupsByAccountId("acc-1");
+      const result = await service.search.findConnectionGroupsByAccountId();
 
       expect(prisma.connectionGroup.findMany).toHaveBeenCalledWith({
         where: { accountId: "acc-1" },
@@ -228,6 +246,7 @@ describe("connectionGroupService.search", () => {
         image: null,
         displayName: "Test",
         username: "test",
+        displayUsername: null,
         publicListed: true,
         createdAt: new Date(),
         updatedAt: new Date(),

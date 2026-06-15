@@ -1,7 +1,14 @@
+import { notFound } from "next/navigation";
+import { getAuthedAccountId } from "@/lib/auth-server";
 import { AccountForm } from "./_components/account-form";
 import { ConnectedProviders } from "./_components/connected-providers";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const accountId = await getAuthedAccountId();
+  if (!accountId) {
+    notFound();
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full px-6 lg:px-12 py-12 lg:py-16 space-y-12">
@@ -15,10 +22,8 @@ export default function SettingsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* TODO: wire up me query for initial values, updateUser mutation for changes */}
           <AccountForm />
 
-          {/* TODO: wire up Better Auth session to list connected providers */}
           <ConnectedProviders />
         </div>
       </div>

@@ -12,30 +12,38 @@ interface Group {
 interface ConnectionRowProps {
   connection: {
     id: string;
-    name: string;
-    username: string;
+    status: string;
     groups: Group[];
+    connectedAccount: {
+      displayName: string;
+      username: string;
+    };
   };
+  onRemove: (id: string) => void;
 }
 
-export function ConnectionRow({ connection }: ConnectionRowProps) {
+export function ConnectionRow({ connection, onRemove }: ConnectionRowProps) {
   return (
     <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
       <div>
-        <p className="font-medium">{connection.name}</p>
+        <p className="font-medium">{connection.connectedAccount.displayName}</p>
         <Link
-          href={`/link/${connection.username}`}
+          href={`/link/${connection.connectedAccount.username}`}
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          @{connection.username}
+          @{connection.connectedAccount.username}
         </Link>
       </div>
       <div>
         <Badge
           variant="secondary"
-          className="text-emerald-500 bg-emerald-500/10"
+          className={
+            connection.status === "ACCEPTED"
+              ? "text-emerald-500 bg-emerald-500/10"
+              : "text-muted-foreground"
+          }
         >
-          Accepted
+          {connection.status}
         </Badge>
       </div>
       <div className="inline-flex gap-1 flex-wrap items-center">
@@ -46,7 +54,11 @@ export function ConnectionRow({ connection }: ConnectionRowProps) {
         ))}
       </div>
       <div className="flex justify-end gap-2">
-        <Button variant="ghost" size="sm" disabled>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onRemove(connection.id)}
+        >
           Remove
         </Button>
         <Button variant="outline" size="sm" disabled>

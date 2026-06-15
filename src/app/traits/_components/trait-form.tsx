@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,56 +19,84 @@ import {
   overrideIconOptions,
   getOverrideIconElement,
 } from "@/lib/icons";
+import { createTraitAction } from "@/app/traits/actions";
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="ghost" size="sm" disabled={pending}>
+      {pending ? "Adding..." : "Add"}
+    </Button>
+  );
+}
+
+function getCategoryLabel(value: string) {
+  for (const group of traitCategoryGroups) {
+    for (const opt of group.options) {
+      if (opt.value === value) return opt.label;
+    }
+  }
+  return null;
+}
+
+function getOverrideIconLabel(value: string) {
+  for (const group of overrideIconOptions) {
+    for (const opt of group.options) {
+      if (opt.value === value) return opt.label;
+    }
+  }
+  return null;
+}
 
 export function TraitForm() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedOverrideIcon, setSelectedOverrideIcon] = useState<string>("");
+  const formRef = useRef<HTMLFormElement>(null);
+  const [category, setCategory] = useState("");
+  const [icon, setIcon] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const categoryIcon = getCategoryIconElement(selectedCategory);
-  const overrideIcon = getOverrideIconElement(selectedOverrideIcon);
+  const categoryIcon = getCategoryIconElement(category);
+  const overrideIcon = getOverrideIconElement(icon);
 
-  const handleCategoryChange = (value: string | null) => {
-    setSelectedCategory(value ?? "");
-  };
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
 
-  const handleOverrideIconChange = (value: string | null) => {
-    setSelectedOverrideIcon(value ?? "");
-  };
+    const formData = new FormData(formRef.current!);
+    const result = await createTraitAction({
+      key: formData.get("key") as string,
+      value: formData.get("value") as string,
+      category,
+      icon,
+    });
 
-  function getCategoryLabel(value: string) {
-    for (const group of traitCategoryGroups) {
-      for (const opt of group.options) {
-        if (opt.value === value) return opt.label;
-      }
+    if (result.error) {
+      setError(result.error);
+      return;
     }
-    return null;
-  }
 
-  function getOverrideIconLabel(value: string) {
-    for (const group of overrideIconOptions) {
-      for (const opt of group.options) {
-        if (opt.value === value) return opt.label;
-      }
-    }
-    return null;
+    formRef.current?.reset();
+    setCategory("");
+    setIcon("");
   }
 
   return (
-    <form className="grid grid-cols-5 gap-4 px-6 py-4 text-sm">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="grid grid-cols-5 gap-4 px-6 py-4 text-sm"
+    >
       <div>
-        <Input type="text" placeholder="e.g. email" />
+        <Input type="text" name="key" placeholder="e.g. email" />
       </div>
       <div>
-        <Input type="text" placeholder="e.g. user@example.com" />
+        <Input type="text" name="value" placeholder="e.g. user@example.com" />
       </div>
       <div className="flex items-center gap-2">
-        <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+        <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
           <SelectTrigger className="w-full">
             <span className="flex items-center gap-2">
               {categoryIcon && <HugeiconsIcon icon={categoryIcon} size={16} />}
-              {selectedCategory
-                ? getCategoryLabel(selectedCategory)
-                : "Select..."}
+              {category ? getCategoryLabel(category) : "Select..."}
             </span>
           </SelectTrigger>
           <SelectContent>
@@ -75,11 +104,11 @@ export function TraitForm() {
               <SelectGroup key={group.label}>
                 <SelectLabel>{group.label}</SelectLabel>
                 {group.options.map((opt) => {
-                  const icon = getCategoryIconElement(opt.value);
+                  const catIcon = getCategoryIconElement(opt.value);
                   return (
                     <SelectItem key={opt.value} value={opt.value}>
                       <span className="flex items-center gap-2">
-                        {icon && <HugeiconsIcon icon={icon} size={16} />}
+                        {catIcon && <HugeiconsIcon icon={catIcon} size={16} />}
                         {opt.label}
                       </span>
                     </SelectItem>
@@ -91,16 +120,11 @@ export function TraitForm() {
         </Select>
       </div>
       <div className="flex items-center gap-2">
-        <Select
-          value={selectedOverrideIcon}
-          onValueChange={handleOverrideIconChange}
-        >
+        <Select value={icon} onValueChange={(v) => setIcon(v ?? "")}>
           <SelectTrigger className="w-full">
             <span className="flex items-center gap-2">
               {overrideIcon && <HugeiconsIcon icon={overrideIcon} size={16} />}
-              {selectedOverrideIcon
-                ? getOverrideIconLabel(selectedOverrideIcon)
-                : "Select..."}
+              {icon ? getOverrideIconLabel(icon) : "Select..."}
             </span>
           </SelectTrigger>
           <SelectContent>
@@ -120,13 +144,24 @@ export function TraitForm() {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex justify-end gap-2">
-        <Button type="submit" variant="ghost" size="sm">
-          Add
-        </Button>
-        <Button type="submit" variant="ghost" size="sm">
-          Clear
-        </Button>
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex gap-2">
+          <SubmitButton />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              formRef.current?.reset();
+              setCategory("");
+              setIcon("");
+              setError(null);
+            }}
+          >
+            Clear
+          </Button>
+        </div>
+        {error && <span className="text-xs text-destructive">{error}</span>}
       </div>
     </form>
   );

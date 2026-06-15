@@ -2,15 +2,20 @@
 
 import * as React from "react";
 
-type Theme =
-  | "github"
-  | "tokyo"
-  | "catppuccin"
-  | "one"
-  | "serika"
-  | "honey"
-  | "mint"
-  | "lavender";
+const VALID_THEMES = [
+  "github",
+  "tokyo",
+  "catppuccin",
+  "one",
+  "serika",
+  "honey",
+  "mint",
+  "lavender",
+] as const;
+
+type Theme = (typeof VALID_THEMES)[number];
+
+const COOKIE_OPTIONS = "path=/;max-age=31536000;SameSite=Lax";
 
 interface ThemeContextType {
   theme: Theme;
@@ -27,22 +32,14 @@ function notifySubscribers() {
   themeSubscribers.forEach((fn) => fn());
 }
 
+function setThemeCookie(theme: Theme) {
+  document.cookie = `theme=${theme};${COOKIE_OPTIONS}`;
+}
+
 function getThemeSnapshot(): Theme {
-  const stored = localStorage.getItem("theme") as Theme | null;
-  if (
-    stored &&
-    [
-      "github",
-      "tokyo",
-      "catppuccin",
-      "one",
-      "serika",
-      "honey",
-      "mint",
-      "lavender",
-    ].includes(stored)
-  ) {
-    return stored;
+  const stored = localStorage.getItem("theme");
+  if (stored && VALID_THEMES.includes(stored as Theme)) {
+    return stored as Theme;
   }
   return "tokyo";
 }
@@ -66,7 +63,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = React.useCallback((newTheme: Theme) => {
     document.documentElement.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
+    setThemeCookie(newTheme);
     notifySubscribers();
+  }, []);
+
+  React.useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored && VALID_THEMES.includes(stored as Theme)) {
+      setThemeCookie(stored as Theme);
+    }
   }, []);
 
   return (

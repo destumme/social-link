@@ -2,6 +2,18 @@ import { describe, expect, it, vi } from "vitest";
 import { createMockPrisma } from "@/tests/helpers/mockPrisma";
 import type { TraitCategory } from "@/generated/prisma/enums";
 
+vi.mock("next/headers", () => ({
+  headers: vi.fn(() => Promise.resolve(new Headers())),
+}));
+
+vi.mock("@/lib/auth", () => ({
+  auth: {
+    api: {
+      getSession: vi.fn(() => Promise.resolve({ user: { id: "acc-1" } })),
+    },
+  },
+}));
+
 vi.mock("@/lib/database/prisma", () => ({
   prisma: createMockPrisma({
     trait: {
@@ -69,14 +81,11 @@ describe("traitService.trait", () => {
       };
       vi.mocked(prisma.trait.create).mockResolvedValue(mockTrait);
 
-      const result = await service.trait.createTrait(
-        {
-          key: "email",
-          value: "user@example.com",
-          category: "EMAIL",
-        },
-        "acc-1",
-      );
+      const result = await service.trait.createTrait({
+        key: "email",
+        value: "user@example.com",
+        category: "EMAIL",
+      });
 
       expect(prisma.trait.create).toHaveBeenCalledWith({
         data: {
@@ -102,15 +111,12 @@ describe("traitService.trait", () => {
       };
       vi.mocked(prisma.trait.create).mockResolvedValue(mockTrait);
 
-      await service.trait.createTrait(
-        {
-          key: "github",
-          value: "https://github.com/user",
-          category: "WEBSITE_LINK",
-          icon: "github-icon",
-        },
-        "acc-1",
-      );
+      await service.trait.createTrait({
+        key: "github",
+        value: "https://github.com/user",
+        category: "WEBSITE_LINK",
+        icon: "github-icon",
+      });
 
       expect(prisma.trait.create).toHaveBeenCalledWith({
         data: {
@@ -126,6 +132,18 @@ describe("traitService.trait", () => {
 
   describe("updateTrait", () => {
     it("calls prisma.trait.update with id and data", async () => {
+      const mockTrait = {
+        id: "trait-1",
+        key: "old-key",
+        value: "old-value",
+        category: "CONTACT_INFO" as TraitCategory,
+        icon: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        accountId: "acc-1",
+      };
+      vi.mocked(prisma.trait.findUnique).mockResolvedValue(mockTrait);
+
       const updated = {
         id: "trait-1",
         key: "new-key",
@@ -158,6 +176,18 @@ describe("traitService.trait", () => {
 
   describe("deleteTrait", () => {
     it("calls prisma.trait.delete with id", async () => {
+      const mockTrait = {
+        id: "trait-1",
+        key: "twitter",
+        value: "@user",
+        category: "SOCIAL_LINK" as TraitCategory,
+        icon: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        accountId: "acc-1",
+      };
+      vi.mocked(prisma.trait.findUnique).mockResolvedValue(mockTrait);
+
       const deleted = {
         id: "trait-1",
         key: "twitter",
@@ -197,7 +227,7 @@ describe("traitService.search", () => {
       ];
       vi.mocked(prisma.trait.findMany).mockResolvedValue(mockTraits);
 
-      const result = await service.search.findTraitsByAccountId("acc-1");
+      const result = await service.search.findTraitsByAccountId();
 
       expect(prisma.trait.findMany).toHaveBeenCalledWith({
         where: { accountId: "acc-1" },

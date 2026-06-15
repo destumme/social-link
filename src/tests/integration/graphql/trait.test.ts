@@ -6,6 +6,7 @@ import {
   teardownTestDb,
 } from "@/tests/helpers/testDb";
 import { createTestGraphQLClient } from "@/tests/helpers/graphqlClient";
+import { createTestUser } from "@/tests/helpers/testAuth";
 
 const MY_TRAITS_QUERY = `
   query {
@@ -75,19 +76,9 @@ describe("GraphQL Trait", () => {
 
   beforeEach(async () => {
     await cleanDatabase();
-    const prisma = getTestPrisma();
-    const user = await prisma.user.create({
-      data: {
-        id: crypto.randomUUID(),
-        name: "Test User",
-        email: `test-${Date.now()}@example.com`,
-        emailVerified: false,
-        displayName: "Test User",
-        username: `testuser-${Date.now()}`,
-      },
-    });
+    const { user, headers } = await createTestUser();
     accountId = user.id;
-    client = createTestGraphQLClient(accountId);
+    client = createTestGraphQLClient(headers);
   });
 
   describe("myTraits", () => {

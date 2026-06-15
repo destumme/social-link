@@ -3,9 +3,9 @@ services:
     image: postgres:17
     hostname: postgres
     environment:
-      - POSTGRES_USER=social
-      - POSTGRES_PASSWORD=links
-      - POSTGRES_DB=social_links
+      - POSTGRES_USER=${PG_USER:-social}
+      - POSTGRES_PASSWORD=${PG_PW:-links}
+      - POSTGRES_DB=${PG_DB:-social_links}
     ports:
       - 5432:5432
     volumes:

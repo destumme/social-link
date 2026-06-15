@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:ci": "vitest run --coverage --reporter=junit --outputFile.junit.xml"
+    "lint:fix": "eslint --fix",
+    "test": "vitest --project unit",
+    "test:run": "vitest run --project unit",
+    "test:coverage": "vitest run --project unit --coverage",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

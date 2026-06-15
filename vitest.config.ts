@@ -10,13 +10,29 @@ export default defineConfig({
   test: {
     globals: false,
     environment: "node",
-    dir: "src/tests",
     setupFiles: ["src/tests/setup.ts"],
-    fileParallelism: false,
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
       exclude: ["src/generated/**", "src/tests/**", "node_modules/**"],
     },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "unit",
+          include: ["src/tests/unit/**/*.test.ts"],
+          fileParallelism: true,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "integration",
+          include: ["src/tests/integration/**/*.test.ts"],
+          fileParallelism: false,
+        },
+      },
+    ],
   },
 });
