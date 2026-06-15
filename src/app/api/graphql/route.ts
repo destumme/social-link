@@ -7,6 +7,7 @@ import {
 } from "graphql-yoga";
 import { schema } from "@/lib/graphql";
 import { createContext, GraphQLContext } from "@/lib/graphql/resolvers/context";
+import { useServiceErrors } from "@/lib/graphql/plugins/use-service-errors";
 import { NextRequest } from "next/server";
 import { logger } from "@/lib/logger";
 
@@ -20,6 +21,7 @@ const yoga: YogaServerInstance<any, GraphQLContext> = createYoga<
   context: async ({ request }) => createContext(request),
   maskedErrors: process.env.NODE_ENV !== "test",
   plugins: [
+    useServiceErrors,
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useLogger({
       skipIntrospection: true,

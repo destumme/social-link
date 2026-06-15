@@ -1,5 +1,3 @@
-import { NotFoundError, UnauthorizedError } from "../errors";
-import { GraphQLContext } from "./context";
 import connectionGroupService from "@/lib/services/connectionGroupService";
 
 interface CreateConnectionGroupInput {
@@ -25,17 +23,8 @@ export const ConnectionGroup = {
 };
 
 export const Query = {
-  myConnectionGroups: (
-    _parent: unknown,
-    _args: unknown,
-    context: GraphQLContext,
-  ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
-    return connectionGroupService.search.findConnectionGroupsByAccountId(
-      context.authedUserId,
-    );
+  myConnectionGroups: async () => {
+    return connectionGroupService.search.findConnectionGroupsByAccountId();
   },
 };
 
@@ -43,61 +32,29 @@ export const Mutation = {
   createConnectionGroup: async (
     _parent: unknown,
     args: { input: CreateConnectionGroupInput },
-    context: GraphQLContext,
   ) => {
-    if (!context.authedUserId) {
-      throw new UnauthorizedError("Not authenticated");
-    }
     return connectionGroupService.connectionGroup.createConnectionGroup(
       args.input.name,
-      context.authedUserId,
       args.input.traitIds,
     );
   },
   updateConnectionGroup: async (
     _parent: unknown,
     args: { id: string; input: UpdateConnectionGroupInput },
-    _context: GraphQLContext,
   ) => {
-    const group =
-      await connectionGroupService.connectionGroup.findConnectionGroupById(
-        args.id,
-      );
-    if (group === null) {
-      throw new NotFoundError("Connection group not found");
-    }
     return connectionGroupService.connectionGroup.updateConnectionGroup(
       args.id,
       args.input,
     );
   },
-  deleteConnectionGroup: async (
-    _parent: unknown,
-    args: { id: string },
-    _context: GraphQLContext,
-  ) => {
-    const group =
-      await connectionGroupService.connectionGroup.findConnectionGroupById(
-        args.id,
-      );
-    if (group === null) {
-      throw new NotFoundError("Connection group not found");
-    }
+  deleteConnectionGroup: async (_parent: unknown, args: { id: string }) => {
     await connectionGroupService.connectionGroup.deleteConnectionGroup(args.id);
     return true;
   },
   addTraitToGroup: async (
     _parent: unknown,
     args: { groupId: string; traitId: string },
-    _context: GraphQLContext,
   ) => {
-    const group =
-      await connectionGroupService.connectionGroup.findConnectionGroupById(
-        args.groupId,
-      );
-    if (group === null) {
-      throw new NotFoundError("Connection group not found");
-    }
     return connectionGroupService.connectionGroup.addTraitToGroup(
       args.groupId,
       args.traitId,
@@ -106,7 +63,6 @@ export const Mutation = {
   removeTraitFromGroup: async (
     _parent: unknown,
     args: { groupId: string; traitId: string },
-    _context: GraphQLContext,
   ) => {
     return connectionGroupService.connectionGroup.removeTraitFromGroup(
       args.groupId,

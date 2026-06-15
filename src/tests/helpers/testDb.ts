@@ -18,6 +18,9 @@ export async function cleanDatabase() {
     prisma.connectionGroup.deleteMany(),
     prisma.connection.deleteMany(),
     prisma.trait.deleteMany(),
+    prisma.session.deleteMany(),
+    prisma.authAccount.deleteMany(),
+    prisma.verification.deleteMany(),
     prisma.user.deleteMany(),
   ]);
 }

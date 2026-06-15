@@ -19,7 +19,6 @@ import {
   Query as ConnectionGroupQuery,
   Mutation as ConnectionGroupMutation,
 } from "./connectionGroup";
-import { GraphQLContext } from "./context";
 
 export const resolvers = {
   DateTime,

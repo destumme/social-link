@@ -1,6 +1,24 @@
+import { notFound } from "next/navigation";
+import { getAuthedAccountId } from "@/lib/auth-server";
+import { prisma } from "@/lib/database/prisma";
 import { TraitTable } from "./_components/trait-table";
 
-export default function TraitsPage() {
+async function getTraits(accountId: string) {
+  return prisma.trait.findMany({
+    where: { accountId },
+    include: { visibleGroups: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export default async function TraitsPage() {
+  const accountId = await getAuthedAccountId();
+  if (!accountId) {
+    notFound();
+  }
+
+  const traits = await getTraits(accountId);
+
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full px-6 lg:px-12 py-12 lg:py-16 space-y-12">
@@ -14,8 +32,7 @@ export default function TraitsPage() {
           </p>
         </div>
 
-        {/* TODO: wire up myTraits query */}
-        <TraitTable />
+        <TraitTable traits={traits} />
       </div>
     </div>
   );

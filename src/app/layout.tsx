@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
+import { cookies } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import ThemeScript from "@/components/theme-script";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/layout/footer";
 
@@ -18,21 +18,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const VALID_THEMES = [
+  "github",
+  "tokyo",
+  "catppuccin",
+  "one",
+  "serika",
+  "honey",
+  "mint",
+  "lavender",
+];
+
 export const metadata: Metadata = {
   title: "Social Links",
   description: "Share your connections on your terms",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get("theme")?.value;
+  const theme =
+    themeCookie && VALID_THEMES.includes(themeCookie) ? themeCookie : "tokyo";
+
   return (
     <html
       lang="en"
       suppressHydrationWarning
-      data-theme="tokyo"
+      data-theme={theme}
       className={cn(
         "h-full",
         "antialiased",
@@ -43,7 +59,6 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col relative">
-        <ThemeScript />
         <TooltipProvider>{children}</TooltipProvider>
         <Footer />
       </body>

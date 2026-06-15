@@ -6,6 +6,7 @@ import {
   teardownTestDb,
 } from "@/tests/helpers/testDb";
 import { createTestGraphQLClient } from "@/tests/helpers/graphqlClient";
+import { createTestUser } from "@/tests/helpers/testAuth";
 
 const MY_CONNECTIONS_QUERY = `
   query {
@@ -106,18 +107,8 @@ describe("GraphQL Connection", () => {
 
   beforeEach(async () => {
     await cleanDatabase();
-    const prisma = getTestPrisma();
-    const user = await prisma.user.create({
-      data: {
-        id: crypto.randomUUID(),
-        name: "Test User",
-        email: `test-${Date.now()}@example.com`,
-        emailVerified: false,
-        displayName: "Test User",
-        username: `testuser-${Date.now()}`,
-      },
-    });
-    const otherUser = await prisma.user.create({
+    const { user: mainUser, headers } = await createTestUser();
+    const otherUser = await getTestPrisma().user.create({
       data: {
         id: crypto.randomUUID(),
         name: "Other User",
@@ -127,9 +118,9 @@ describe("GraphQL Connection", () => {
         username: `other-${Date.now()}`,
       },
     });
-    accountId = user.id;
+    accountId = mainUser.id;
     otherAccountId = otherUser.id;
-    client = createTestGraphQLClient(accountId);
+    client = createTestGraphQLClient(headers);
   });
 
   describe("myConnections", () => {
@@ -294,7 +285,7 @@ describe("GraphQL Connection", () => {
       });
 
       const result = await client.mutation(ACCEPT_CONNECTION_MUTATION, {
-        connectionId: conn.id,
+        connectionId: otherConn.id,
       });
 
       expect(result.error).toBeUndefined();
@@ -325,7 +316,7 @@ describe("GraphQL Connection", () => {
           status: "PENDING",
         },
       });
-      await prisma.connection.create({
+      const otherConn = await prisma.connection.create({
         data: {
           accountId: otherAccountId,
           connectedAccountId: accountId,
@@ -334,18 +325,21 @@ describe("GraphQL Connection", () => {
       });
 
       const result = await client.mutation(DECLINE_CONNECTION_MUTATION, {
-        connectionId: conn.id,
+        connectionId: otherConn.id,
       });
 
-      expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain(
-        "Boolean cannot represent a non boolean value",
-      );
+      expect(result.error).toBeUndefined();
+      expect(result.data?.declineConnection).toBe(true);
 
       const updated = await prisma.connection.findUnique({
         where: { id: conn.id },
       });
       expect(updated?.status).toBe("DECLINED");
+
+      const updatedOther = await prisma.connection.findUnique({
+        where: { id: otherConn.id },
+      });
+      expect(updatedOther?.status).toBe("DECLINED");
     });
   });
 

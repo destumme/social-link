@@ -1,4 +1,12 @@
 import { prisma } from "@/lib/database/prisma";
+import { getAuthedAccountId } from "@/lib/auth-server";
+import { AuthenticationError } from "./errors";
+
+async function requireAuth() {
+  const accountId = await getAuthedAccountId();
+  if (!accountId) throw new AuthenticationError("Not authenticated");
+  return accountId;
+}
 
 function findUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
@@ -16,18 +24,24 @@ function findUsersByUsername(username: string) {
   });
 }
 
-function updateUser(
-  userId: string,
-  data: { displayName?: string; username?: string; publicListed?: boolean },
-) {
-  return prisma.user.update({ where: { id: userId }, data });
+async function updateUser(data: {
+  displayName?: string;
+  username?: string;
+  publicListed?: boolean;
+}) {
+  const accountId = await requireAuth();
+  const user = await prisma.user.findUnique({ where: { id: accountId } });
+  if (!user) throw new AuthenticationError("User not found");
+  return prisma.user.update({ where: { id: accountId }, data });
 }
 
-function findUserTraitsForOwner(userId: string) {
-  return prisma.trait.findMany({ where: { accountId: userId } });
+async function findUserTraitsForOwner() {
+  const accountId = await requireAuth();
+  return prisma.trait.findMany({ where: { accountId } });
 }
 
-function findUserTraitsForViewer(userId: string, viewerUserId: string) {
+async function findUserTraitsForViewer(userId: string) {
+  const viewerUserId = await requireAuth();
   return prisma.trait.findMany({
     where: {
       visibleGroups: {
@@ -46,8 +60,9 @@ function findUserTraitsForViewer(userId: string, viewerUserId: string) {
   });
 }
 
-function findUserConnections(userId: string) {
-  return prisma.connection.findMany({ where: { accountId: userId } });
+async function findUserConnections() {
+  const accountId = await requireAuth();
+  return prisma.connection.findMany({ where: { accountId } });
 }
 
 function findUserConnectionGroups(userId: string) {

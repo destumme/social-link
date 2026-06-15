@@ -36,15 +36,18 @@ model User {
   image            String?
   displayName      String
   username         String            @unique
+  displayUsername  String?
   publicListed     Boolean           @default(true)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   sessions         Session[]
-  accounts         AuthAccount[]
   traits           Trait[]
   connections      Connection[]      @relation("connections")
   connectionGroups ConnectionGroup[]
   connectedTo      Connection[]      @relation("connectedTo")
+
+  authaccounts AuthAccount[]
+
   @@unique([email])
   @@map("user")
 }
@@ -81,7 +84,7 @@ model ConnectionGroup {
   traits      Trait[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  account     User?          @relation(fields: [accountId], references: [id])
+  account     User?        @relation(fields: [accountId], references: [id])
   accountId   String?
 }
 
@@ -115,7 +118,7 @@ model AuthAccount {
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  accountId String
+  accountId             String
 
   @@index([userId])
   @@map("auth_account")

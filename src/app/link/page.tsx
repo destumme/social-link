@@ -14,10 +14,8 @@ export default function LinkPage() {
           </p>
         </div>
 
-        {/* TODO: wire up pendingConnections query */}
         <PendingConnectionsTable />
 
-        {/* TODO: wire up myConnections query */}
         <ConnectionsTable />
       </div>
     </div>

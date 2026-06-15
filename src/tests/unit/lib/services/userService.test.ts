@@ -1,6 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 import { createMockPrisma } from "@/tests/helpers/mockPrisma";
 
+vi.mock("next/headers", () => ({
+  headers: vi.fn(() => Promise.resolve(new Headers())),
+}));
+
+vi.mock("@/lib/auth", () => ({
+  auth: {
+    api: {
+      getSession: vi.fn(() => Promise.resolve({ user: { id: "acc-1" } })),
+    },
+  },
+}));
+
 vi.mock("@/lib/database/prisma", () => ({
   prisma: createMockPrisma({
     user: {
@@ -34,6 +46,7 @@ describe("userService.user", () => {
         image: null,
         displayName: "Test",
         username: "test",
+        displayUsername: null,
         publicListed: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -59,26 +72,41 @@ describe("userService.user", () => {
 
   describe("updateUser", () => {
     it("calls prisma.user.update with id and data", async () => {
+      const mockUser = {
+        id: "acc-1",
+        name: "Test Name",
+        email: "test@example.com",
+        emailVerified: true,
+        image: null,
+        displayName: "Test",
+        username: "test",
+        displayUsername: null,
+        publicListed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
       const updated = {
-        id: "test-id",
-        name: "New Name",
+        id: "acc-1",
+        name: "Test Name",
         email: "test@example.com",
         emailVerified: true,
         image: null,
         displayName: "New Name",
         username: "test",
+        displayUsername: null,
         publicListed: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       vi.mocked(prisma.user.update).mockResolvedValue(updated);
 
-      const result = await service.user.updateUser("test-id", {
+      const result = await service.user.updateUser({
         displayName: "New Name",
       });
 
       expect(prisma.user.update).toHaveBeenCalledWith({
-        where: { id: "test-id" },
+        where: { id: "acc-1" },
         data: { displayName: "New Name" },
       });
       expect(result).toEqual(updated);
@@ -98,6 +126,7 @@ describe("userService.search", () => {
           image: null,
           username: "testuser",
           displayName: "Test User",
+          displayUsername: null,
           publicListed: true,
           createdAt: new Date(),
           updatedAt: new Date(),

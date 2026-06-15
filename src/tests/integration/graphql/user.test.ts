@@ -1,4 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 import {
   cleanDatabase,
   getTestPrisma,
@@ -6,6 +14,7 @@ import {
   teardownTestDb,
 } from "@/tests/helpers/testDb";
 import { createTestGraphQLClient } from "@/tests/helpers/graphqlClient";
+import { createTestUser, cleanupTestUser } from "@/tests/helpers/testAuth";
 
 const ME_QUERY = `
   query {
@@ -74,20 +83,13 @@ describe("GraphQL User", () => {
 
   beforeEach(async () => {
     await cleanDatabase();
-    const prisma = getTestPrisma();
-    const user = await prisma.user.create({
-      data: {
-        id: crypto.randomUUID(),
-        name: "Test User",
-        email: `test-${Date.now()}@example.com`,
-        emailVerified: false,
-        displayName: "Test User",
-        username: `testuser-${Date.now()}`,
-        publicListed: true,
-      },
-    });
+    const { user, headers } = await createTestUser();
     userId = user.id;
-    client = createTestGraphQLClient(userId);
+    client = createTestGraphQLClient(headers);
+  });
+
+  afterEach(async () => {
+    await cleanupTestUser(userId);
   });
 
   describe("me", () => {
@@ -100,27 +102,26 @@ describe("GraphQL User", () => {
       expect(result.data?.me.displayName).toBe("Test User");
     });
 
-    it("throws error when user is deleted", async () => {
+    it("returns null when user is deleted", async () => {
       const prisma = getTestPrisma();
       await prisma.user.delete({ where: { id: userId } });
 
       const result = await client.query(ME_QUERY, {});
 
-      expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain("user not found");
+      expect(result.error).toBeUndefined();
+      expect(result.data?.me).toBeNull();
     });
   });
 
   describe("userByUsername", () => {
-    it("searches for users by partial username", async () => {
+    it("returns the first matching user by partial username", async () => {
       const result = await client.query(USER_BY_USERNAME_QUERY, {
-        username: "test",
+        username: "tu",
       });
 
-      expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain(
-        "Cannot return null for non-nullable field",
-      );
+      expect(result.error).toBeUndefined();
+      expect(result.data?.userByUsername).not.toBeNull();
+      expect(result.data?.userByUsername.displayName).toBe("Test User");
     });
 
     it("excludes private users from search", async () => {

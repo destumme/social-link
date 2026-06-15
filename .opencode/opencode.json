@@ -1,9 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "hugeicons": {
-      "type": "local",
-      "command": ["npx", "-y", "@hugeicons/mcp-server"]
+  },
+  "permission": {
+    "bash": {
+      "yarn test:int": "deny",
+      "make int-test": "allow"
     }
   }
 }

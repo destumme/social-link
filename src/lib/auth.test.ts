@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
+import { testUtils } from "better-auth/plugins";
 
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/database/prisma";
@@ -14,7 +15,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [username()],
+  plugins: [username(), testUtils()],
   user: {
     additionalFields: {
       displayName: { type: "string", required: false },
