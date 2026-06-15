@@ -1,9 +1,17 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/header";
 import Main from "@/components/layout/main";
+import { getSession } from "@/lib/auth-server";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await getSession();
+
+  if (session) {
+    redirect("/link");
+  }
+
   return (
     <>
       <Header />

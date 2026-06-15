@@ -8,7 +8,7 @@ export default function Header() {
   const pathname = usePathname();
 
   const showPageNav =
-    pathname === "/link" ||
+    pathname.startsWith("/link") ||
     pathname.startsWith("/traits") ||
     pathname.startsWith("/groups") ||
     pathname.startsWith("/settings");
