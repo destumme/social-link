@@ -1,21 +1,17 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
 import PageNav from "@/components/layout/page-nav";
 import SearchInput from "@/components/layout/search-input";
 
 export default function Header() {
   const pathname = usePathname();
-  const { data: session, isPending } = useSession();
 
-  const isAuthedPage =
-    pathname === "/link" ||
+  const showPageNav =
+    pathname.startsWith("/link") ||
     pathname.startsWith("/traits") ||
     pathname.startsWith("/groups") ||
     pathname.startsWith("/settings");
-
-  const showPageNav = isAuthedPage || (!!session && !isPending);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background notebook-vertical-line">
