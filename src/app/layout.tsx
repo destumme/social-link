@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/layout/footer";
+import { getSession } from "@/lib/auth-server";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -44,6 +45,9 @@ export default async function RootLayout({
   const theme =
     themeCookie && VALID_THEMES.includes(themeCookie) ? themeCookie : "tokyo";
 
+  const session = await getSession();
+  const isLoggedIn = !!session;
+
   return (
     <html
       lang="en"
@@ -60,7 +64,7 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col relative">
         <TooltipProvider>{children}</TooltipProvider>
-        <Footer />
+        <Footer isLoggedIn={isLoggedIn} />
       </body>
     </html>
   );

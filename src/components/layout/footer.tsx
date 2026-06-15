@@ -2,8 +2,9 @@ import Link from "next/link";
 import BrandIcon from "@/components/layout/brand-icon";
 import ThemeSelector from "@/components/layout/theme-selector";
 import { ThemeProvider } from "@/components/theme-provider";
+import FooterLogout from "@/components/layout/footer-logout";
 
-export default function Footer() {
+export default function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
   const year = new Date().getFullYear();
 
   return (
@@ -25,18 +26,24 @@ export default function Footer() {
             >
               Home
             </Link>
-            <Link
-              href="/login"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              href="/login/create-account"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Sign Up
-            </Link>
+            {isLoggedIn ? (
+              <FooterLogout />
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/login/create-account"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </nav>
           <div data-id="copyright" className="flex items-end gap-6 pr-12">
             <p className="text-sm text-muted-foreground">
