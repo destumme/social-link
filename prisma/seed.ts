@@ -590,7 +590,31 @@ async function main() {
     data: {
       name: "Colleagues",
       accountId: bob.user.id,
-      traits: { connect: [{ id: bobTwitter.id }] },
+      traits: { connect: [{ id: bobTwitter.id }, { id: bobWebsite.id }] },
+    },
+  });
+
+  const charlieDevContacts = await prisma.connectionGroup.create({
+    data: {
+      name: "Dev Contacts",
+      accountId: charlie.user.id,
+      traits: { connect: [{ id: charlieEmail.id }, { id: charlieGithub.id }] },
+    },
+  });
+
+  const dianaSocial = await prisma.connectionGroup.create({
+    data: {
+      name: "Social",
+      accountId: diana.user.id,
+      traits: { connect: [{ id: dianaPhone.id }, { id: dianaWebsite.id }] },
+    },
+  });
+
+  const eveNetworks = await prisma.connectionGroup.create({
+    data: {
+      name: "Networks",
+      accountId: eve.user.id,
+      traits: { connect: [{ id: eveEmail.id }, { id: eveTwitter.id }] },
     },
   });
 
