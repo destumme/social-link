@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useCallback, useState, use } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PendingConnectionRow } from "./pending-connection-row";
@@ -58,66 +58,34 @@ async function graphql<T>(
   return data;
 }
 
-export function PendingConnectionsTable() {
-  const [connections, setConnections] = useState<PendingConnection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+function fetchPendingConnections() {
+  return graphql<{ pendingConnections: PendingConnection[] }>(
+    PENDING_CONNECTIONS_QUERY,
+  ).then((data) => data.pendingConnections);
+}
 
-  async function fetchPending() {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await graphql<{ pendingConnections: PendingConnection[] }>(
-        PENDING_CONNECTIONS_QUERY,
-      );
-      setConnections(data.pendingConnections);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to fetch pending connections",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchPending();
+function usePendingConnectionsResource() {
+  const [promise, setPromise] = useState(() => fetchPendingConnections());
+  const reload = useCallback(() => {
+    startTransition(() => {
+      setPromise(fetchPendingConnections());
+    });
   }, []);
+
+  return { connections: use(promise), reload };
+}
+
+export function PendingConnectionsTable() {
+  const { connections, reload } = usePendingConnectionsResource();
 
   async function handleAccept(connectionId: string) {
     await graphql(ACCEPT_CONNECTION_MUTATION, { connectionId });
-    await fetchPending();
+    reload();
   }
 
   async function handleDecline(connectionId: string) {
     await graphql(DECLINE_CONNECTION_MUTATION, { connectionId });
-    await fetchPending();
-  }
-
-  if (loading) {
-    return (
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Pending Requests</h2>
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">
-            Loading...
-          </CardContent>
-        </Card>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Pending Requests</h2>
-        <Card>
-          <CardContent className="p-6 text-destructive">{error}</CardContent>
-        </Card>
-      </section>
-    );
+    reload();
   }
 
   return (

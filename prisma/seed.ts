@@ -594,7 +594,7 @@ async function main() {
     },
   });
 
-  const charlieDevContacts = await prisma.connectionGroup.create({
+  await prisma.connectionGroup.create({
     data: {
       name: "Dev Contacts",
       accountId: charlie.user.id,
@@ -602,7 +602,7 @@ async function main() {
     },
   });
 
-  const dianaSocial = await prisma.connectionGroup.create({
+  await prisma.connectionGroup.create({
     data: {
       name: "Social",
       accountId: diana.user.id,
@@ -610,7 +610,7 @@ async function main() {
     },
   });
 
-  const eveNetworks = await prisma.connectionGroup.create({
+  await prisma.connectionGroup.create({
     data: {
       name: "Networks",
       accountId: eve.user.id,
@@ -636,7 +636,7 @@ async function main() {
     },
   });
 
-  console.log("Seeded 10 users, 2 connections, 50 traits, 2 connection groups");
+  console.log("Seeded 10 users, 2 connections, 50 traits, 5 connection groups");
 }
 
 main()

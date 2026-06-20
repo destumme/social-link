@@ -269,7 +269,7 @@ describe("GraphQL Connection", () => {
   describe("acceptConnection", () => {
     it("updates both connections to ACCEPTED", async () => {
       const prisma = getTestPrisma();
-      const conn = await prisma.connection.create({
+      await prisma.connection.create({
         data: {
           accountId,
           connectedAccountId: otherAccountId,

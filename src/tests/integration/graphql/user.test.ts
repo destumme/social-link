@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   cleanDatabase,
   getTestPrisma,
@@ -14,7 +6,7 @@ import {
   teardownTestDb,
 } from "@/tests/helpers/testDb";
 import { createTestGraphQLClient } from "@/tests/helpers/graphqlClient";
-import { createTestUser, cleanupTestUser } from "@/tests/helpers/testAuth";
+import { createTestUser } from "@/tests/helpers/testAuth";
 
 const ME_QUERY = `
   query {
@@ -86,10 +78,6 @@ describe("GraphQL User", () => {
     const { user, headers } = await createTestUser();
     userId = user.id;
     client = createTestGraphQLClient(headers);
-  });
-
-  afterEach(async () => {
-    await cleanupTestUser(userId);
   });
 
   describe("me", () => {

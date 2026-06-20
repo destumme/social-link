@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useCallback, useState, use } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ConnectionRow } from "./connection-row";
@@ -57,59 +57,29 @@ async function graphql<T>(
   return data;
 }
 
-export function ConnectionsTable() {
-  const [connections, setConnections] = useState<Connection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+function fetchConnections() {
+  return graphql<{ myConnections: Connection[] }>(MY_CONNECTIONS_QUERY).then(
+    (data) => data.myConnections,
+  );
+}
 
-  async function fetchConnections() {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await graphql<{ myConnections: Connection[] }>(
-        MY_CONNECTIONS_QUERY,
-      );
-      setConnections(data.myConnections);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch connections",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    fetchConnections();
+function useConnectionsResource() {
+  const [promise, setPromise] = useState(() => fetchConnections());
+  const reload = useCallback(() => {
+    startTransition(() => {
+      setPromise(fetchConnections());
+    });
   }, []);
+
+  return { connections: use(promise), reload };
+}
+
+export function ConnectionsTable() {
+  const { connections, reload } = useConnectionsResource();
 
   async function handleRemove(id: string) {
     await graphql(REMOVE_CONNECTION_MUTATION, { id });
-    await fetchConnections();
-  }
-
-  if (loading) {
-    return (
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">All Connections</h2>
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">
-            Loading...
-          </CardContent>
-        </Card>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">All Connections</h2>
-        <Card>
-          <CardContent className="p-6 text-destructive">{error}</CardContent>
-        </Card>
-      </section>
-    );
+    reload();
   }
 
   return (

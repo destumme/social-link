@@ -82,7 +82,3 @@ export async function createTestUser(overrides?: {
     headers: sessionHeaders,
   };
 }
-
-export async function cleanupTestUser(_userId: string): Promise<void> {
-  // Cleanup is handled by cleanDatabase() in beforeEach
-}
