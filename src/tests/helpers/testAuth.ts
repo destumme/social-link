@@ -1,4 +1,13 @@
-import { auth } from "@/lib/auth.test";
+import { authOptions } from "@/lib/auth";
+import { betterAuth, BetterAuthOptions } from "better-auth";
+import { testUtils } from "better-auth/plugins";
+
+const testOptions: BetterAuthOptions = {
+  ...authOptions,
+  plugins: [...(authOptions.plugins ?? []), testUtils()],
+};
+
+const auth = betterAuth(testOptions);
 
 export interface TestUserResult {
   user: { id: string; email: string; name: string };
@@ -20,7 +29,9 @@ export async function createTestUser(overrides?: {
       name,
       username,
       password,
-    },
+      // inference is broken from the spread with the username plugin
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any,
   });
 
   const { headers, response } = await auth.api.signInEmail({
