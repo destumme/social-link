@@ -1,10 +1,10 @@
-import { betterAuth, BetterAuthOptions } from "better-auth";
+import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
 
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/database/prisma";
 
-export const authOptions: BetterAuthOptions = {
+export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -17,8 +17,8 @@ export const authOptions: BetterAuthOptions = {
   plugins: [username()],
   user: {
     additionalFields: {
-      displayName: { type: "string", required: false },
-      publicListed: { type: "boolean", required: false },
+      displayName: { type: "string" as const, required: false },
+      publicListed: { type: "boolean" as const, required: false },
     },
   },
   databaseHooks: {
@@ -36,8 +36,6 @@ export const authOptions: BetterAuthOptions = {
       },
     },
   },
-};
-
-export const auth = betterAuth(authOptions);
+});
 
 export type Session = typeof auth.$Infer.Session;

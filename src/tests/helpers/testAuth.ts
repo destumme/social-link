@@ -1,13 +1,41 @@
-import { authOptions } from "@/lib/auth";
-import { betterAuth, BetterAuthOptions } from "better-auth";
-import { testUtils } from "better-auth/plugins";
+import { betterAuth } from "better-auth";
+import { testUtils, username } from "better-auth/plugins";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "@/lib/database/prisma";
 
-const testOptions: BetterAuthOptions = {
-  ...authOptions,
-  plugins: [...(authOptions.plugins ?? []), testUtils()],
-};
-
-const auth = betterAuth(testOptions);
+const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  account: {
+    modelName: "AuthAccount",
+  },
+  emailAndPassword: {
+    enabled: true,
+  },
+  plugins: [username(), testUtils()],
+  user: {
+    additionalFields: {
+      displayName: { type: "string" as const, required: false },
+      publicListed: { type: "boolean" as const, required: false },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          return {
+            data: {
+              ...user,
+              displayName: user.name ?? "",
+              publicListed: true,
+            },
+          };
+        },
+      },
+    },
+  },
+});
 
 export interface TestUserResult {
   user: { id: string; email: string; name: string };
@@ -29,9 +57,7 @@ export async function createTestUser(overrides?: {
       name,
       username,
       password,
-      // inference is broken from the spread with the username plugin
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any,
+    },
   });
 
   const { headers, response } = await auth.api.signInEmail({
