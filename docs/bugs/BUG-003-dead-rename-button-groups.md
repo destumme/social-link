@@ -26,6 +26,8 @@ In `src/app/groups/_components/group-table.tsx:83-85`:
 </Button>
 ```
 
+*Supersedes plan [01b-implement-group-rename-button](../plans/01b-implement-group-rename-button.md).*
+
 ## Agent Instructions
 
 **What to look for:**

@@ -183,6 +183,76 @@ async function main() {
       username: "jack",
       publicListed: false,
     },
+    {
+      email: "test+kate@example.com",
+      password: "kate1234",
+      name: "Kate Morgan",
+      username: "kate",
+      publicListed: true,
+    },
+    {
+      email: "test+leo@example.com",
+      password: "leo1234",
+      name: "Leo Martinez",
+      username: "leo",
+      publicListed: true,
+    },
+    {
+      email: "test+mia@example.com",
+      password: "mia1234",
+      name: "Mia Thompson",
+      username: "mia",
+      publicListed: false,
+    },
+    {
+      email: "test+noah@example.com",
+      password: "noah1234",
+      name: "Noah Garcia",
+      username: "noah",
+      publicListed: true,
+    },
+    {
+      email: "test+olivia@example.com",
+      password: "olivia1234",
+      name: "Olivia Davis",
+      username: "olivia",
+      publicListed: false,
+    },
+    {
+      email: "test+peter@example.com",
+      password: "peter1234",
+      name: "Peter Wang",
+      username: "peter",
+      publicListed: true,
+    },
+    {
+      email: "test+quinn@example.com",
+      password: "quinn1234",
+      name: "Quinn Roberts",
+      username: "quinn",
+      publicListed: true,
+    },
+    {
+      email: "test+rachel@example.com",
+      password: "rachel1234",
+      name: "Rachel Kim",
+      username: "rachel",
+      publicListed: false,
+    },
+    {
+      email: "test+sam@example.com",
+      password: "sam1234",
+      name: "Sam Patel",
+      username: "sam",
+      publicListed: true,
+    },
+    {
+      email: "test+tina@example.com",
+      password: "tina1234",
+      name: "Tina Brooks",
+      username: "tina",
+      publicListed: false,
+    },
   ];
 
   const users = {} as Record<string, { id: string }>;
@@ -201,6 +271,16 @@ async function main() {
   const henry = users.henry;
   const iris = users.iris;
   const jack = users.jack;
+  const kate = users.kate;
+  const leo = users.leo;
+  const mia = users.mia;
+  const noah = users.noah;
+  const olivia = users.olivia;
+  const peter = users.peter;
+  const quinn = users.quinn;
+  const rachel = users.rachel;
+  const sam = users.sam;
+  const tina = users.tina;
 
   // Alice traits
   const aliceEmail = await getOrCreateTrait(alice.id, {
@@ -472,6 +552,276 @@ async function main() {
     category: "OTHER",
   });
 
+  // Kate traits
+  const kateEmail = await getOrCreateTrait(kate.id, {
+    key: "email",
+    value: "kate@example.com",
+    category: "CONTACT_INFO",
+  });
+  const kateTwitter = await getOrCreateTrait(kate.id, {
+    key: "twitter",
+    value: "https://twitter.com/kate",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(kate.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/kate",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(kate.id, {
+    key: "instagram",
+    value: "https://instagram.com/kate",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(kate.id, {
+    key: "tiktok",
+    value: "https://tiktok.com/@kate",
+    category: "SOCIAL_LINK",
+  });
+
+  // Leo traits
+  const leoEmail = await getOrCreateTrait(leo.id, {
+    key: "email",
+    value: "leo@example.com",
+    category: "CONTACT_INFO",
+  });
+  const leoGithub = await getOrCreateTrait(leo.id, {
+    key: "github",
+    value: "https://github.com/leo",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(leo.id, {
+    key: "twitter",
+    value: "https://twitter.com/leo",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(leo.id, {
+    key: "website",
+    value: "https://leo.dev",
+    category: "WEBSITE_LINK",
+  });
+  await getOrCreateTrait(leo.id, {
+    key: "discord",
+    value: "leo#9999",
+    category: "MESSAGING_HANDLE",
+  });
+
+  // Mia traits
+  const miaPhone = await getOrCreateTrait(mia.id, {
+    key: "phone",
+    value: "+1112223333",
+    category: "CONTACT_INFO",
+  });
+  const miaInstagram = await getOrCreateTrait(mia.id, {
+    key: "instagram",
+    value: "https://instagram.com/mia",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(mia.id, {
+    key: "pinterest",
+    value: "https://pinterest.com/mia",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(mia.id, {
+    key: "youtube",
+    value: "https://youtube.com/@mia",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(mia.id, {
+    key: "whatsapp",
+    value: "+1112223333",
+    category: "MESSAGING_HANDLE",
+  });
+
+  // Noah traits
+  const noahEmail = await getOrCreateTrait(noah.id, {
+    key: "email",
+    value: "noah@example.com",
+    category: "CONTACT_INFO",
+  });
+  const noahLinkedin = await getOrCreateTrait(noah.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/noah",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(noah.id, {
+    key: "twitter",
+    value: "https://twitter.com/noah",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(noah.id, {
+    key: "github",
+    value: "https://github.com/noah",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(noah.id, {
+    key: "bluesky",
+    value: "https://bsky.app/profile/noah",
+    category: "SOCIAL_LINK",
+  });
+
+  // Olivia traits
+  await getOrCreateTrait(olivia.id, {
+    key: "email",
+    value: "olivia@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(olivia.id, {
+    key: "phone",
+    value: "+4445556666",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(olivia.id, {
+    key: "instagram",
+    value: "https://instagram.com/olivia",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(olivia.id, {
+    key: "tiktok",
+    value: "https://tiktok.com/@olivia",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(olivia.id, {
+    key: "snapchat",
+    value: "olivia_snap",
+    category: "MESSAGING_HANDLE",
+  });
+
+  // Peter traits
+  const peterEmail = await getOrCreateTrait(peter.id, {
+    key: "email",
+    value: "peter@example.com",
+    category: "CONTACT_INFO",
+  });
+  const peterTwitter = await getOrCreateTrait(peter.id, {
+    key: "twitter",
+    value: "https://twitter.com/peter",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(peter.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/peter",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(peter.id, {
+    key: "github",
+    value: "https://github.com/peter",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(peter.id, {
+    key: "reddit",
+    value: "https://reddit.com/user/peter",
+    category: "SOCIAL_LINK",
+  });
+
+  // Quinn traits
+  const quinnEmail = await getOrCreateTrait(quinn.id, {
+    key: "email",
+    value: "quinn@example.com",
+    category: "CONTACT_INFO",
+  });
+  const quinnWebsite = await getOrCreateTrait(quinn.id, {
+    key: "website",
+    value: "https://quinn.design",
+    category: "WEBSITE_LINK",
+  });
+  await getOrCreateTrait(quinn.id, {
+    key: "instagram",
+    value: "https://instagram.com/quinn",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(quinn.id, {
+    key: "dribbble",
+    value: "https://dribbble.com/quinn",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(quinn.id, {
+    key: "behance",
+    value: "https://behance.net/quinn",
+    category: "PROFESSIONAL_LINK",
+  });
+
+  // Rachel traits
+  await getOrCreateTrait(rachel.id, {
+    key: "email",
+    value: "rachel@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(rachel.id, {
+    key: "phone",
+    value: "+7778889999",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(rachel.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/rachel",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(rachel.id, {
+    key: "twitter",
+    value: "https://twitter.com/rachel",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(rachel.id, {
+    key: "telegram",
+    value: "https://t.me/rachel",
+    category: "MESSAGING_HANDLE",
+  });
+
+  // Sam traits
+  const samEmail = await getOrCreateTrait(sam.id, {
+    key: "email",
+    value: "sam@example.com",
+    category: "CONTACT_INFO",
+  });
+  const samGithub = await getOrCreateTrait(sam.id, {
+    key: "github",
+    value: "https://github.com/sam",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(sam.id, {
+    key: "twitter",
+    value: "https://twitter.com/sam",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(sam.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/sam",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(sam.id, {
+    key: "discord",
+    value: "sam#4321",
+    category: "MESSAGING_HANDLE",
+  });
+
+  // Tina traits
+  await getOrCreateTrait(tina.id, {
+    key: "email",
+    value: "tina@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(tina.id, {
+    key: "phone",
+    value: "+2223334444",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(tina.id, {
+    key: "instagram",
+    value: "https://instagram.com/tina",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(tina.id, {
+    key: "youtube",
+    value: "https://youtube.com/@tina",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(tina.id, {
+    key: "spotify",
+    value: "https://open.spotify.com/user/tina",
+    category: "OTHER",
+  });
+
   // Connection groups (1-2 per user)
   const aliceCloseFriends = await getOrCreateGroup(alice.id, "Close Friends", [
     aliceEmail.id,
@@ -516,6 +866,57 @@ async function main() {
 
   const jackDevContacts = await getOrCreateGroup(jack.id, "Dev Contacts");
   const jackMusic = await getOrCreateGroup(jack.id, "Music");
+
+  const kateSocial = await getOrCreateGroup(kate.id, "Social", [
+    kateEmail.id,
+    kateTwitter.id,
+  ]);
+  const kateWork = await getOrCreateGroup(kate.id, "Work");
+
+  const leoDevContacts = await getOrCreateGroup(leo.id, "Dev Contacts", [
+    leoEmail.id,
+    leoGithub.id,
+  ]);
+  const leoSocial = await getOrCreateGroup(leo.id, "Social");
+
+  const miaCloseFriends = await getOrCreateGroup(mia.id, "Close Friends", [
+    miaPhone.id,
+    miaInstagram.id,
+  ]);
+  const miaCreative = await getOrCreateGroup(mia.id, "Creative");
+
+  const noahNetworks = await getOrCreateGroup(noah.id, "Networks", [
+    noahEmail.id,
+    noahLinkedin.id,
+  ]);
+  const noahFriends = await getOrCreateGroup(noah.id, "Friends");
+
+  const oliviaSocial = await getOrCreateGroup(olivia.id, "Social");
+  const oliviaCloseFriends = await getOrCreateGroup(olivia.id, "Close Friends");
+
+  const peterDevContacts = await getOrCreateGroup(peter.id, "Dev Contacts", [
+    peterEmail.id,
+    peterTwitter.id,
+  ]);
+  const peterProfessional = await getOrCreateGroup(peter.id, "Professional");
+
+  const quinnPortfolio = await getOrCreateGroup(quinn.id, "Portfolio", [
+    quinnEmail.id,
+    quinnWebsite.id,
+  ]);
+  const quinnSocial = await getOrCreateGroup(quinn.id, "Social");
+
+  const rachelWork = await getOrCreateGroup(rachel.id, "Work");
+  const rachelPersonal = await getOrCreateGroup(rachel.id, "Personal");
+
+  const samDevContacts = await getOrCreateGroup(sam.id, "Dev Contacts", [
+    samEmail.id,
+    samGithub.id,
+  ]);
+  const samSocial = await getOrCreateGroup(sam.id, "Social");
+
+  const tinaSocial = await getOrCreateGroup(tina.id, "Social");
+  const tinaMusic = await getOrCreateGroup(tina.id, "Music");
 
   // Connections (30 directional)
   // Alice
@@ -607,6 +1008,114 @@ async function main() {
   await getOrCreateConnection(jack.id, iris.id, ConnectionStatus.ACCEPTED, [
     jackDevContacts.id,
   ]);
+
+  // Kate
+  await getOrCreateConnection(kate.id, alice.id, ConnectionStatus.ACCEPTED, [
+    kateSocial.id,
+  ]);
+  await getOrCreateConnection(kate.id, eve.id, ConnectionStatus.ACCEPTED, [
+    kateSocial.id,
+  ]);
+  await getOrCreateConnection(kate.id, leo.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(kate.id, noah.id, ConnectionStatus.ACCEPTED, [
+    kateWork.id,
+  ]);
+
+  // Leo
+  await getOrCreateConnection(leo.id, charlie.id, ConnectionStatus.ACCEPTED, [
+    leoDevContacts.id,
+  ]);
+  await getOrCreateConnection(leo.id, kate.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(leo.id, peter.id, ConnectionStatus.ACCEPTED, [
+    leoSocial.id,
+  ]);
+  await getOrCreateConnection(leo.id, sam.id, ConnectionStatus.ACCEPTED, [
+    leoDevContacts.id,
+  ]);
+
+  // Mia
+  await getOrCreateConnection(mia.id, diana.id, ConnectionStatus.ACCEPTED, [
+    miaCloseFriends.id,
+  ]);
+  await getOrCreateConnection(mia.id, grace.id, ConnectionStatus.ACCEPTED, [
+    miaCreative.id,
+  ]);
+  await getOrCreateConnection(mia.id, olivia.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(mia.id, tina.id, ConnectionStatus.ACCEPTED, [
+    miaCloseFriends.id,
+  ]);
+
+  // Noah
+  await getOrCreateConnection(noah.id, bob.id, ConnectionStatus.ACCEPTED, [
+    noahNetworks.id,
+  ]);
+  await getOrCreateConnection(noah.id, kate.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(noah.id, peter.id, ConnectionStatus.ACCEPTED, [
+    noahFriends.id,
+  ]);
+  await getOrCreateConnection(noah.id, sam.id, ConnectionStatus.ACCEPTED, [
+    noahNetworks.id,
+  ]);
+
+  // Olivia
+  await getOrCreateConnection(olivia.id, mia.id, ConnectionStatus.ACCEPTED, [
+    oliviaSocial.id,
+  ]);
+  await getOrCreateConnection(olivia.id, tina.id, ConnectionStatus.ACCEPTED, [
+    oliviaCloseFriends.id,
+  ]);
+  await getOrCreateConnection(olivia.id, quinn.id, ConnectionStatus.ACCEPTED);
+
+  // Peter
+  await getOrCreateConnection(peter.id, leo.id, ConnectionStatus.ACCEPTED, [
+    peterDevContacts.id,
+  ]);
+  await getOrCreateConnection(peter.id, noah.id, ConnectionStatus.ACCEPTED, [
+    peterProfessional.id,
+  ]);
+  await getOrCreateConnection(peter.id, sam.id, ConnectionStatus.ACCEPTED, [
+    peterDevContacts.id,
+  ]);
+  await getOrCreateConnection(peter.id, quinn.id, ConnectionStatus.ACCEPTED);
+
+  // Quinn
+  await getOrCreateConnection(quinn.id, olivia.id, ConnectionStatus.ACCEPTED, [
+    quinnSocial.id,
+  ]);
+  await getOrCreateConnection(quinn.id, peter.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(quinn.id, rachel.id, ConnectionStatus.ACCEPTED, [
+    quinnPortfolio.id,
+  ]);
+
+  // Rachel
+  await getOrCreateConnection(rachel.id, quinn.id, ConnectionStatus.ACCEPTED, [
+    rachelWork.id,
+  ]);
+  await getOrCreateConnection(rachel.id, sam.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(rachel.id, henry.id, ConnectionStatus.ACCEPTED, [
+    rachelPersonal.id,
+  ]);
+
+  // Sam
+  await getOrCreateConnection(sam.id, leo.id, ConnectionStatus.ACCEPTED, [
+    samDevContacts.id,
+  ]);
+  await getOrCreateConnection(sam.id, noah.id, ConnectionStatus.ACCEPTED, [
+    samSocial.id,
+  ]);
+  await getOrCreateConnection(sam.id, peter.id, ConnectionStatus.ACCEPTED, [
+    samDevContacts.id,
+  ]);
+  await getOrCreateConnection(sam.id, rachel.id, ConnectionStatus.ACCEPTED);
+
+  // Tina
+  await getOrCreateConnection(tina.id, mia.id, ConnectionStatus.ACCEPTED, [
+    tinaSocial.id,
+  ]);
+  await getOrCreateConnection(tina.id, olivia.id, ConnectionStatus.ACCEPTED, [
+    tinaMusic.id,
+  ]);
+  await getOrCreateConnection(tina.id, grace.id, ConnectionStatus.ACCEPTED);
 
   console.log("Seeded some users, connections, traits, and connection groups");
 }

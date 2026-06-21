@@ -9,6 +9,7 @@ Track known bugs and their resolution status.
 | [BUG-001](BUG-001-connections-not-updated-group-reorder.md) | Connections not updated on group edit + group reorder | medium | open |
 | [BUG-002](BUG-002-category-badge-override-icon.md) | Category badge doesn't show override icon | low | open |
 | [BUG-003](BUG-003-dead-rename-button-groups.md) | Dead "Rename" button on connection groups page | low | open |
+| [BUG-004](BUG-004-int-test-not-containerized.md) | Integration tests share host with running dev service | medium | open |
 
 ## Resolved
 
