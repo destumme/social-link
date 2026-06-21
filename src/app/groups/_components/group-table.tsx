@@ -80,9 +80,6 @@ export function GroupTable({ groups, connections, traits }: GroupTableProps) {
                       >
                         Edit
                       </Button>
-                      <Button variant="ghost" size="sm" disabled>
-                        Rename
-                      </Button>
                       <form action={deleteGroupAction}>
                         <input type="hidden" name="id" value={group.id} />
                         <DeleteButton />
