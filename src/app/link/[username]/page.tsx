@@ -5,102 +5,41 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCategoryIcon } from "@/components/icons";
-import { yoga } from "@/app/api/graphql/route";
+import userService from "@/lib/services/userService";
+import connectionService from "@/lib/services/connectionService";
 
 async function getUser(username: string) {
-  const request = new Request("http://localhost/api/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `
-        query GetUserByUsername($username: String!) {
-          userByUsername(username: $username) {
-            id
-            displayName
-            username
-            publicListed
-            traits {
-              id
-              key
-              value
-              category
-              icon
-              visibleGroups {
-                id
-                name
-              }
-            }
-          }
-        }
-      `,
-      variables: { username },
-    }),
-  });
-  const response = await yoga.fetch(request);
-  const { data, errors } = await response.json();
-  if (errors?.length > 0 || !data?.userByUsername) {
-    return null;
-  }
-  return data.userByUsername;
+  return userService.search.findUserWithTraitsByUsername(username);
 }
 
 async function getConnectionStatus(targetUserId: string) {
-  const request = new Request("http://localhost/api/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `
-        query ConnectionByAccount($accountId: ID!) {
-          connectionByAccount(accountId: $accountId) {
-            id
-            status
-          }
-        }
-      `,
-      variables: { accountId: targetUserId },
-    }),
-  });
-  const response = await yoga.fetch(request);
-  const { data } = await response.json();
-  return data?.connectionByAccount;
+  try {
+    return await connectionService.search.findConnectionBetweenAccounts(
+      targetUserId,
+    );
+  } catch {
+    return null;
+  }
 }
 
 export async function requestConnectionAction(formData: FormData) {
+  "use server";
   const accountId = formData.get("accountId") as string;
-  const request = new Request("http://localhost/api/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `
-        mutation RequestConnection($accountId: ID!) {
-          requestConnection(accountId: $accountId, input: {}) {
-            id
-            status
-          }
-        }
-      `,
-      variables: { accountId },
-    }),
-  });
-  await yoga.fetch(request);
+  await connectionService.connectionPair.createConnectionPair(accountId);
   revalidatePath(`/link/[username]`, "page");
 }
 
 export async function removeConnectionAction(formData: FormData) {
+  "use server";
   const connectionId = formData.get("connectionId") as string;
-  const request = new Request("http://localhost/api/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `
-        mutation RemoveConnection($id: ID!) {
-          removeConnection(id: $id)
-        }
-      `,
-      variables: { id: connectionId },
-    }),
-  });
-  await yoga.fetch(request);
+  const connection =
+    await connectionService.connection.findConnectionById(connectionId);
+  if (!connection) return;
+  await connectionService.connectionPair.deleteConnectionPair(
+    connection.id,
+    connection.connectedAccountId ?? "",
+    connection.accountId ?? "",
+  );
   revalidatePath(`/link/[username]`, "page");
 }
 
@@ -162,8 +101,8 @@ export default async function UserPage({
                   id: string;
                   key: string;
                   value: string;
-                  category: string;
-                  icon?: string;
+                  category: string | null;
+                  icon?: string | null;
                 },
                 index: number,
               ) => (

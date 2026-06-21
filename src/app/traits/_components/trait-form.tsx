@@ -24,7 +24,7 @@ import { createTraitAction } from "@/app/traits/actions";
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant="ghost" size="sm" disabled={pending}>
+    <Button type="submit" size="sm" disabled={pending}>
       {pending ? "Adding..." : "Add"}
     </Button>
   );
@@ -95,7 +95,13 @@ export function TraitForm() {
         <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
           <SelectTrigger className="w-full">
             <span className="flex items-center gap-2">
-              {categoryIcon && <HugeiconsIcon icon={categoryIcon} size={16} />}
+              {categoryIcon && (
+                <HugeiconsIcon
+                  icon={categoryIcon}
+                  size={16}
+                  className="size-3"
+                />
+              )}
               {category ? getCategoryLabel(category) : "Select..."}
             </span>
           </SelectTrigger>
@@ -108,7 +114,13 @@ export function TraitForm() {
                   return (
                     <SelectItem key={opt.value} value={opt.value}>
                       <span className="flex items-center gap-2">
-                        {catIcon && <HugeiconsIcon icon={catIcon} size={16} />}
+                        {catIcon && (
+                          <HugeiconsIcon
+                            icon={catIcon}
+                            size={16}
+                            className="size-3"
+                          />
+                        )}
                         {opt.label}
                       </span>
                     </SelectItem>
@@ -123,7 +135,13 @@ export function TraitForm() {
         <Select value={icon} onValueChange={(v) => setIcon(v ?? "")}>
           <SelectTrigger className="w-full">
             <span className="flex items-center gap-2">
-              {overrideIcon && <HugeiconsIcon icon={overrideIcon} size={16} />}
+              {overrideIcon && (
+                <HugeiconsIcon
+                  icon={overrideIcon}
+                  size={16}
+                  className="size-3"
+                />
+              )}
               {icon ? getOverrideIconLabel(icon) : "Select..."}
             </span>
           </SelectTrigger>
@@ -134,7 +152,11 @@ export function TraitForm() {
                 {group.options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     <span className="flex items-center gap-2">
-                      <HugeiconsIcon icon={opt.icon} size={16} />
+                      <HugeiconsIcon
+                        icon={opt.icon}
+                        size={16}
+                        className="size-3"
+                      />
                       {opt.label}
                     </span>
                   </SelectItem>

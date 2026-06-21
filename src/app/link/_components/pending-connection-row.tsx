@@ -73,7 +73,7 @@ export function PendingConnectionRow({
           Accept
         </Button>
         <Button
-          variant="outline"
+          variant="destructive"
           size="sm"
           onClick={() => onDecline(connection.id)}
         >

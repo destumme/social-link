@@ -25,7 +25,7 @@ async function main() {
   console.log("Truncating all tables...");
 
   await prisma.$executeRawUnsafe(
-    `TRUNCATE TABLE ${tables.join(", ")} RESTART IDENTITY CASCADE`
+    `TRUNCATE TABLE ${tables.join(", ")} RESTART IDENTITY CASCADE`,
   );
 
   console.log("All tables truncated successfully.");

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense } from "react";
+import { useQuery, useMutation } from "@urql/next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PendingConnectionRow } from "./pending-connection-row";
@@ -44,69 +45,48 @@ interface PendingConnection {
   };
 }
 
-async function graphql<T>(
-  query: string,
-  variables?: Record<string, unknown>,
-): Promise<T> {
-  const res = await fetch("/api/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, variables }),
-  });
-  const { data, errors } = await res.json();
-  if (errors?.length) throw new Error(errors[0].message);
-  return data;
+function LoadingCard() {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-xl font-semibold">Pending Requests</h2>
+      <Card>
+        <CardContent className="p-6 text-muted-foreground">
+          Loading...
+        </CardContent>
+      </Card>
+    </section>
+  );
 }
 
 export function PendingConnectionsTable() {
-  const [connections, setConnections] = useState<PendingConnection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  return (
+    <Suspense fallback={<LoadingCard />}>
+      <PendingConnectionsTableContent />
+    </Suspense>
+  );
+}
 
-  async function fetchPending() {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await graphql<{ pendingConnections: PendingConnection[] }>(
-        PENDING_CONNECTIONS_QUERY,
-      );
-      setConnections(data.pendingConnections);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to fetch pending connections",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+function PendingConnectionsTableContent() {
+  const [{ data, fetching, error }, reexecute] = useQuery({
+    query: PENDING_CONNECTIONS_QUERY,
+  });
+  const [, acceptConnection] = useMutation(ACCEPT_CONNECTION_MUTATION);
+  const [, declineConnection] = useMutation(DECLINE_CONNECTION_MUTATION);
 
-  useEffect(() => {
-    fetchPending();
-  }, []);
+  const connections = data?.pendingConnections ?? [];
 
   async function handleAccept(connectionId: string) {
-    await graphql(ACCEPT_CONNECTION_MUTATION, { connectionId });
-    await fetchPending();
+    await acceptConnection({ connectionId });
+    reexecute();
   }
 
   async function handleDecline(connectionId: string) {
-    await graphql(DECLINE_CONNECTION_MUTATION, { connectionId });
-    await fetchPending();
+    await declineConnection({ connectionId });
+    reexecute();
   }
 
-  if (loading) {
-    return (
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">Pending Requests</h2>
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">
-            Loading...
-          </CardContent>
-        </Card>
-      </section>
-    );
+  if (fetching) {
+    return <LoadingCard />;
   }
 
   if (error) {
@@ -114,7 +94,9 @@ export function PendingConnectionsTable() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Pending Requests</h2>
         <Card>
-          <CardContent className="p-6 text-destructive">{error}</CardContent>
+          <CardContent className="p-6 text-destructive">
+            {error.message}
+          </CardContent>
         </Card>
       </section>
     );
@@ -137,7 +119,7 @@ export function PendingConnectionsTable() {
               No pending connection requests.
             </div>
           ) : (
-            connections.map((connection, index) => (
+            connections.map((connection: PendingConnection, index: number) => (
               <div key={connection.id}>
                 {index > 0 && <Separator />}
                 <PendingConnectionRow

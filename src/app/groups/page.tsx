@@ -33,7 +33,7 @@ export default async function GroupsPage() {
     executeGraphQL<{ myConnections: ConnectionResult[] }>(
       `query { myConnections { id connectedAccount { id displayName username } } }`,
     ),
-    traitService.search.findTraitsByAccountId(accountId),
+    traitService.search.findTraitsByAccountId(),
   ]);
 
   const groups = groupsData.myConnectionGroups;

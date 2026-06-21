@@ -40,6 +40,42 @@ export async function createTraitAction(data: {
   return {};
 }
 
+export async function updateTraitAction(data: {
+  id: string;
+  key: string;
+  value: string;
+  category: string;
+  icon: string;
+}): Promise<{ error?: string }> {
+  const { id, key, value, category, icon } = data;
+
+  if (!key.trim() || !value.trim() || !category) {
+    return { error: "Key, value, and category are required" };
+  }
+
+  const validCategory = Object.values(TraitCategory).includes(
+    category as TraitCategory,
+  );
+  if (!validCategory) {
+    return { error: "Invalid category" };
+  }
+
+  try {
+    await traitService.trait.updateTrait(id, {
+      key: key.trim(),
+      value: value.trim(),
+      category: category as TraitCategory,
+      icon: icon || undefined,
+    });
+  } catch (e) {
+    if (e instanceof ServiceError) return { error: e.message };
+    throw e;
+  }
+
+  revalidatePath("/traits");
+  return {};
+}
+
 export async function deleteTraitAction(formData: FormData) {
   const id = formData.get("id") as string;
 

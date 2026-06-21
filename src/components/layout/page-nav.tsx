@@ -42,9 +42,13 @@ export default function PageNav() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={(props) => (
-          <Button variant="ghost" size="sm" className="h-7 px-2" {...props}>
-            <HugeiconsIcon icon={activeItem?.icon ?? Menu01Icon} size={16} />
-            <span className="ml-1.5 text-xs">
+          <Button variant="ghost" size="sm" className="" {...props}>
+            <HugeiconsIcon
+              icon={activeItem?.icon ?? Menu01Icon}
+              size={16}
+              className="size-3"
+            />
+            <span className="ml-1.5 text-md">
               {activeItem?.label ?? "Menu"}
             </span>
           </Button>
@@ -61,7 +65,7 @@ export default function PageNav() {
               <Link href={item.href} className={cn(className)} {...props} />
             )}
           >
-            <HugeiconsIcon icon={item.icon} size={16} />
+            <HugeiconsIcon icon={item.icon} size={16} className="size-3" />
             {item.label}
           </DropdownMenuLinkItem>
         ))}

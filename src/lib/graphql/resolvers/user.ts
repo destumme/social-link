@@ -60,7 +60,9 @@ export const Query = {
   searchUsers: (_parent: unknown, args: { query: string }) => {
     return userService.search.findUsersByUsername(args.query);
   },
-  userByShareId: (_: unknown, __: { shareId: string }) => {
+  userByShareId: (parent: unknown, args: { shareId: string }) => {
+    void parent;
+    void args;
     throw new Error("Not implemented");
   },
 };

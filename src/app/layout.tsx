@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Figtree } from "next/font/google";
 import "./globals.css";
 import { cookies } from "next/headers";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { GraphQLProvider } from "@/components/graphql-provider";
 import { cn } from "@/lib/utils";
 import Footer from "@/components/layout/footer";
 import { getSession } from "@/lib/auth-server";
@@ -63,7 +64,9 @@ export default async function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col relative">
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          <GraphQLProvider>{children}</GraphQLProvider>
+        </TooltipProvider>
         <Footer isLoggedIn={isLoggedIn} />
       </body>
     </html>

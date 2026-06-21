@@ -29,60 +29,6 @@ Social links app — Next.js 16.2.6 + GraphQL Yoga + Prisma 7 + Better Auth + Po
 Package manager is **yarn 4.14.1** (`packageManager` field). Use `yarn`, not `npm install`.
 Use `yarn run prisma` for Prisma CLI commands (not `npx`). If a `yarn run` command fails, do not retry — report the error instead.
 
-## Architecture
-
-- **GraphQL** at `/api/graphql` — single Yoga endpoint (`src/app/api/graphql/route.ts`). Uses `typeDefs` (code-first SDL in `src/lib/graphql/typeDefs.ts`) + resolvers in `src/lib/graphql/resolvers/`.
-- **Resolvers** are split by domain: `account.ts`, `trait.ts`, `connection.ts`, `connectionGroup.ts`. All merged in `resolvers/index.ts`. Resolvers call the service layer, never Prisma directly.
-- **Service layer** in `src/lib/services/` — four domain services (`accountService`, `traitService`, `connectionService`, `connectionGroupService`). Each exports namespaced sub-objects: `account.*` / `trait.*` / `connection.*` / `connectionGroup.*` for CRUD, `search.*` for queries, and `connectionPair.*` for pair operations. Services call Prisma directly.
-- **Prisma client** is generated to `src/generated/prisma/` (custom output path). Adapter is `@prisma/adapter-pg` for PostgreSQL. Client imported from `@/generated/prisma/client`.
-- **Auth** uses Better Auth (not yet wired into context — hardcoded account ID in `context.ts`).
-- **Env** loaded via `direnv` (`.envrc`). Prisma reads `DATABASE_URL` from environment.
-
-## UI & Theming
-
-- **UI stack**: Base UI (`@base-ui/react`) headless primitives + Tailwind v4 + shadcn component registry + CVA (`class-variance-authority`) for component variants.
-- **Component patterns**: `cn()` utility (`src/lib/utils.ts`) combines clsx + tailwind-merge. Components use `data-slot` attributes for targeting. `render` prop enables Next.js Link composition in dropdown items.
-- **UI primitives** in `src/components/ui/` — explore for current components (button, dialog, select, dropdown, input, etc.).
-- **Layout components** in `src/components/layout/` — explore for header, footer, main shell, theme selector.
-- **Icons**: `@hugeicons/react` with category mappings in `src/lib/icons.ts`.
-
-### Dynamic Theming
-
-- **Architecture**: CSS custom properties scoped to `[data-theme="..."]` on `<html>`. Each theme defines semantic tokens: `--background`, `--foreground`, `--primary`, `--card`, `--sidebar-*`, `--chart-*`, `--notebook-*`, etc.
-- **Color format**: OKLCH exclusively.
-- **Tailwind mapping**: `@theme inline` block in `src/app/globals.css` maps CSS vars to utility classes (`bg-background`, `text-primary`, `rounded-lg`).
-- **ThemeProvider** (`src/components/theme-provider.tsx`): React context using `useSyncExternalStore`, persists theme to localStorage, sets default theme.
-- **ThemeScript** (`src/components/theme-script.tsx`): inline `<script>` injected in `<body>` for FOUC prevention — runs before hydration.
-- **Theme selector** (`src/components/layout/theme-selector.tsx`): dropdown UI with color swatch previews.
-- **Dark mode**: `@custom-variant dark` in `globals.css` classifies which themes trigger `dark:` Tailwind variants.
-- **Notebook effect**: decorative vertical/horizontal lines via `--notebook-vertical-line` / `--notebook-horizontal-line` CSS vars, colors vary per theme.
-- Explore `src/app/globals.css` for all available themes and their color tokens.
-
-## Testing
-
-- **Framework**: Vitest (`vitest.config.ts`) — uses `test.projects` to define two projects: `unit` and `integration`.
-  - Unit tests: `fileParallelism: true` (mocked Prisma, no DB needed)
-  - Integration tests: `fileParallelism: false` (real DB, avoid interference)
-- **Setup**: `src/tests/setup.ts` extends `@testing-library/jest-dom` matchers
-
-| Task | Command |
-|---|---|
-| Watch (unit) | `yarn test` |
-| Run once (unit) | `yarn test:run` |
-| Coverage (unit) | `yarn test:coverage` |
-| Run once (integration) | `make int-test` |
-
-- **NEVER run integration tests outside of `make int-test`**. The Makefile sets `DATABASE_URL` to the dedicated test database (`social_links_test`). Running integration tests directly (e.g. `yarn test:run`, `vitest run --project integration`) will use `.envrc`'s `DATABASE_URL` and mutate the **main** database.
-
-- **Unit tests** in `src/tests/unit/lib/services/` — one per service file. Use `createMockPrisma()` from `src/tests/helpers/mockPrisma.ts` to mock Prisma models. Mock objects must include all required Prisma fields (`id`, `createdAt`, `updatedAt`, etc.).
-- **Integration tests** in `src/tests/integration/` — test real Prisma connections and GraphQL operations.
-  - `prisma-connection.test.ts` — basic Prisma CRUD
-  - `graphql/` — GraphQL query/mutation tests using `createTestGraphQLClient()` from `src/tests/helpers/graphqlClient.ts`. This helper calls Yoga's handler directly (no HTTP server). Each test creates its own account via Prisma in `beforeEach`, passes the account ID to the client, and cleans the DB between tests.
-  - Use `result.errors` (array) for GraphQL errors, `result.data` for successful responses.
-  - `TEST_AUTHED_ACCOUNT_ID` env var overrides the hardcoded account ID in `context.ts` for tests.
-- Mock Prisma supports `$transaction` with both array and callback patterns.
-- Yoga test instance has `maskedErrors: false` so actual error messages are visible.
-
 ## Skills
 
 Always check if an available skill applies before starting work. Load the relevant skill via the `skill` tool when its trigger conditions are met.
@@ -123,11 +69,41 @@ src/
     ├── helpers/      # Test fixtures and utilities (mock Prisma, GraphQL client, test DB)
     ├── integration/  # End-to-end tests against real Prisma and GraphQL handler
     └── unit/         # Isolated service-layer tests with mocked Prisma
+docs/
+├── agent-instructions/   # Agent reference pages (architecture, data-fetching, testing, etc.)
+├── bugs/                 # Bug tracker — template, index, and individual bug reports
+├── features/             # Feature tracker — template, index, and feature specs
+├── plans/                # Implementation plans for past and upcoming work
+├── architecture.md       # High-level system architecture overview
+├── data-models.md        # Database schema and model documentation
+├── graphql.md            # GraphQL schema and API docs
+├── page-structure.md     # Page layout and routing documentation
+└── summary.md            # Project summary and overview
 ```
+
+## Architecture
+
+See [docs/agent-instructions/architecture.md](docs/agent-instructions/architecture.md)
+
+## Data Fetching: Server vs Client
+
+See [docs/agent-instructions/data-fetching.md](docs/agent-instructions/data-fetching.md)
+
+## UI & Theming
+
+See [docs/agent-instructions/ui-and-theming.md](docs/agent-instructions/ui-and-theming.md)
+
+## Testing
+
+See [docs/agent-instructions/testing.md](docs/agent-instructions/testing.md)
 
 ## Key Constraints
 
-- Do **not** implement resolvers that currently throw `"Not implemented"` unless explicitly asked.
-- GraphQL errors use `GraphqlAppError` subclasses from `src/lib/graphql/errors.ts`
-- Prisma many-to-many relations use `connect` / `disconnect`
-- The `accountByUsername` query currently does a partial case-insensitive search (not exact match), despite the service comment saying otherwise.
+See [docs/agent-instructions/key-constraints.md](docs/agent-instructions/key-constraints.md)
+
+## Documentation
+
+When tasked with a bug or feature, check the relevant tracker — each entry includes agent-facing instructions.
+
+- **[Bug tracker](docs/bugs/index.md)** — each bug file has an `## Agent Instructions` section with `What to look for`, `Files to check`, `What not to change`, and `Verification`. See index for [Creating a New Bug](docs/bugs/index.md).
+- **[Feature tracker](docs/features/index.md)** — each feature spec has an `## Agent Instructions` section with the same directives. See index for [Creating a New Feature](docs/features/index.md).

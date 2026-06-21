@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense } from "react";
+import { useQuery, useMutation } from "@urql/next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ConnectionRow } from "./connection-row";
@@ -43,62 +44,42 @@ interface Connection {
   };
 }
 
-async function graphql<T>(
-  query: string,
-  variables?: Record<string, unknown>,
-): Promise<T> {
-  const res = await fetch("/api/graphql", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, variables }),
-  });
-  const { data, errors } = await res.json();
-  if (errors?.length) throw new Error(errors[0].message);
-  return data;
+function LoadingCard() {
+  return (
+    <section className="space-y-4">
+      <h2 className="text-xl font-semibold">All Connections</h2>
+      <Card>
+        <CardContent className="p-6 text-muted-foreground">
+          Loading...
+        </CardContent>
+      </Card>
+    </section>
+  );
 }
 
 export function ConnectionsTable() {
-  const [connections, setConnections] = useState<Connection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  return (
+    <Suspense fallback={<LoadingCard />}>
+      <ConnectionsTableContent />
+    </Suspense>
+  );
+}
 
-  async function fetchConnections() {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await graphql<{ myConnections: Connection[] }>(
-        MY_CONNECTIONS_QUERY,
-      );
-      setConnections(data.myConnections);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch connections",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+function ConnectionsTableContent() {
+  const [{ data, fetching, error }, reexecute] = useQuery({
+    query: MY_CONNECTIONS_QUERY,
+  });
+  const [, removeConnection] = useMutation(REMOVE_CONNECTION_MUTATION);
 
-  useEffect(() => {
-    fetchConnections();
-  }, []);
+  const connections = data?.myConnections ?? [];
 
   async function handleRemove(id: string) {
-    await graphql(REMOVE_CONNECTION_MUTATION, { id });
-    await fetchConnections();
+    await removeConnection({ id });
+    reexecute();
   }
 
-  if (loading) {
-    return (
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">All Connections</h2>
-        <Card>
-          <CardContent className="p-6 text-muted-foreground">
-            Loading...
-          </CardContent>
-        </Card>
-      </section>
-    );
+  if (fetching) {
+    return <LoadingCard />;
   }
 
   if (error) {
@@ -106,7 +87,9 @@ export function ConnectionsTable() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">All Connections</h2>
         <Card>
-          <CardContent className="p-6 text-destructive">{error}</CardContent>
+          <CardContent className="p-6 text-destructive">
+            {error.message}
+          </CardContent>
         </Card>
       </section>
     );
@@ -129,7 +112,7 @@ export function ConnectionsTable() {
               No connections yet.
             </div>
           ) : (
-            connections.map((connection, index) => (
+            connections.map((connection: Connection, index: number) => (
               <div key={connection.id}>
                 {index > 0 && <Separator />}
                 <ConnectionRow
