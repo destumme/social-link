@@ -39,7 +39,7 @@ interface GroupTableProps {
 function DeleteButton() {
   const { pending } = useFormStatus();
   return (
-    <Button variant="ghost" size="sm" disabled={pending} type="submit">
+    <Button variant="destructive" size="sm" disabled={pending} type="submit">
       Delete
     </Button>
   );
@@ -74,7 +74,7 @@ export function GroupTable({ groups, connections, traits }: GroupTableProps) {
                   <div>
                     <div className="flex justify-end gap-2">
                       <Button
-                        variant="ghost"
+                        variant="default"
                         size="sm"
                         onClick={() => setEditingGroup(group)}
                       >

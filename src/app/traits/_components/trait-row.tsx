@@ -11,7 +11,7 @@ import { EditTraitDialog } from "./edit-trait-dialog";
 function DeleteButton() {
   const { pending } = useFormStatus();
   return (
-    <Button variant="ghost" size="sm" disabled={pending} type="submit">
+    <Button variant="destructive" size="sm" disabled={pending} type="submit">
       Delete
     </Button>
   );
@@ -52,7 +52,7 @@ export function TraitRow({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="ghost" size="sm" onClick={() => setEditOpen(true)}>
+          <Button variant="default" size="sm" onClick={() => setEditOpen(true)}>
             Edit
           </Button>
           <form action={deleteTraitAction}>

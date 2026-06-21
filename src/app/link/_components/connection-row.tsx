@@ -55,7 +55,7 @@ export function ConnectionRow({ connection, onRemove }: ConnectionRowProps) {
       </div>
       <div className="flex justify-end gap-2">
         <Button
-          variant="ghost"
+          variant="destructive"
           size="sm"
           onClick={() => onRemove(connection.id)}
         >

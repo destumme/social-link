@@ -125,7 +125,11 @@ export function EditTraitDialog({ trait, onOpenChange }: EditTraitDialogProps) {
               <SelectTrigger className="w-full">
                 <span className="flex items-center gap-2">
                   {categoryIcon && (
-                    <HugeiconsIcon icon={categoryIcon} size={16} />
+                    <HugeiconsIcon
+                      icon={categoryIcon}
+                      size={16}
+                      className="size-3"
+                    />
                   )}
                   {category ? getCategoryLabel(category) : "Select..."}
                 </span>
@@ -140,7 +144,11 @@ export function EditTraitDialog({ trait, onOpenChange }: EditTraitDialogProps) {
                         <SelectItem key={opt.value} value={opt.value}>
                           <span className="flex items-center gap-2">
                             {catIcon && (
-                              <HugeiconsIcon icon={catIcon} size={16} />
+                              <HugeiconsIcon
+                                icon={catIcon}
+                                size={16}
+                                className="size-3"
+                              />
                             )}
                             {opt.label}
                           </span>
@@ -161,7 +169,11 @@ export function EditTraitDialog({ trait, onOpenChange }: EditTraitDialogProps) {
               <SelectTrigger className="w-full">
                 <span className="flex items-center gap-2">
                   {overrideIcon && (
-                    <HugeiconsIcon icon={overrideIcon} size={16} />
+                    <HugeiconsIcon
+                      icon={overrideIcon}
+                      size={16}
+                      className="size-3"
+                    />
                   )}
                   {icon ? getOverrideIconLabel(icon) : "Select..."}
                 </span>
@@ -173,7 +185,11 @@ export function EditTraitDialog({ trait, onOpenChange }: EditTraitDialogProps) {
                     {group.options.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         <span className="flex items-center gap-2">
-                          <HugeiconsIcon icon={opt.icon} size={16} />
+                          <HugeiconsIcon
+                            icon={opt.icon}
+                            size={16}
+                            className="size-3"
+                          />
                           {opt.label}
                         </span>
                       </SelectItem>
