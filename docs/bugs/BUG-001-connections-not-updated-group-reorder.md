@@ -22,6 +22,8 @@ created: 2026-06-21
 
 To be investigated.
 
+*Supersedes plan [01d-persist-connection-toggles-edit-group](../plans/01d-persist-connection-toggles-edit-group.md).*
+
 ## Agent Instructions
 
 **What to look for:**

@@ -6,7 +6,12 @@ Track planned and implemented features.
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| — | — | — | — |
+| [FEAT-001](FEAT-001-wider-modals.md) | Wider Modals | medium | proposed |
+| [FEAT-002](FEAT-002-add-connection-to-group.md) | Add Connection to Group | medium | proposed |
+| [FEAT-003](FEAT-003-theme-overhaul-monkeytype.md) | Theme Overhaul — MonkeyType | medium | proposed |
+| [FEAT-004](FEAT-004-github-oauth-login.md) | GitHub OAuth Login | medium | proposed |
+| [FEAT-005](FEAT-005-typeahead-search-bar.md) | Typeahead Search Bar | medium | proposed |
+| [FEAT-006](FEAT-006-visibility-gated-link-page.md) | Visibility-gated Link Page | medium | proposed |
 
 ## In Progress
 
