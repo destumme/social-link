@@ -38,6 +38,52 @@ Use `yarn run prisma` for Prisma CLI commands (not `npx`). If a `yarn run` comma
 - **Auth** uses Better Auth (not yet wired into context — hardcoded account ID in `context.ts`).
 - **Env** loaded via `direnv` (`.envrc`). Prisma reads `DATABASE_URL` from environment.
 
+## Data Fetching: Server vs Client
+
+Server components should call the service layer or Prisma directly, **not** the GraphQL API. The GraphQL layer exists as a client-facing API — server-side code already has direct access to the business logic.
+
+```ts
+// ✅ Server component: direct service call
+import traitService from "@/lib/services/traitService";
+const traits = await traitService.search.findTraitsByAccountId(accountId);
+
+// ✅ Server component: direct Prisma for simple queries
+import { prisma } from "@/lib/database/prisma";
+const traits = await prisma.trait.findMany({ where: { accountId } });
+
+// ✅ Server action: direct service call
+"use server";
+await traitService.trait.createTrait(data);
+
+// ❌ Server component: avoid calling GraphQL
+import { executeGraphQL } from "@/lib/graphql/server-execute";
+const traits = await executeGraphQL(`query { myTraits { ... } }`);
+```
+
+Client components should use `useQuery` / `useMutation` from `@urql/next`. Never call `fetch("/api/graphql")` directly.
+
+```tsx
+// ✅ Client component: urql hooks
+import { useQuery, useMutation } from "@urql/next";
+const [{ data }] = useQuery({ query: MY_CONNECTIONS_QUERY });
+const [, mutate] = useMutation(REMOVE_CONNECTION_MUTATION);
+
+// ❌ Client component: avoid raw fetch
+const res = await fetch("/api/graphql", { ... });
+```
+
+**Exception:** Use `registerUrql` + `getClient()` from `@urql/next/rsc` in a server component only when the same data is also queried by client components via `useQuery` — this enables SSR caching so the client doesn't refetch on hydration. See `docs/plans/urql-client-adoption.md`.
+
+| Scenario | Approach |
+|---|---|
+| Server component, simple read | Direct Prisma or service |
+| Server component, complex read | Direct service (preferred) |
+| Server action mutation | Direct service |
+| Client component read | `useQuery` from `@urql/next` |
+| Client component mutation | `useMutation` from `@urql/next` |
+| Client component, one-off query | `useQuery` or raw fetch if truly one-shot |
+| RSC query + client mutation on same data | `registerUrql` in RSC + `useQuery` in client |
+
 ## UI & Theming
 
 - **UI stack**: Base UI (`@base-ui/react`) headless primitives + Tailwind v4 + shadcn component registry + CVA (`class-variance-authority`) for component variants.

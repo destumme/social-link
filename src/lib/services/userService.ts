@@ -12,6 +12,15 @@ function findUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
 }
 
+function findUserWithTraitsByUsername(username: string) {
+  return prisma.user.findFirst({
+    where: {
+      username: { contains: username, mode: "default" },
+    },
+    include: { traits: true },
+  });
+}
+
 function findUsersByUsername(username: string) {
   return prisma.user.findMany({
     where: {
@@ -72,6 +81,7 @@ function findUserConnectionGroups(userId: string) {
 export const user = { findUserById, updateUser };
 export const search = {
   findUsersByUsername,
+  findUserWithTraitsByUsername,
   findUserTraitsForOwner,
   findUserTraitsForViewer,
   findUserConnections,

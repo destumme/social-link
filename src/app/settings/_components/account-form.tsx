@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
+import { useQuery, useMutation } from "@urql/next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,56 +30,42 @@ const UPDATE_USER_MUTATION = `
   }
 `;
 
-interface MeData {
-  me: {
-    id: string;
-    displayName: string;
-    username: string;
-    publicListed: boolean;
-  } | null;
+function LoadingCard() {
+  return (
+    <Card className="md:col-span-1">
+      <CardHeader>
+        <CardTitle>Account</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </CardContent>
+    </Card>
+  );
 }
 
 export function AccountForm() {
-  const [displayName, setDisplayName] = useState("");
-  const [username, setUsername] = useState("");
-  const [publicListed, setPublicListed] = useState(false);
-  const [loading, setLoading] = useState(true);
+  return (
+    <Suspense fallback={<LoadingCard />}>
+      <AccountFormContent />
+    </Suspense>
+  );
+}
+
+function AccountFormContent() {
+  const [{ data, fetching, error }, reexecute] = useQuery({ query: ME_QUERY });
+  const [, updateUser] = useMutation(UPDATE_USER_MUTATION);
+
+  const me = data?.me ?? null;
+
+  const [displayName, setDisplayName] = useState(me?.displayName ?? "");
+  const [username, setUsername] = useState(me?.username ?? "");
+  const [publicListed, setPublicListed] = useState(me?.publicListed ?? false);
+
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
-
-  useEffect(() => {
-    async function fetchMe() {
-      try {
-        const res = await fetch("/api/graphql", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: ME_QUERY }),
-        });
-        const { data, errors } = (await res.json()) as {
-          data: MeData;
-          errors?: { message: string }[];
-        };
-        if (errors?.length) {
-          setFeedback({ type: "error", message: errors[0].message });
-          return;
-        }
-        if (data?.me) {
-          setDisplayName(data.me.displayName);
-          setUsername(data.me.username);
-          setPublicListed(data.me.publicListed);
-        }
-      } catch {
-        setFeedback({ type: "error", message: "Failed to load account data" });
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMe();
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -86,30 +73,15 @@ export function AccountForm() {
     setFeedback(null);
 
     try {
-      const res = await fetch("/api/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: UPDATE_USER_MUTATION,
-          variables: {
-            input: { displayName, username, publicListed },
-          },
-        }),
+      const result = await updateUser({
+        input: { displayName, username, publicListed },
       });
-      const { data, errors } = (await res.json()) as {
-        data: unknown;
-        errors?: { message: string }[];
-      };
-      if (errors?.length) {
-        setFeedback({ type: "error", message: errors[0].message });
+      if (result.error) {
+        setFeedback({ type: "error", message: result.error.message });
         return;
       }
-      if (data) {
-        setFeedback({
-          type: "success",
-          message: "Account updated successfully",
-        });
-      }
+      setFeedback({ type: "success", message: "Account updated successfully" });
+      reexecute();
     } catch {
       setFeedback({ type: "error", message: "Failed to update account" });
     } finally {
@@ -117,14 +89,18 @@ export function AccountForm() {
     }
   }
 
-  if (loading) {
+  if (fetching) {
+    return <LoadingCard />;
+  }
+
+  if (error) {
     return (
       <Card className="md:col-span-1">
         <CardHeader>
           <CardTitle>Account</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-destructive">{error.message}</p>
         </CardContent>
       </Card>
     );

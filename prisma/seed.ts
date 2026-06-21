@@ -1,642 +1,614 @@
 import { prisma } from "@/lib/database/prisma";
 import { auth } from "@/lib/auth";
+import { TraitCategory, ConnectionStatus } from "@/generated/prisma/client";
+
+interface UserData {
+  email: string;
+  password: string;
+  name: string;
+  username: string;
+  publicListed: boolean;
+}
+
+interface TraitData {
+  key: string;
+  value: string;
+  category: TraitCategory;
+}
+
+async function getOrCreateUser(data: UserData): Promise<{ id: string }> {
+  let existingUser: { id: string } | null = null;
+
+  try {
+    const result = await auth.api.listUsers({
+      query: {
+        filterField: "username",
+        filterValue: data.username,
+        filterOperator: "eq",
+      },
+    });
+    if (result.users.length > 0) {
+      existingUser = result.users[0];
+    }
+  } catch {
+    const found = await prisma.user.findUnique({
+      where: { username: data.username },
+    });
+    if (found) existingUser = found;
+  }
+
+  if (existingUser) return existingUser;
+
+  const created = await auth.api.createUser({
+    body: {
+      email: data.email,
+      password: data.password,
+      name: data.name,
+      data: {
+        username: data.username,
+        publicListed: data.publicListed,
+      },
+    },
+  });
+  return created.user;
+}
+
+async function getOrCreateTrait(accountId: string, data: TraitData) {
+  const existing = await prisma.trait.findFirst({
+    where: { accountId, key: data.key, value: data.value },
+  });
+  if (existing) return existing;
+
+  return await prisma.trait.create({
+    data: {
+      key: data.key,
+      value: data.value,
+      category: data.category,
+      accountId,
+    },
+  });
+}
+
+async function getOrCreateGroup(
+  accountId: string,
+  name: string,
+  traitIds: string[] = [],
+) {
+  const existing = await prisma.connectionGroup.findFirst({
+    where: { accountId, name },
+  });
+  if (existing) return existing;
+
+  return await prisma.connectionGroup.create({
+    data: {
+      name,
+      accountId,
+      traits: { connect: traitIds.map((id) => ({ id })) },
+    },
+  });
+}
+
+async function getOrCreateConnection(
+  accountId: string,
+  connectedAccountId: string,
+  status: ConnectionStatus,
+  groupIds: string[] = [],
+) {
+  const existing = await prisma.connection.findFirst({
+    where: { accountId, connectedAccountId },
+  });
+  if (existing) return existing;
+
+  return await prisma.connection.create({
+    data: {
+      accountId,
+      connectedAccountId,
+      status,
+      connectionGroups: {
+        connect: groupIds.map((id) => ({ id })),
+      },
+    },
+  });
+}
 
 async function main() {
-  const alice = await auth.api.signUpEmail({
-    body: {
+  const userDefs: UserData[] = [
+    {
       email: "test+alice@example.com",
       password: "alice123",
       name: "Alice Smith",
       username: "alice",
+      publicListed: false,
     },
-  });
-
-  const bob = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+bob@example.com",
       password: "bob12345",
       name: "Bob Jones",
       username: "bob",
+      publicListed: false,
     },
-  });
-
-  const charlie = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+charlie@example.com",
       password: "charlie1",
       name: "Charlie Brown",
       username: "charlie",
+      publicListed: false,
     },
-  });
-
-  const diana = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+diana@example.com",
       password: "diana123",
       name: "Diana Prince",
       username: "diana",
+      publicListed: false,
     },
-  });
-
-  const eve = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+eve@example.com",
       password: "eve12345",
       name: "Eve Wilson",
       username: "eve",
+      publicListed: true,
     },
-  });
-
-  const frank = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+frank@example.com",
       password: "frank123",
       name: "Frank Miller",
       username: "frank",
+      publicListed: true,
     },
-  });
-
-  const grace = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+grace@example.com",
       password: "grace123",
       name: "Grace Lee",
       username: "grace",
+      publicListed: true,
     },
-  });
-
-  const henry = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+henry@example.com",
       password: "henry123",
       name: "Henry Adams",
       username: "henry",
+      publicListed: false,
     },
-  });
-
-  const iris = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+iris@example.com",
       password: "iris1234",
       name: "Iris Chen",
       username: "iris",
+      publicListed: true,
     },
-  });
-
-  const jack = await auth.api.signUpEmail({
-    body: {
+    {
       email: "test+jack@example.com",
       password: "jack1234",
       name: "Jack Turner",
       username: "jack",
+      publicListed: false,
     },
+  ];
+
+  const users = {} as Record<string, { id: string }>;
+  for (const def of userDefs) {
+    const user = await getOrCreateUser(def);
+    users[def.username] = user;
+  }
+
+  const alice = users.alice;
+  const bob = users.bob;
+  const charlie = users.charlie;
+  const diana = users.diana;
+  const eve = users.eve;
+  const frank = users.frank;
+  const grace = users.grace;
+  const henry = users.henry;
+  const iris = users.iris;
+  const jack = users.jack;
+
+  // Alice traits
+  const aliceEmail = await getOrCreateTrait(alice.id, {
+    key: "email",
+    value: "alice@example.com",
+    category: "CONTACT_INFO",
+  });
+  const alicePhone = await getOrCreateTrait(alice.id, {
+    key: "phone",
+    value: "+1234567890",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(alice.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/alice",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(alice.id, {
+    key: "instagram",
+    value: "https://instagram.com/alice",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(alice.id, {
+    key: "discord",
+    value: "alice#1234",
+    category: "MESSAGING_HANDLE",
   });
 
-  // The before hook sets publicListed: true by default, so update those that should be false
-  await prisma.user.update({
-    where: { id: alice.user.id },
-    data: { publicListed: false },
+  // Bob traits
+  const bobTwitter = await getOrCreateTrait(bob.id, {
+    key: "twitter",
+    value: "https://twitter.com/bob",
+    category: "SOCIAL_LINK",
   });
-  await prisma.user.update({
-    where: { id: bob.user.id },
-    data: { publicListed: false },
+  const bobWebsite = await getOrCreateTrait(bob.id, {
+    key: "website",
+    value: "https://bob.dev",
+    category: "WEBSITE_LINK",
   });
-  await prisma.user.update({
-    where: { id: charlie.user.id },
-    data: { publicListed: false },
+  await getOrCreateTrait(bob.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/bob",
+    category: "PROFESSIONAL_LINK",
   });
-  await prisma.user.update({
-    where: { id: diana.user.id },
-    data: { publicListed: false },
+  await getOrCreateTrait(bob.id, {
+    key: "spotify",
+    value: "https://open.spotify.com/user/bob",
+    category: "OTHER",
   });
-  await prisma.user.update({
-    where: { id: henry.user.id },
-    data: { publicListed: false },
-  });
-  await prisma.user.update({
-    where: { id: jack.user.id },
-    data: { publicListed: false },
-  });
-
-  // Alice: 5 traits
-  const aliceEmail = await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "alice@example.com",
-      category: "CONTACT_INFO",
-      accountId: alice.user.id,
-    },
+  await getOrCreateTrait(bob.id, {
+    key: "twitch",
+    value: "https://twitch.tv/bob",
+    category: "OTHER",
   });
 
-  const alicePhone = await prisma.trait.create({
-    data: {
-      key: "phone",
-      value: "+1234567890",
-      category: "CONTACT_INFO",
-      accountId: alice.user.id,
-    },
+  // Charlie traits
+  const charlieEmail = await getOrCreateTrait(charlie.id, {
+    key: "email",
+    value: "charlie@example.com",
+    category: "CONTACT_INFO",
+  });
+  const charlieGithub = await getOrCreateTrait(charlie.id, {
+    key: "github",
+    value: "https://github.com/charlie",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(charlie.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/charlie",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(charlie.id, {
+    key: "telegram",
+    value: "https://t.me/charlie",
+    category: "MESSAGING_HANDLE",
+  });
+  await getOrCreateTrait(charlie.id, {
+    key: "bluesky",
+    value: "https://bsky.app/profile/charlie",
+    category: "SOCIAL_LINK",
   });
 
-  await prisma.trait.create({
-    data: {
-      key: "linkedin",
-      value: "https://linkedin.com/in/alice",
-      category: "PROFESSIONAL_LINK",
-      accountId: alice.user.id,
-    },
+  // Diana traits
+  const dianaPhone = await getOrCreateTrait(diana.id, {
+    key: "phone",
+    value: "+0987654321",
+    category: "CONTACT_INFO",
+  });
+  const dianaWebsite = await getOrCreateTrait(diana.id, {
+    key: "website",
+    value: "https://diana.dev",
+    category: "WEBSITE_LINK",
+  });
+  await getOrCreateTrait(diana.id, {
+    key: "instagram",
+    value: "https://instagram.com/diana",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(diana.id, {
+    key: "youtube",
+    value: "https://youtube.com/@diana",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(diana.id, {
+    key: "whatsapp",
+    value: "+0987654321",
+    category: "MESSAGING_HANDLE",
   });
 
-  await prisma.trait.create({
-    data: {
-      key: "instagram",
-      value: "https://instagram.com/alice",
-      category: "SOCIAL_LINK",
-      accountId: alice.user.id,
-    },
+  // Eve traits
+  const eveEmail = await getOrCreateTrait(eve.id, {
+    key: "email",
+    value: "eve@example.com",
+    category: "CONTACT_INFO",
+  });
+  const eveTwitter = await getOrCreateTrait(eve.id, {
+    key: "twitter",
+    value: "https://twitter.com/eve",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(eve.id, {
+    key: "instagram",
+    value: "https://instagram.com/eve",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(eve.id, {
+    key: "github",
+    value: "https://github.com/eve",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(eve.id, {
+    key: "reddit",
+    value: "https://reddit.com/user/eve",
+    category: "SOCIAL_LINK",
   });
 
-  await prisma.trait.create({
-    data: {
-      key: "discord",
-      value: "alice#1234",
-      category: "MESSAGING_HANDLE",
-      accountId: alice.user.id,
-    },
+  // Frank traits
+  await getOrCreateTrait(frank.id, {
+    key: "email",
+    value: "frank@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(frank.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/frank",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(frank.id, {
+    key: "twitch",
+    value: "https://twitch.tv/frank",
+    category: "OTHER",
+  });
+  await getOrCreateTrait(frank.id, {
+    key: "spotify",
+    value: "https://open.spotify.com/user/frank",
+    category: "OTHER",
+  });
+  await getOrCreateTrait(frank.id, {
+    key: "discord",
+    value: "frank#5678",
+    category: "MESSAGING_HANDLE",
   });
 
-  // Bob: 5 traits
-  const bobTwitter = await prisma.trait.create({
-    data: {
-      key: "twitter",
-      value: "https://twitter.com/bob",
-      category: "SOCIAL_LINK",
-      accountId: bob.user.id,
-    },
+  // Grace traits
+  await getOrCreateTrait(grace.id, {
+    key: "email",
+    value: "grace@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(grace.id, {
+    key: "phone",
+    value: "+1122334455",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(grace.id, {
+    key: "instagram",
+    value: "https://instagram.com/grace",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(grace.id, {
+    key: "youtube",
+    value: "https://youtube.com/@grace",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(grace.id, {
+    key: "bluesky",
+    value: "https://bsky.app/profile/grace",
+    category: "SOCIAL_LINK",
   });
 
-  const bobWebsite = await prisma.trait.create({
-    data: {
-      key: "website",
-      value: "https://bob.dev",
-      category: "WEBSITE_LINK",
-      accountId: bob.user.id,
-    },
+  // Henry traits
+  await getOrCreateTrait(henry.id, {
+    key: "email",
+    value: "henry@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(henry.id, {
+    key: "phone",
+    value: "+5566778899",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(henry.id, {
+    key: "github",
+    value: "https://github.com/henry",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(henry.id, {
+    key: "telegram",
+    value: "https://t.me/henry",
+    category: "MESSAGING_HANDLE",
+  });
+  await getOrCreateTrait(henry.id, {
+    key: "reddit",
+    value: "https://reddit.com/user/henry",
+    category: "SOCIAL_LINK",
   });
 
-  await prisma.trait.create({
-    data: {
-      key: "linkedin",
-      value: "https://linkedin.com/in/bob",
-      category: "PROFESSIONAL_LINK",
-      accountId: bob.user.id,
-    },
+  // Iris traits
+  await getOrCreateTrait(iris.id, {
+    key: "email",
+    value: "iris@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(iris.id, {
+    key: "linkedin",
+    value: "https://linkedin.com/in/iris",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(iris.id, {
+    key: "instagram",
+    value: "https://instagram.com/iris",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(iris.id, {
+    key: "whatsapp",
+    value: "+1231231234",
+    category: "MESSAGING_HANDLE",
+  });
+  await getOrCreateTrait(iris.id, {
+    key: "threads",
+    value: "https://threads.net/@iris",
+    category: "SOCIAL_LINK",
   });
 
-  await prisma.trait.create({
-    data: {
-      key: "spotify",
-      value: "https://open.spotify.com/user/bob",
-      category: "OTHER",
-      accountId: bob.user.id,
-    },
+  // Jack traits
+  await getOrCreateTrait(jack.id, {
+    key: "email",
+    value: "jack@example.com",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(jack.id, {
+    key: "phone",
+    value: "+9998887776",
+    category: "CONTACT_INFO",
+  });
+  await getOrCreateTrait(jack.id, {
+    key: "twitter",
+    value: "https://twitter.com/jack",
+    category: "SOCIAL_LINK",
+  });
+  await getOrCreateTrait(jack.id, {
+    key: "github",
+    value: "https://github.com/jack",
+    category: "PROFESSIONAL_LINK",
+  });
+  await getOrCreateTrait(jack.id, {
+    key: "spotify",
+    value: "https://open.spotify.com/user/jack",
+    category: "OTHER",
   });
 
-  await prisma.trait.create({
-    data: {
-      key: "twitch",
-      value: "https://twitch.tv/bob",
-      category: "OTHER",
-      accountId: bob.user.id,
-    },
-  });
+  // Connection groups (1-2 per user)
+  const aliceCloseFriends = await getOrCreateGroup(alice.id, "Close Friends", [
+    aliceEmail.id,
+    alicePhone.id,
+  ]);
+  const aliceProfessional = await getOrCreateGroup(alice.id, "Professional");
 
-  // Charlie: 5 traits
-  const charlieEmail = await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "charlie@example.com",
-      category: "CONTACT_INFO",
-      accountId: charlie.user.id,
-    },
-  });
+  const bobColleagues = await getOrCreateGroup(bob.id, "Colleagues", [
+    bobTwitter.id,
+    bobWebsite.id,
+  ]);
+  const bobSocial = await getOrCreateGroup(bob.id, "Social");
 
-  const charlieGithub = await prisma.trait.create({
-    data: {
-      key: "github",
-      value: "https://github.com/charlie",
-      category: "PROFESSIONAL_LINK",
-      accountId: charlie.user.id,
-    },
-  });
+  const charlieDevContacts = await getOrCreateGroup(
+    charlie.id,
+    "Dev Contacts",
+    [charlieEmail.id, charlieGithub.id],
+  );
 
-  await prisma.trait.create({
-    data: {
-      key: "linkedin",
-      value: "https://linkedin.com/in/charlie",
-      category: "PROFESSIONAL_LINK",
-      accountId: charlie.user.id,
-    },
-  });
+  const dianaSocial = await getOrCreateGroup(diana.id, "Social", [
+    dianaPhone.id,
+    dianaWebsite.id,
+  ]);
 
-  await prisma.trait.create({
-    data: {
-      key: "telegram",
-      value: "https://t.me/charlie",
-      category: "MESSAGING_HANDLE",
-      accountId: charlie.user.id,
-    },
-  });
+  const eveNetworks = await getOrCreateGroup(eve.id, "Networks", [
+    eveEmail.id,
+    eveTwitter.id,
+  ]);
+  const eveCloseFriends = await getOrCreateGroup(eve.id, "Close Friends");
 
-  await prisma.trait.create({
-    data: {
-      key: "bluesky",
-      value: "https://bsky.app/profile/charlie",
-      category: "SOCIAL_LINK",
-      accountId: charlie.user.id,
-    },
-  });
+  const frankDevContacts = await getOrCreateGroup(frank.id, "Dev Contacts");
+  const frankMusic = await getOrCreateGroup(frank.id, "Music");
 
-  // Diana: 5 traits
-  const dianaPhone = await prisma.trait.create({
-    data: {
-      key: "phone",
-      value: "+0987654321",
-      category: "CONTACT_INFO",
-      accountId: diana.user.id,
-    },
-  });
+  const graceSocial = await getOrCreateGroup(grace.id, "Social");
+  const graceCreative = await getOrCreateGroup(grace.id, "Creative");
 
-  const dianaWebsite = await prisma.trait.create({
-    data: {
-      key: "website",
-      value: "https://diana.dev",
-      category: "WEBSITE_LINK",
-      accountId: diana.user.id,
-    },
-  });
+  const henryDevContacts = await getOrCreateGroup(henry.id, "Dev Contacts");
+  const henryFriends = await getOrCreateGroup(henry.id, "Friends");
 
-  await prisma.trait.create({
-    data: {
-      key: "instagram",
-      value: "https://instagram.com/diana",
-      category: "SOCIAL_LINK",
-      accountId: diana.user.id,
-    },
-  });
+  const irisSocial = await getOrCreateGroup(iris.id, "Social");
+  const irisMessaging = await getOrCreateGroup(iris.id, "Messaging");
 
-  await prisma.trait.create({
-    data: {
-      key: "youtube",
-      value: "https://youtube.com/@diana",
-      category: "SOCIAL_LINK",
-      accountId: diana.user.id,
-    },
-  });
+  const jackDevContacts = await getOrCreateGroup(jack.id, "Dev Contacts");
+  const jackMusic = await getOrCreateGroup(jack.id, "Music");
 
-  await prisma.trait.create({
-    data: {
-      key: "whatsapp",
-      value: "+0987654321",
-      category: "MESSAGING_HANDLE",
-      accountId: diana.user.id,
-    },
-  });
+  // Connections (30 directional)
+  // Alice
+  await getOrCreateConnection(alice.id, bob.id, ConnectionStatus.ACCEPTED, [
+    aliceCloseFriends.id,
+  ]);
+  await getOrCreateConnection(alice.id, charlie.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(alice.id, eve.id, ConnectionStatus.ACCEPTED, [
+    aliceProfessional.id,
+  ]);
 
-  // Eve: 5 traits
-  const eveEmail = await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "eve@example.com",
-      category: "CONTACT_INFO",
-      accountId: eve.user.id,
-    },
-  });
+  // Bob
+  await getOrCreateConnection(bob.id, alice.id, ConnectionStatus.ACCEPTED, [
+    bobColleagues.id,
+  ]);
+  await getOrCreateConnection(bob.id, charlie.id, ConnectionStatus.ACCEPTED, [
+    bobColleagues.id,
+  ]);
+  await getOrCreateConnection(bob.id, diana.id, ConnectionStatus.ACCEPTED, [
+    bobSocial.id,
+  ]);
 
-  const eveTwitter = await prisma.trait.create({
-    data: {
-      key: "twitter",
-      value: "https://twitter.com/eve",
-      category: "SOCIAL_LINK",
-      accountId: eve.user.id,
-    },
-  });
+  // Charlie
+  await getOrCreateConnection(charlie.id, alice.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(charlie.id, bob.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(charlie.id, grace.id, ConnectionStatus.ACCEPTED, [
+    charlieDevContacts.id,
+  ]);
 
-  await prisma.trait.create({
-    data: {
-      key: "instagram",
-      value: "https://instagram.com/eve",
-      category: "SOCIAL_LINK",
-      accountId: eve.user.id,
-    },
-  });
+  // Diana
+  await getOrCreateConnection(diana.id, bob.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(diana.id, eve.id, ConnectionStatus.ACCEPTED, [
+    dianaSocial.id,
+  ]);
+  await getOrCreateConnection(diana.id, frank.id, ConnectionStatus.ACCEPTED);
 
-  await prisma.trait.create({
-    data: {
-      key: "github",
-      value: "https://github.com/eve",
-      category: "PROFESSIONAL_LINK",
-      accountId: eve.user.id,
-    },
-  });
+  // Eve
+  await getOrCreateConnection(eve.id, alice.id, ConnectionStatus.ACCEPTED, [
+    eveNetworks.id,
+  ]);
+  await getOrCreateConnection(eve.id, diana.id, ConnectionStatus.ACCEPTED, [
+    eveCloseFriends.id,
+  ]);
+  await getOrCreateConnection(eve.id, iris.id, ConnectionStatus.ACCEPTED);
 
-  await prisma.trait.create({
-    data: {
-      key: "reddit",
-      value: "https://reddit.com/user/eve",
-      category: "SOCIAL_LINK",
-      accountId: eve.user.id,
-    },
-  });
+  // Frank
+  await getOrCreateConnection(frank.id, diana.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(frank.id, grace.id, ConnectionStatus.ACCEPTED, [
+    frankMusic.id,
+  ]);
+  await getOrCreateConnection(frank.id, henry.id, ConnectionStatus.ACCEPTED, [
+    frankDevContacts.id,
+  ]);
 
-  // Frank: 5 traits
-  await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "frank@example.com",
-      category: "CONTACT_INFO",
-      accountId: frank.user.id,
-    },
-  });
+  // Grace
+  await getOrCreateConnection(grace.id, charlie.id, ConnectionStatus.ACCEPTED, [
+    graceSocial.id,
+  ]);
+  await getOrCreateConnection(grace.id, frank.id, ConnectionStatus.ACCEPTED, [
+    graceCreative.id,
+  ]);
+  await getOrCreateConnection(grace.id, iris.id, ConnectionStatus.ACCEPTED);
 
-  await prisma.trait.create({
-    data: {
-      key: "linkedin",
-      value: "https://linkedin.com/in/frank",
-      category: "PROFESSIONAL_LINK",
-      accountId: frank.user.id,
-    },
-  });
+  // Henry
+  await getOrCreateConnection(henry.id, frank.id, ConnectionStatus.ACCEPTED, [
+    henryDevContacts.id,
+  ]);
+  await getOrCreateConnection(henry.id, iris.id, ConnectionStatus.ACCEPTED, [
+    henryFriends.id,
+  ]);
+  await getOrCreateConnection(henry.id, jack.id, ConnectionStatus.ACCEPTED);
 
-  await prisma.trait.create({
-    data: {
-      key: "twitch",
-      value: "https://twitch.tv/frank",
-      category: "OTHER",
-      accountId: frank.user.id,
-    },
-  });
+  // Iris
+  await getOrCreateConnection(iris.id, eve.id, ConnectionStatus.ACCEPTED, [
+    irisSocial.id,
+  ]);
+  await getOrCreateConnection(iris.id, grace.id, ConnectionStatus.ACCEPTED, [
+    irisMessaging.id,
+  ]);
+  await getOrCreateConnection(iris.id, henry.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(iris.id, jack.id, ConnectionStatus.ACCEPTED, [
+    irisSocial.id,
+  ]);
 
-  await prisma.trait.create({
-    data: {
-      key: "spotify",
-      value: "https://open.spotify.com/user/frank",
-      category: "OTHER",
-      accountId: frank.user.id,
-    },
-  });
+  // Jack
+  await getOrCreateConnection(jack.id, henry.id, ConnectionStatus.ACCEPTED, [
+    jackMusic.id,
+  ]);
+  await getOrCreateConnection(jack.id, iris.id, ConnectionStatus.ACCEPTED, [
+    jackDevContacts.id,
+  ]);
 
-  await prisma.trait.create({
-    data: {
-      key: "discord",
-      value: "frank#5678",
-      category: "MESSAGING_HANDLE",
-      accountId: frank.user.id,
-    },
-  });
-
-  // Grace: 5 traits
-  await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "grace@example.com",
-      category: "CONTACT_INFO",
-      accountId: grace.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "phone",
-      value: "+1122334455",
-      category: "CONTACT_INFO",
-      accountId: grace.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "instagram",
-      value: "https://instagram.com/grace",
-      category: "SOCIAL_LINK",
-      accountId: grace.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "youtube",
-      value: "https://youtube.com/@grace",
-      category: "SOCIAL_LINK",
-      accountId: grace.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "bluesky",
-      value: "https://bsky.app/profile/grace",
-      category: "SOCIAL_LINK",
-      accountId: grace.user.id,
-    },
-  });
-
-  // Henry: 5 traits
-  await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "henry@example.com",
-      category: "CONTACT_INFO",
-      accountId: henry.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "phone",
-      value: "+5566778899",
-      category: "CONTACT_INFO",
-      accountId: henry.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "github",
-      value: "https://github.com/henry",
-      category: "PROFESSIONAL_LINK",
-      accountId: henry.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "telegram",
-      value: "https://t.me/henry",
-      category: "MESSAGING_HANDLE",
-      accountId: henry.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "reddit",
-      value: "https://reddit.com/user/henry",
-      category: "SOCIAL_LINK",
-      accountId: henry.user.id,
-    },
-  });
-
-  // Iris: 5 traits
-  await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "iris@example.com",
-      category: "CONTACT_INFO",
-      accountId: iris.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "linkedin",
-      value: "https://linkedin.com/in/iris",
-      category: "PROFESSIONAL_LINK",
-      accountId: iris.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "instagram",
-      value: "https://instagram.com/iris",
-      category: "SOCIAL_LINK",
-      accountId: iris.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "whatsapp",
-      value: "+1231231234",
-      category: "MESSAGING_HANDLE",
-      accountId: iris.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "threads",
-      value: "https://threads.net/@iris",
-      category: "SOCIAL_LINK",
-      accountId: iris.user.id,
-    },
-  });
-
-  // Jack: 5 traits
-  await prisma.trait.create({
-    data: {
-      key: "email",
-      value: "jack@example.com",
-      category: "CONTACT_INFO",
-      accountId: jack.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "phone",
-      value: "+9998887776",
-      category: "CONTACT_INFO",
-      accountId: jack.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "twitter",
-      value: "https://twitter.com/jack",
-      category: "SOCIAL_LINK",
-      accountId: jack.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "github",
-      value: "https://github.com/jack",
-      category: "PROFESSIONAL_LINK",
-      accountId: jack.user.id,
-    },
-  });
-
-  await prisma.trait.create({
-    data: {
-      key: "spotify",
-      value: "https://open.spotify.com/user/jack",
-      category: "OTHER",
-      accountId: jack.user.id,
-    },
-  });
-
-  const aliceCloseFriends = await prisma.connectionGroup.create({
-    data: {
-      name: "Close Friends",
-      accountId: alice.user.id,
-      traits: { connect: [{ id: aliceEmail.id }, { id: alicePhone.id }] },
-    },
-  });
-
-  const bobColleagues = await prisma.connectionGroup.create({
-    data: {
-      name: "Colleagues",
-      accountId: bob.user.id,
-      traits: { connect: [{ id: bobTwitter.id }, { id: bobWebsite.id }] },
-    },
-  });
-
-  await prisma.connectionGroup.create({
-    data: {
-      name: "Dev Contacts",
-      accountId: charlie.user.id,
-      traits: { connect: [{ id: charlieEmail.id }, { id: charlieGithub.id }] },
-    },
-  });
-
-  await prisma.connectionGroup.create({
-    data: {
-      name: "Social",
-      accountId: diana.user.id,
-      traits: { connect: [{ id: dianaPhone.id }, { id: dianaWebsite.id }] },
-    },
-  });
-
-  await prisma.connectionGroup.create({
-    data: {
-      name: "Networks",
-      accountId: eve.user.id,
-      traits: { connect: [{ id: eveEmail.id }, { id: eveTwitter.id }] },
-    },
-  });
-
-  await prisma.connection.create({
-    data: {
-      accountId: alice.user.id,
-      connectedAccountId: bob.user.id,
-      status: "ACCEPTED",
-      connectionGroups: { connect: [{ id: aliceCloseFriends.id }] },
-    },
-  });
-
-  await prisma.connection.create({
-    data: {
-      accountId: bob.user.id,
-      connectedAccountId: alice.user.id,
-      status: "ACCEPTED",
-      connectionGroups: { connect: [{ id: bobColleagues.id }] },
-    },
-  });
-
-  console.log("Seeded 10 users, 2 connections, 50 traits, 5 connection groups");
+  console.log("Seeded some users, connections, traits, and connection groups");
 }
 
 main()
