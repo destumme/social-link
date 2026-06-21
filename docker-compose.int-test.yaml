@@ -1,0 +1,28 @@
+services:
+  postgres:
+    extends:
+      file: docker-compose.yaml
+      service: postgres
+    environment:
+      - POSTGRES_USER=${PG_USER:-test}
+      - POSTGRES_PASSWORD=${PG_PW:-test}
+      - POSTGRES_DB=${PG_DB:-social_links_test}
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-test} -d ${PG_DB:-social_links_test}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "${PORT:-3002}:3000"
+    environment:
+      - DATABASE_URL=postgresql://${PG_USER:-test}:${PG_PW:-test}@postgres:5432/${PG_DB:-social_links_test}?schema=public
+      - BETTER_AUTH_URL=http://localhost:${PORT:-3002}
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
