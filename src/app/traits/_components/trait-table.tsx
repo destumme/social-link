@@ -12,14 +12,16 @@ interface TraitTableProps {
     value: string;
     category: string | null;
     icon: string | null;
+    isVisible: boolean;
     visibleGroups: {
       id: string;
       name: string;
     }[];
   }[];
+  publicListed: boolean;
 }
 
-export function TraitTable({ traits }: TraitTableProps) {
+export function TraitTable({ traits, publicListed }: TraitTableProps) {
   return (
     <>
       <Card>
@@ -41,7 +43,7 @@ export function TraitTable({ traits }: TraitTableProps) {
           {traits.map((trait, index) => (
             <div key={trait.id}>
               {index > 0 && <Separator />}
-              <TraitRow trait={trait} />
+              <TraitRow trait={trait} publicListed={publicListed} />
             </div>
           ))}
         </CardContent>

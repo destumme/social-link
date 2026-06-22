@@ -71,20 +71,42 @@ export default async function UserPage({
               @{user.username}
             </p>
           </div>
-          {!isConnected && !isPending && (
-            <form action={requestConnectionAction}>
-              <input type="hidden" name="accountId" value={user.id} />
-              <Button type="submit">Request Connection</Button>
-            </form>
-          )}
-          {isPending && (
-            <Badge
-              variant="secondary"
-              className="text-amber-500 bg-amber-500/10 px-3 py-1 text-sm"
-            >
-              Pending
-            </Badge>
-          )}
+          <div className="flex items-center gap-2">
+            {isConnected && (
+              <>
+                <Badge
+                  variant="secondary"
+                  className="text-emerald-500 bg-emerald-500/10 px-3 py-1 text-sm"
+                >
+                  Connected
+                </Badge>
+                <form action={removeConnectionAction}>
+                  <input
+                    type="hidden"
+                    name="connectionId"
+                    value={connection.id}
+                  />
+                  <Button type="submit" variant="destructive" size="sm">
+                    Remove Connection
+                  </Button>
+                </form>
+              </>
+            )}
+            {isPending && (
+              <Badge
+                variant="secondary"
+                className="text-amber-500 bg-amber-500/10 px-3 py-1 text-sm"
+              >
+                Pending
+              </Badge>
+            )}
+            {!isConnected && !isPending && (
+              <form action={requestConnectionAction}>
+                <input type="hidden" name="accountId" value={user.id} />
+                <Button type="submit">Request Connection</Button>
+              </form>
+            )}
+          </div>
         </div>
 
         <Card className="w-full">
@@ -125,25 +147,6 @@ export default async function UserPage({
             )}
           </CardContent>
         </Card>
-
-        {isConnected && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Badge
-                variant="secondary"
-                className="text-emerald-500 bg-emerald-500/10 px-3 py-1 text-sm"
-              >
-                Connected
-              </Badge>
-            </div>
-            <form action={removeConnectionAction}>
-              <input type="hidden" name="connectionId" value={connection.id} />
-              <Button type="submit" variant="destructive">
-                Remove Connection
-              </Button>
-            </form>
-          </div>
-        )}
       </div>
     </div>
   );

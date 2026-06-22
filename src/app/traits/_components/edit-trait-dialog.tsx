@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -34,7 +35,9 @@ interface EditTraitDialogProps {
     value: string;
     category: string | null;
     icon: string | null;
+    isVisible: boolean;
   };
+  publicListed: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
@@ -56,11 +59,16 @@ function getOverrideIconLabel(value: string) {
   return null;
 }
 
-export function EditTraitDialog({ trait, onOpenChange }: EditTraitDialogProps) {
+export function EditTraitDialog({
+  trait,
+  publicListed,
+  onOpenChange,
+}: EditTraitDialogProps) {
   const [key, setKey] = useState(trait.key);
   const [value, setValue] = useState(trait.value);
   const [category, setCategory] = useState(trait.category ?? "");
   const [icon, setIcon] = useState(trait.icon ?? "");
+  const [isVisible, setIsVisible] = useState(trait.isVisible);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,6 +85,7 @@ export function EditTraitDialog({ trait, onOpenChange }: EditTraitDialogProps) {
         value: value.trim(),
         category,
         icon,
+        isVisible,
       });
       if (result.error) {
         setError(result.error);
@@ -198,6 +207,22 @@ export function EditTraitDialog({ trait, onOpenChange }: EditTraitDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium">Publicly visible</label>
+              {!publicListed && (
+                <p className="text-xs text-muted-foreground">
+                  Enable public profile in Settings to make traits visible
+                </p>
+              )}
+            </div>
+            <Switch
+              checked={isVisible}
+              onCheckedChange={setIsVisible}
+              disabled={!publicListed}
+            />
           </div>
         </div>
 

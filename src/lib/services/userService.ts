@@ -12,13 +12,56 @@ function findUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
 }
 
-function findUserWithTraitsByUsername(username: string) {
-  return prisma.user.findFirst({
+async function findUserWithTraitsByUsername(username: string) {
+  const viewerId = await getAuthedAccountId();
+
+  const user = await prisma.user.findFirst({
     where: {
       username: { contains: username, mode: "default" },
     },
-    include: { traits: true },
   });
+
+  if (!user) return null;
+
+  const isConnected = viewerId
+    ? !!(await prisma.connection.findFirst({
+        where: {
+          accountId: viewerId,
+          connectedAccountId: user.id,
+          status: "ACCEPTED",
+        },
+      }))
+    : false;
+
+  if (!viewerId || !isConnected) {
+    if (!user.publicListed) return null;
+  }
+
+  const traits = await prisma.trait.findMany({
+    where: {
+      accountId: user.id,
+      ...(isConnected
+        ? {
+            OR: [
+              { isVisible: true },
+              {
+                visibleGroups: {
+                  some: {
+                    connections: {
+                      some: {
+                        accountId: viewerId,
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          }
+        : { isVisible: true }),
+    },
+  });
+
+  return { ...user, traits };
 }
 
 function findUsersByUsername(username: string) {

@@ -11,13 +11,20 @@ async function getTraits(accountId: string) {
   });
 }
 
+async function getUser(accountId: string) {
+  return prisma.user.findUnique({ where: { id: accountId } });
+}
+
 export default async function TraitsPage() {
   const accountId = await getAuthedAccountId();
   if (!accountId) {
     notFound();
   }
 
-  const traits = await getTraits(accountId);
+  const [traits, user] = await Promise.all([
+    getTraits(accountId),
+    getUser(accountId),
+  ]);
 
   return (
     <div className="flex flex-col flex-1">
@@ -32,7 +39,10 @@ export default async function TraitsPage() {
           </p>
         </div>
 
-        <TraitTable traits={traits} />
+        <TraitTable
+          traits={traits}
+          publicListed={user?.publicListed ?? false}
+        />
       </div>
     </div>
   );
