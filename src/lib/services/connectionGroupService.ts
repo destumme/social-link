@@ -14,7 +14,10 @@ async function requireAuth() {
 
 async function findConnectionGroupsByAccountId() {
   const accountId = await requireAuth();
-  return prisma.connectionGroup.findMany({ where: { accountId } });
+  return prisma.connectionGroup.findMany({
+    where: { accountId },
+    orderBy: { createdAt: "asc" },
+  });
 }
 
 function findConnectionGroupById(id: string) {
@@ -35,17 +38,20 @@ async function createConnectionGroup(name: string, traitIds?: string[]) {
 
 async function updateConnectionGroup(
   id: string,
-  data: { name?: string; traitIds?: string[] },
+  data: { name?: string; traitIds?: string[]; connectionIds?: string[] },
 ) {
   const accountId = await requireAuth();
   const group = await prisma.connectionGroup.findUnique({ where: { id } });
   if (!group) throw new NotFoundError("Connection group not found");
   if (group.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
-  const { traitIds, ...rest } = data;
+  const { traitIds, connectionIds, ...rest } = data;
   const updateData: Record<string, unknown> = { ...rest };
   if (traitIds !== undefined) {
     updateData.traits = { set: traitIds.map((t) => ({ id: t })) };
+  }
+  if (connectionIds !== undefined) {
+    updateData.connections = { set: connectionIds.map((c) => ({ id: c })) };
   }
   return prisma.connectionGroup.update({ where: { id }, data: updateData });
 }

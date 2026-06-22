@@ -8,6 +8,7 @@ interface CreateConnectionGroupInput {
 interface UpdateConnectionGroupInput {
   name?: string;
   traitIds?: string[];
+  connectionIds?: string[];
 }
 
 export const ConnectionGroup = {
