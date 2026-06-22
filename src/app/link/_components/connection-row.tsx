@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
 
 interface Group {
   id: string;
@@ -19,10 +25,21 @@ interface ConnectionRowProps {
       username: string;
     };
   };
+  groups: Group[];
   onRemove: (id: string) => void;
+  onAddToGroup: (connectionId: string, groupId: string) => void;
+  onRemoveFromGroup: (connectionId: string, groupId: string) => void;
 }
 
-export function ConnectionRow({ connection, onRemove }: ConnectionRowProps) {
+export function ConnectionRow({
+  connection,
+  groups,
+  onRemove,
+  onAddToGroup,
+  onRemoveFromGroup,
+}: ConnectionRowProps) {
+  const connectionGroupIds = new Set(connection.groups.map((g) => g.id));
+
   return (
     <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
       <div>
@@ -61,9 +78,38 @@ export function ConnectionRow({ connection, onRemove }: ConnectionRowProps) {
         >
           Remove
         </Button>
-        <Button variant="outline" size="sm" disabled>
-          Add to group
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={(props) => (
+              <Button variant="outline" size="sm" {...props}>
+                Add to group
+              </Button>
+            )}
+          />
+          <DropdownMenuContent>
+            {groups.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-muted-foreground">
+                No groups yet
+              </div>
+            ) : (
+              groups.map((group) => (
+                <DropdownMenuCheckboxItem
+                  key={group.id}
+                  checked={connectionGroupIds.has(group.id)}
+                  onCheckedChange={() => {
+                    if (connectionGroupIds.has(group.id)) {
+                      onRemoveFromGroup(connection.id, group.id);
+                    } else {
+                      onAddToGroup(connection.id, group.id);
+                    }
+                  }}
+                >
+                  {group.name}
+                </DropdownMenuCheckboxItem>
+              ))
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
