@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryIcon } from "@/components/icons";
+import { getOverrideIconElement } from "@/lib/icons";
 import { deleteTraitAction } from "@/app/traits/actions";
 import { EditTraitDialog } from "./edit-trait-dialog";
 
@@ -38,7 +39,9 @@ export function TraitRow({
         <div className="text-muted-foreground truncate">{trait.value}</div>
         <div>
           <Badge variant="secondary" className="gap-1.5">
-            {getCategoryIcon(trait.category ?? "")}
+            {trait.icon
+              ? getOverrideIconElement(trait.icon)
+              : getCategoryIcon(trait.category ?? "")}
             {trait.category}
           </Badge>
         </div>
