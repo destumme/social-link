@@ -39,3 +39,9 @@ Proposed or implemented solution.
 ## Tasks
 
 - [ ]
+
+## Agent Instructions: When Resolving a Bug
+
+After fixing the bug:
+1. Change `status: open` to `status: resolved` in this file's YAML frontmatter.
+2. Move the entry from the **Open** table to the **Resolved** table in [docs/bugs/index.md](index.md), replacing the `—` placeholder with the bug ID, title, severity, and today's date.

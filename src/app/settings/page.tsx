@@ -2,12 +2,15 @@ import { notFound } from "next/navigation";
 import { getAuthedAccountId } from "@/lib/auth-server";
 import { AccountForm } from "./_components/account-form";
 import { ConnectedProviders } from "./_components/connected-providers";
+import { getLinkedProviders } from "./actions";
 
 export default async function SettingsPage() {
   const accountId = await getAuthedAccountId();
   if (!accountId) {
     notFound();
   }
+
+  const linkedProviders = await getLinkedProviders();
 
   return (
     <div className="flex flex-col flex-1">
@@ -24,7 +27,7 @@ export default async function SettingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <AccountForm />
 
-          <ConnectedProviders />
+          <ConnectedProviders linkedProviders={linkedProviders} />
         </div>
       </div>
     </div>

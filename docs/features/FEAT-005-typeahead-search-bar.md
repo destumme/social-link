@@ -4,7 +4,7 @@
 page: app-wide (header)
 area: search
 priority: medium
-status: proposed
+status: done
 created: 2026-06-21
 ---
 

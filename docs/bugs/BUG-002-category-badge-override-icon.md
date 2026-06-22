@@ -4,7 +4,7 @@
 page: /traits
 area: traits
 severity: low
-status: open
+status: resolved
 created: 2026-06-21
 ---
 
