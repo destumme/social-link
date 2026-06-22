@@ -96,6 +96,7 @@ export function EditGroupDialog({
         id: editingGroup.id,
         name: groupName.trim(),
         traitIds: selectedTraits,
+        connectionIds: selectedConnections,
       });
       if (result.error) {
         setError(result.error);

@@ -30,8 +30,9 @@ export async function updateGroupAction(data: {
   id: string;
   name: string;
   traitIds: string[];
+  connectionIds: string[];
 }): Promise<{ error?: string }> {
-  const { id, name, traitIds } = data;
+  const { id, name, traitIds, connectionIds } = data;
 
   if (!id) return { error: "Group ID is required" };
   if (!name.trim()) return { error: "Group name is required" };
@@ -40,6 +41,7 @@ export async function updateGroupAction(data: {
     await connectionGroupService.connectionGroup.updateConnectionGroup(id, {
       name: name.trim(),
       traitIds,
+      connectionIds,
     });
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
