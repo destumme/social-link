@@ -34,6 +34,7 @@ export const typeDefs = /* GraphQL */ `
     value: String!
     category: TraitCategory
     icon: String
+    isVisible: Boolean!
     visibleGroups: [ConnectionGroup!]!
   }
 
@@ -72,6 +73,7 @@ export const typeDefs = /* GraphQL */ `
     value: String
     category: TraitCategory
     icon: String
+    isVisible: Boolean
   }
 
   input CreateConnectionGroupInput {

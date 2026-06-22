@@ -46,8 +46,9 @@ export async function updateTraitAction(data: {
   value: string;
   category: string;
   icon: string;
+  isVisible: boolean;
 }): Promise<{ error?: string }> {
-  const { id, key, value, category, icon } = data;
+  const { id, key, value, category, icon, isVisible } = data;
 
   if (!key.trim() || !value.trim() || !category) {
     return { error: "Key, value, and category are required" };
@@ -66,6 +67,7 @@ export async function updateTraitAction(data: {
       value: value.trim(),
       category: category as TraitCategory,
       icon: icon || undefined,
+      isVisible,
     });
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };

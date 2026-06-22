@@ -60,6 +60,7 @@ model Trait {
   value         String
   category      TraitCategory?
   icon          String?
+  isVisible     Boolean           @default(false)
   visibleGroups ConnectionGroup[]
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt

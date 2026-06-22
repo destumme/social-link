@@ -19,6 +19,7 @@ function DeleteButton() {
 
 export function TraitRow({
   trait,
+  publicListed,
 }: {
   trait: {
     id: string;
@@ -26,8 +27,10 @@ export function TraitRow({
     value: string;
     category: string | null;
     icon: string | null;
+    isVisible: boolean;
     visibleGroups: { id: string; name: string }[];
   };
+  publicListed: boolean;
 }) {
   const [editOpen, setEditOpen] = useState(false);
 
@@ -61,7 +64,13 @@ export function TraitRow({
           </form>
         </div>
       </div>
-      {editOpen && <EditTraitDialog trait={trait} onOpenChange={setEditOpen} />}
+      {editOpen && (
+        <EditTraitDialog
+          trait={trait}
+          publicListed={publicListed}
+          onOpenChange={setEditOpen}
+        />
+      )}
     </>
   );
 }
