@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { GithubIcon } from "@hugeicons/core-free-icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,6 +37,14 @@ export default function LoginPage() {
       router.push("/");
       router.refresh();
     }
+  }
+
+  async function handleGitHubSignIn() {
+    setError(null);
+    await signIn.social({
+      provider: "github",
+      callbackURL: "/",
+    });
   }
 
   return (
@@ -78,6 +88,26 @@ export default function LoginPage() {
               {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGitHubSignIn}
+          >
+            <HugeiconsIcon icon={GithubIcon} size={18} className="mr-2" />
+            Sign in with GitHub
+          </Button>
 
           <p className="text-center text-sm text-muted-foreground">
             New here?{" "}

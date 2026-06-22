@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Link01Icon } from "@hugeicons/core-free-icons";
-import { useSession, signOut } from "@/lib/auth-client";
+import { Link01Icon, GithubIcon } from "@hugeicons/core-free-icons";
+import { useSession, signOut, linkSocialAccount } from "@/lib/auth-client";
 
 export function ConnectedProviders() {
   const { data: session, isPending } = useSession();
@@ -35,6 +35,17 @@ export function ConnectedProviders() {
     );
   }
 
+  const githubLinked = session.user.accounts?.some(
+    (account: { provider: string }) => account.provider === "github",
+  );
+
+  async function handleConnectGitHub() {
+    await linkSocialAccount({
+      provider: "github",
+      callbackURL: "/settings",
+    });
+  }
+
   return (
     <Card className="md:col-span-2">
       <CardHeader>
@@ -56,6 +67,25 @@ export function ConnectedProviders() {
                 {session.user.email ?? ""}
               </p>
             </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-md border border-border px-4 py-3">
+            <HugeiconsIcon
+              icon={GithubIcon}
+              size={20}
+              className="text-muted-foreground shrink-0"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">GitHub</p>
+              <p className="text-xs text-tertiary-foreground">
+                {githubLinked ? "Connected" : "Not connected"}
+              </p>
+            </div>
+            {!githubLinked && (
+              <Button variant="outline" size="sm" onClick={handleConnectGitHub}>
+                Connect
+              </Button>
+            )}
           </div>
         </div>
 
