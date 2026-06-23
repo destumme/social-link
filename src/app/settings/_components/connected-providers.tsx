@@ -12,7 +12,9 @@ interface ConnectedProvidersProps {
   };
 }
 
-export function ConnectedProviders({ linkedProviders }: ConnectedProvidersProps) {
+export function ConnectedProviders({
+  linkedProviders,
+}: ConnectedProvidersProps) {
   const { data: session, isPending } = useSession();
 
   if (isPending) {

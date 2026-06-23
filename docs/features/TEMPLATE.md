@@ -31,6 +31,7 @@ Investigation notes, hypotheses, dead ends, relevant file paths and line numbers
 ## Agent Instructions
 
 <!-- Direct an agent to the implementation. Fill in what's known; leave blank for the agent to investigate. -->
+<!-- IMPORTANT: Do NOT implement the feature when creating this spec. Only document it. -->
 
 **What to look for:**
 

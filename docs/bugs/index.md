@@ -7,6 +7,7 @@ Track known bugs and their resolution status.
 | ID | Title | Severity | Status |
 |----|-------|----------|--------|
 | [BUG-001](BUG-001-connections-not-updated-group-reorder.md) | Connections not updated on group edit + group reorder | medium | open |
+| [BUG-005](BUG-005-add-to-group-edit-button-toggle.md) | "Add to group" button should be "Edit groups" with Switch toggles | low | open |
 
 ## Resolved
 
@@ -17,6 +18,8 @@ Track known bugs and their resolution status.
 | [BUG-004](BUG-004-int-test-not-containerized.md) | Integration tests share host with running dev service | medium | 2026-06-21 |
 
 ## Agent Instructions: Creating a New Bug
+
+**IMPORTANT: Do NOT implement the fix when logging a bug.** Creating a bug report and fixing it are separate steps. Only log the bug — do not edit any source code.
 
 Prompt the user for this information if needed.
 Do not diagnose the entire bug, gather information as needed to fill out the template.

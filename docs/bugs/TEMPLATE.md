@@ -27,6 +27,7 @@ Proposed or implemented solution.
 ## Agent Instructions
 
 <!-- Direct an agent to the fix. Fill in what's known; leave blank for the agent to investigate. -->
+<!-- IMPORTANT: Do NOT implement the fix when creating this bug report. Only document it. -->
 
 **What to look for:**
 

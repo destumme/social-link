@@ -27,6 +27,8 @@ Track planned and implemented features.
 
 ## Agent Instructions: Creating a New Feature
 
+**IMPORTANT: Do NOT implement the feature when creating a feature spec.** Creating a spec and implementing it are separate steps. Only log the spec — do not edit any source code.
+
 Prompt the user for this information if needed.
 Do not design the entire feature, gather information as needed to fill out the template.
 

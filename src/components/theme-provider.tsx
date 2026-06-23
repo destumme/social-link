@@ -11,6 +11,18 @@ const VALID_THEMES = [
   "honey",
   "mint",
   "lavender",
+  "copper",
+  "coral",
+  "dracula",
+  "gruvbox",
+  "horizon",
+  "monokai",
+  "nord",
+  "ocean",
+  "phantom",
+  "rose_pine",
+  "sage",
+  "vscode",
 ] as const;
 
 type Theme = (typeof VALID_THEMES)[number];
