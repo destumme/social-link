@@ -9,6 +9,7 @@ import {
   UserGroupIcon,
   Settings01Icon,
   Link01Icon,
+  UserCircleIcon,
 } from "@hugeicons/core-free-icons";
 import {
   DropdownMenu,
@@ -18,8 +19,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth-client";
+import { useMemo } from "react";
 
-const navItems = [
+const navItemsInit = [
   { href: "/link", label: "Link", icon: Link01Icon },
   { href: "/traits", label: "Traits", icon: Pen01Icon },
   { href: "/groups", label: "Groups", icon: UserGroupIcon },
@@ -28,6 +31,22 @@ const navItems = [
 
 export default function PageNav() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const navItems = useMemo(() => {
+    let items: typeof navItemsInit = [];
+    if (session?.user.username) {
+      items = [
+        {
+          href: `/link/${session.user.username}`,
+          label: "Me",
+          icon: UserCircleIcon,
+        },
+        ...navItemsInit,
+      ];
+    }
+    return items;
+  }, [session]);
 
   const isActive = (href: string) => {
     if (href === "/link") {
