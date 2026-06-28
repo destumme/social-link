@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is([data-theme="tokyo"] *, [data-theme="catppuccin"] *, [data-theme="github"] *, [data-theme="serika"] *, [data-theme="mint"] *, [data-theme="dracula"] *, [data-theme="nord"] *, [data-theme="horizon"] *, [data-theme="gruvbox"] *, [data-theme="rose_pine"] *, [data-theme="vscode"] *, [data-theme="monokai"] *, [data-theme="phantom"] *, [data-theme="ocean"] *, [data-theme="copper"] *));
+@custom-variant dark (&:is([data-theme="tokyo"] *, [data-theme="catppuccin"] *, [data-theme="github"] *, [data-theme="serika"] *, [data-theme="mint"] *, [data-theme="dracula"] *, [data-theme="nord"] *, [data-theme="horizon"] *, [data-theme="gruvbox"] *, [data-theme="rose_pine"] *, [data-theme="vscode"] *, [data-theme="monokai"] *, [data-theme="phantom"] *, [data-theme="ocean"] *, [data-theme="copper"] *, [data-theme="sage"] *, [data-theme="honey"] *, [data-theme="lavender"] *, [data-theme="coral"] *));
 
 @theme inline {
   --color-background: var(--background);

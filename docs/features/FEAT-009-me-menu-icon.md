@@ -4,7 +4,7 @@
 page: header
 area: navigation / user profile
 priority: medium
-status: proposed
+status: done
 created: 2026-06-28
 ---
 

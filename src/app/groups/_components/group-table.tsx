@@ -74,7 +74,7 @@ export function GroupTable({ groups, connections, traits }: GroupTableProps) {
                   <div>
                     <div className="flex justify-end gap-2">
                       <Button
-                        variant="default"
+                        variant="outline"
                         size="sm"
                         onClick={() => setEditingGroup(group)}
                       >

@@ -65,7 +65,7 @@ export function TraitRow({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <Button variant="default" size="sm" onClick={() => setEditOpen(true)}>
+          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
             Edit
           </Button>
           <form action={deleteTraitAction}>

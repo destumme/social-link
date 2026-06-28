@@ -23,6 +23,7 @@ export async function createGroupAction(data: {
   }
 
   revalidatePath("/groups");
+  revalidatePath("/link");
   return {};
 }
 
@@ -49,6 +50,7 @@ export async function updateGroupAction(data: {
   }
 
   revalidatePath("/groups");
+  revalidatePath("/link");
   return {};
 }
 
@@ -57,4 +59,5 @@ export async function deleteGroupAction(formData: FormData) {
 
   await connectionGroupService.connectionGroup.deleteConnectionGroup(id);
   revalidatePath("/groups");
+  revalidatePath("/link");
 }
