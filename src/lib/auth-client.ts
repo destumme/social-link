@@ -5,5 +5,5 @@ export const authClient = createAuthClient({
   plugins: [usernameClient()],
 });
 
-export const { signIn, signOut, signUp, useSession, linkSocialAccount } =
+export const { signIn, signOut, signUp, useSession, linkSocial, accountInfo } =
   authClient;

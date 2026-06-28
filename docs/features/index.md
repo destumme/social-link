@@ -6,12 +6,8 @@ Track planned and implemented features.
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| [FEAT-001](FEAT-001-wider-modals.md) | Wider Modals | medium | proposed |
-| [FEAT-002](FEAT-002-add-connection-to-group.md) | Add Connection to Group | medium | proposed |
-| [FEAT-003](FEAT-003-theme-overhaul-monkeytype.md) | Theme Overhaul — MonkeyType | medium | proposed |
-| [FEAT-004](FEAT-004-github-oauth-login.md) | GitHub OAuth Login | medium | proposed |
-| [FEAT-005](FEAT-005-typeahead-search-bar.md) | Typeahead Search Bar | medium | proposed |
-| [FEAT-006](FEAT-006-visibility-gated-link-page.md) | Visibility-gated Link Page | medium | proposed |
+| [FEAT-007](FEAT-007-share-links.md) | Share Links | medium | proposed |
+| [FEAT-008](FEAT-008-connection-refactor.md) | Connection Data Model Refactor | high | proposed |
 
 ## In Progress
 
@@ -23,9 +19,16 @@ Track planned and implemented features.
 
 | ID | Title | Priority | Completed |
 |----|-------|----------|-----------|
-| — | — | — | — |
+| [FEAT-001](FEAT-001-wider-modals.md) | Wider Modals | medium | 2026-06-21 |
+| [FEAT-002](FEAT-002-add-connection-to-group.md) | Add Connection to Group | medium | 2026-06-21 |
+| [FEAT-003](FEAT-003-theme-overhaul-monkeytype.md) | Theme Overhaul — MonkeyType | medium | 2026-06-21 |
+| [FEAT-004](FEAT-004-github-oauth-login.md) | GitHub OAuth Login | medium | 2026-06-21 |
+| [FEAT-005](FEAT-005-typeahead-search-bar.md) | Typeahead Search Bar | medium | 2026-06-21 |
+| [FEAT-006](FEAT-006-visibility-gated-link-page.md) | Visibility-gated Link Page | medium | 2026-06-21 |
 
 ## Agent Instructions: Creating a New Feature
+
+**IMPORTANT: Do NOT implement the feature when creating a feature spec.** Creating a spec and implementing it are separate steps. Only log the spec — do not edit any source code.
 
 Prompt the user for this information if needed.
 Do not design the entire feature, gather information as needed to fill out the template.

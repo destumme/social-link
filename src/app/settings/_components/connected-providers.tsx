@@ -4,9 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link01Icon, GithubIcon } from "@hugeicons/core-free-icons";
-import { useSession, signOut, linkSocialAccount } from "@/lib/auth-client";
+import { useSession, signOut, linkSocial } from "@/lib/auth-client";
 
-export function ConnectedProviders() {
+interface ConnectedProvidersProps {
+  linkedProviders: {
+    github: boolean;
+  };
+}
+
+export function ConnectedProviders({
+  linkedProviders,
+}: ConnectedProvidersProps) {
   const { data: session, isPending } = useSession();
 
   if (isPending) {
@@ -35,12 +43,10 @@ export function ConnectedProviders() {
     );
   }
 
-  const githubLinked = session.user.accounts?.some(
-    (account: { provider: string }) => account.provider === "github",
-  );
+  const githubLinked = linkedProviders.github;
 
   async function handleConnectGitHub() {
-    await linkSocialAccount({
+    await linkSocial({
       provider: "github",
       callbackURL: "/settings",
     });

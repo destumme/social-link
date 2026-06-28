@@ -68,7 +68,7 @@ export function EditTraitDialog({
   const [value, setValue] = useState(trait.value);
   const [category, setCategory] = useState(trait.category ?? "");
   const [icon, setIcon] = useState(trait.icon ?? "");
-  const [isVisible, setIsVisible] = useState(trait.isVisible);
+  const [isVisible, setIsVisible] = useState(trait.isVisible ?? false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

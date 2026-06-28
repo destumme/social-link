@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { username } from "better-auth/plugins";
 import { admin } from "better-auth/plugins";
-import { github } from "better-auth/social-providers";
 
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/database/prisma";
@@ -20,7 +19,7 @@ export const auth = betterAuth({
     enabled: true,
   },
   socialProviders: {
-    github: github({
+    github: {
       clientId: process.env.GITHUB_CLIENT_ID ?? "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
       mapProfileToUser(profile) {
@@ -29,7 +28,7 @@ export const auth = betterAuth({
           username: profile.login,
         };
       },
-    }),
+    },
   },
   plugins: [username(), admin()],
   user: {

@@ -11,6 +11,16 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Only make changes that are confirmed.
 - Use the `todowrite` tool to create todo checklists for any plan with 3+ steps before starting implementation.
 
+# Git Workflow
+
+- Begin all feature and bug-fix work in a **git worktree** (not the main working directory).
+- Create the worktree on a new branch named descriptively (e.g., `feature/add-oauth`, `fix/login-redirect`).
+- When the work is complete and ready to merge:
+  1. **Always confirm with the user before squashing.**
+  2. Show the user a `git diff` of all changes that will be included in the squash.
+  3. Only squash and merge after the user explicitly approves.
+- Clean up the worktree branch after it has been merged.
+
 # Project
 
 Social links app — Next.js 16.2.6 + GraphQL Yoga + Prisma 7 + Better Auth + PostgreSQL.

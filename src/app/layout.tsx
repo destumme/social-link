@@ -29,6 +29,18 @@ const VALID_THEMES = [
   "honey",
   "mint",
   "lavender",
+  "copper",
+  "coral",
+  "dracula",
+  "gruvbox",
+  "horizon",
+  "monokai",
+  "nord",
+  "ocean",
+  "phantom",
+  "rose_pine",
+  "sage",
+  "vscode",
 ];
 
 export const metadata: Metadata = {

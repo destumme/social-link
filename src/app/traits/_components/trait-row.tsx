@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { getCategoryIcon } from "@/components/icons";
 import { getOverrideIconElement } from "@/lib/icons";
 import { deleteTraitAction } from "@/app/traits/actions";
@@ -42,9 +43,15 @@ export function TraitRow({
         <div className="text-muted-foreground truncate">{trait.value}</div>
         <div>
           <Badge variant="secondary" className="gap-1.5">
-            {trait.icon
-              ? getOverrideIconElement(trait.icon)
-              : getCategoryIcon(trait.category ?? "")}
+            {trait.icon ? (
+              <HugeiconsIcon
+                icon={getOverrideIconElement(trait.icon)!}
+                size={16}
+                className="size-3"
+              />
+            ) : (
+              getCategoryIcon(trait.category)
+            )}
             {trait.category}
           </Badge>
         </div>

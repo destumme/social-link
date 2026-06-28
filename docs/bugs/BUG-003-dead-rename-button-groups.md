@@ -4,7 +4,7 @@
 page: /groups
 area: connection groups
 severity: low
-status: open
+status: resolved
 created: 2026-06-21
 ---
 

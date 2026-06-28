@@ -4,7 +4,7 @@
 page: N/A (infra)
 area: testing / CI
 severity: medium
-status: open
+status: resolved
 created: 2026-06-21
 ---
 

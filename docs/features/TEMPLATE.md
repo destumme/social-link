@@ -31,6 +31,7 @@ Investigation notes, hypotheses, dead ends, relevant file paths and line numbers
 ## Agent Instructions
 
 <!-- Direct an agent to the implementation. Fill in what's known; leave blank for the agent to investigate. -->
+<!-- IMPORTANT: Do NOT implement the feature when creating this spec. Only document it. -->
 
 **What to look for:**
 
@@ -43,3 +44,9 @@ Investigation notes, hypotheses, dead ends, relevant file paths and line numbers
 ## Tasks
 
 - [ ]
+
+## Agent Instructions: When Completing a Feature
+
+After implementing the feature:
+1. Change `status: proposed` (or `in_progress`) to `status: done` in this file's YAML frontmatter.
+2. Move the entry from the **Proposed** or **In Progress** table to the **Done** table in [docs/features/index.md](index.md), replacing the `—` placeholder with the feature ID, title, priority, and today's date.
