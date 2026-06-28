@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getCategoryIcon } from "@/components/icons";
 import userService from "@/lib/services/userService";
 import connectionService from "@/lib/services/connectionService";
+import { getAuthedAccountId } from "@/lib/auth-server";
 
 async function getUser(username: string) {
   return userService.search.findUserWithTraitsByUsername(username);
@@ -57,7 +58,10 @@ export default async function UserPage({
     notFound();
   }
 
-  const connection = await getConnectionStatus(user.id);
+  const authedAccountId = await getAuthedAccountId();
+  const isSelfVisit = authedAccountId === user.id;
+
+  const connection = isSelfVisit ? null : await getConnectionStatus(user.id);
   const isConnected = connection?.status === "ACCEPTED";
   const isPending = connection?.status === "PENDING";
 
@@ -70,7 +74,7 @@ export default async function UserPage({
               {user.displayName}
             </h1>
             <p className="text-muted-foreground">@{user.username}</p>
-            {isConnected && (
+            {!isSelfVisit && isConnected && (
               <Badge
                 variant="secondary"
                 className="text-emerald-500 bg-emerald-500/10 px-3 py-1 text-sm"
@@ -83,7 +87,7 @@ export default async function UserPage({
                 Connected
               </Badge>
             )}
-            {isPending && (
+            {!isSelfVisit && isPending && (
               <Badge
                 variant="secondary"
                 className="text-amber-500 bg-amber-500/10 px-3 py-1 text-sm"
@@ -98,7 +102,7 @@ export default async function UserPage({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {isConnected && (
+            {!isSelfVisit && isConnected && (
               <form action={removeConnectionAction}>
                 <input
                   type="hidden"
@@ -110,7 +114,7 @@ export default async function UserPage({
                 </Button>
               </form>
             )}
-            {!isConnected && !isPending && (
+            {!isSelfVisit && !isConnected && !isPending && (
               <form action={requestConnectionAction}>
                 <input type="hidden" name="accountId" value={user.id} />
                 <Button type="submit">Request Connection</Button>

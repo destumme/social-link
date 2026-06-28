@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 
 interface Group {
@@ -82,7 +82,7 @@ export function ConnectionRow({
           <DropdownMenuTrigger
             render={(props) => (
               <Button variant="outline" size="sm" {...props}>
-                Add to group
+                Edit groups
               </Button>
             )}
           />
@@ -93,19 +93,22 @@ export function ConnectionRow({
               </div>
             ) : (
               groups.map((group) => (
-                <DropdownMenuCheckboxItem
+                <div
                   key={group.id}
-                  checked={connectionGroupIds.has(group.id)}
-                  onCheckedChange={() => {
-                    if (connectionGroupIds.has(group.id)) {
-                      onRemoveFromGroup(connection.id, group.id);
-                    } else {
-                      onAddToGroup(connection.id, group.id);
-                    }
-                  }}
+                  className="flex items-center justify-between px-3 py-2"
                 >
-                  {group.name}
-                </DropdownMenuCheckboxItem>
+                  <span className="text-sm">{group.name}</span>
+                  <Switch
+                    checked={connectionGroupIds.has(group.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        onAddToGroup(connection.id, group.id);
+                      } else {
+                        onRemoveFromGroup(connection.id, group.id);
+                      }
+                    }}
+                  />
+                </div>
               ))
             )}
           </DropdownMenuContent>

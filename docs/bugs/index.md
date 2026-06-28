@@ -7,14 +7,14 @@ Track known bugs and their resolution status.
 | ID | Title | Severity | Status |
 |----|-------|----------|--------|
 | [BUG-001](BUG-001-connections-not-updated-group-reorder.md) | Connections not updated on group edit + group reorder | medium | open |
-| [BUG-005](BUG-005-add-to-group-edit-button-toggle.md) | "Add to group" button should be "Edit groups" with Switch toggles | low | open |
-| [BUG-006](BUG-006-edit-buttons-outline-variant.md) | Edit buttons use default variant instead of outline | low | open |
-| [BUG-007](BUG-007-group-edit-link-cache-invalidation.md) | Editing a group doesn't invalidate the /link page cache | medium | open |
 
 ## Resolved
 
 | ID | Title | Severity | Resolved |
 |----|-------|----------|----------|
+| [BUG-005](BUG-005-add-to-group-edit-button-toggle.md) | "Add to group" button should be "Edit groups" with Switch toggles | low | 2026-06-28 |
+| [BUG-006](BUG-006-edit-buttons-outline-variant.md) | Edit buttons use default variant instead of outline | low | 2026-06-28 |
+| [BUG-007](BUG-007-group-edit-link-cache-invalidation.md) | Editing a group doesn't invalidate the /link page cache | medium | 2026-06-28 |
 | [BUG-002](BUG-002-category-badge-override-icon.md) | Category badge doesn't show override icon | low | 2026-06-21 |
 | [BUG-003](BUG-003-dead-rename-button-groups.md) | Dead "Rename" button on connection groups page | low | 2026-06-21 |
 | [BUG-004](BUG-004-int-test-not-containerized.md) | Integration tests share host with running dev service | medium | 2026-06-21 |
