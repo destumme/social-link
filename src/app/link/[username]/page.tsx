@@ -69,15 +69,17 @@ export default async function UserPage({
             <h1 className="text-3xl font-bold tracking-tight">
               {user.displayName}
             </h1>
-            <p className="text-muted-foreground">
-              @{user.username}
-            </p>
+            <p className="text-muted-foreground">@{user.username}</p>
             {isConnected && (
               <Badge
                 variant="secondary"
                 className="text-emerald-500 bg-emerald-500/10 px-3 py-1 text-sm"
               >
-                <HugeiconsIcon icon={UserCheck01Icon as never} size={14} className="mr-1.5" />
+                <HugeiconsIcon
+                  icon={UserCheck01Icon as never}
+                  size={14}
+                  className="mr-1.5"
+                />
                 Connected
               </Badge>
             )}
@@ -86,7 +88,11 @@ export default async function UserPage({
                 variant="secondary"
                 className="text-amber-500 bg-amber-500/10 px-3 py-1 text-sm"
               >
-                <HugeiconsIcon icon={UserAdd01Icon as never} size={14} className="mr-1.5" />
+                <HugeiconsIcon
+                  icon={UserAdd01Icon as never}
+                  size={14}
+                  className="mr-1.5"
+                />
                 Pending
               </Badge>
             )}
