@@ -8,6 +8,9 @@ Track planned and implemented features.
 |----|-------|----------|--------|
 | [FEAT-007](FEAT-007-share-links.md) | Share Links | medium | proposed |
 | [FEAT-008](FEAT-008-connection-refactor.md) | Connection Data Model Refactor | high | proposed |
+| [FEAT-009](FEAT-009-me-menu-icon.md) | "Me" Menu Icon | medium | proposed |
+| [FEAT-010](FEAT-010-individual-connection-traits.md) | Individual Connection Trait Visibility | medium | proposed |
+| [FEAT-011](FEAT-011-trait-link-property.md) | Trait Link Property | medium | proposed |
 
 ## In Progress
 
