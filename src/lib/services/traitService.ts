@@ -55,7 +55,6 @@ async function updateTrait(
 
   if (data.isVisible === true) {
     const user = await prisma.user.findUnique({ where: { id: accountId } });
-    console.log(user);
     if (!user || !user.publicListed) {
       throw new AuthorizationError(
         "Cannot make trait visible when profile is not public",
