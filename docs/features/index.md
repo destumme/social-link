@@ -6,7 +6,8 @@ Track planned and implemented features.
 
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| — | — | — | — |
+| [FEAT-007](FEAT-007-share-links.md) | Share Links | medium | proposed |
+| [FEAT-008](FEAT-008-connection-refactor.md) | Connection Data Model Refactor | high | proposed |
 
 ## In Progress
 

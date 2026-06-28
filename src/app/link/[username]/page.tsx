@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { UserCheck01Icon, UserAdd01Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -62,43 +64,45 @@ export default async function UserPage({
   return (
     <div className="flex flex-col flex-1">
       <div className="w-full px-6 py-12 lg:px-12 lg:py-16 space-y-12">
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight bg-background/80">
+        <div className="flex items-start justify-between bg-background/80">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight">
               {user.displayName}
             </h1>
-            <p className="text-muted-foreground bg-background/80">
+            <p className="text-muted-foreground">
               @{user.username}
             </p>
-          </div>
-          <div className="flex items-center gap-2">
             {isConnected && (
-              <>
-                <Badge
-                  variant="secondary"
-                  className="text-emerald-500 bg-emerald-500/10 px-3 py-1 text-sm"
-                >
-                  Connected
-                </Badge>
-                <form action={removeConnectionAction}>
-                  <input
-                    type="hidden"
-                    name="connectionId"
-                    value={connection.id}
-                  />
-                  <Button type="submit" variant="destructive" size="sm">
-                    Remove Connection
-                  </Button>
-                </form>
-              </>
+              <Badge
+                variant="secondary"
+                className="text-emerald-500 bg-emerald-500/10 px-3 py-1 text-sm"
+              >
+                <HugeiconsIcon icon={UserCheck01Icon as never} size={14} className="mr-1.5" />
+                Connected
+              </Badge>
             )}
             {isPending && (
               <Badge
                 variant="secondary"
                 className="text-amber-500 bg-amber-500/10 px-3 py-1 text-sm"
               >
+                <HugeiconsIcon icon={UserAdd01Icon as never} size={14} className="mr-1.5" />
                 Pending
               </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {isConnected && (
+              <form action={removeConnectionAction}>
+                <input
+                  type="hidden"
+                  name="connectionId"
+                  value={connection.id}
+                />
+                <Button type="submit" variant="destructive" size="sm">
+                  Remove Connection
+                </Button>
+              </form>
             )}
             {!isConnected && !isPending && (
               <form action={requestConnectionAction}>
