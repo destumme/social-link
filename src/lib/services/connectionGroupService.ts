@@ -100,7 +100,13 @@ function findAccountForGroup(accountId: string) {
 
 function findConnectionsForGroup(groupId: string) {
   return prisma.connection.findMany({
-    where: { connectionGroups: { some: { id: groupId } } },
+    where: { sides: { some: { groups: { some: { id: groupId } } } } },
+  });
+}
+
+function findSidesForGroup(groupId: string) {
+  return prisma.connectionSide.findMany({
+    where: { groups: { some: { id: groupId } } },
   });
 }
 
@@ -122,6 +128,7 @@ export const search = {
   findConnectionGroupsByAccountId,
   findAccountForGroup,
   findConnectionsForGroup,
+  findSidesForGroup,
   findTraitsForGroup,
 };
 

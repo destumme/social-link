@@ -231,6 +231,7 @@ describe("connectionGroupService.search", () => {
 
       expect(prisma.connectionGroup.findMany).toHaveBeenCalledWith({
         where: { accountId: "acc-1" },
+        orderBy: { createdAt: "asc" },
       });
       expect(result).toEqual(mockGroups);
     });
@@ -248,6 +249,8 @@ describe("connectionGroupService.search", () => {
         username: "test",
         displayUsername: null,
         publicListed: true,
+        role: "user",
+        banned: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -267,13 +270,11 @@ describe("connectionGroupService.search", () => {
       const mockConns = [
         {
           id: "conn-1",
-          accountId: "acc-1",
-          connectedAccountId: "acc-2",
+          initiatorId: "acc-1",
+          recipientId: "acc-2",
           status: ConnectionStatus.ACCEPTED,
-          groups: [],
           createdAt: new Date(),
           updatedAt: new Date(),
-          traits: [],
         },
       ];
       vi.mocked(prisma.connection.findMany).mockResolvedValue(mockConns);
@@ -281,7 +282,7 @@ describe("connectionGroupService.search", () => {
       const result = await service.search.findConnectionsForGroup("group-1");
 
       expect(prisma.connection.findMany).toHaveBeenCalledWith({
-        where: { connectionGroups: { some: { id: "group-1" } } },
+        where: { sides: { some: { groups: { some: { id: "group-1" } } } } },
       });
       expect(result).toEqual(mockConns);
     });
@@ -296,6 +297,7 @@ describe("connectionGroupService.search", () => {
           value: "@user",
           category: TraitCategory.SOCIAL_LINK,
           icon: null,
+          isVisible: false,
           createdAt: new Date(),
           updatedAt: new Date(),
           accountId: "acc-1",

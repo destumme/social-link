@@ -11,6 +11,7 @@ import {
 } from "./trait";
 import {
   Connection as ConnectionType,
+  ConnectionSide as ConnectionSideType,
   Query as ConnectionQuery,
   Mutation as ConnectionMutation,
 } from "./connection";
@@ -25,6 +26,7 @@ export const resolvers = {
   User: UserType,
   Trait: TraitType,
   Connection: ConnectionType,
+  ConnectionSide: ConnectionSideType,
   ConnectionGroup: ConnectionGroupType,
   Query: {
     ...UserQuery,

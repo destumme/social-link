@@ -11,16 +11,23 @@ interface RequestConnectionInput {
 }
 
 export const Connection = {
-  account: (parent: { accountId: string }) => {
-    return connectionService.search.findAccountForConnection(parent.accountId);
+  initiator: (parent: { initiatorId: string }) => {
+    return connectionService.search.findUserById(parent.initiatorId);
   },
-  connectedAccount: (parent: { connectedAccountId: string }) => {
-    return connectionService.search.findConnectedAccountForConnection(
-      parent.connectedAccountId,
-    );
+  recipient: (parent: { recipientId: string }) => {
+    return connectionService.search.findUserById(parent.recipientId);
+  },
+  sides: (parent: { id: string }) => {
+    return connectionService.search.findSidesForConnection(parent.id);
+  },
+};
+
+export const ConnectionSide = {
+  account: (parent: { accountId: string }) => {
+    return connectionService.search.findUserById(parent.accountId);
   },
   groups: (parent: { id: string }) => {
-    return connectionService.search.findGroupsForConnection(parent.id);
+    return connectionService.search.findGroupsForSide(parent.id);
   },
 };
 
@@ -61,43 +68,27 @@ export const Mutation = {
     _parent: unknown,
     args: { connectionId: string },
   ) => {
-    const pair = await connectionService.connectionPair.findConnectionPair(
+    const connection = await connectionService.connection.findConnectionById(
       args.connectionId,
     );
-    if (!pair || !pair.connection)
-      throw new NotFoundError("Connection not found");
-    if (
-      !pair.otherSide ||
-      pair.connection.status !== "PENDING" ||
-      pair.otherSide.status !== "PENDING"
-    ) {
-      throw new BadRequestError("Connection must be PENDING on both sides");
+    if (!connection) throw new NotFoundError("Connection not found");
+    if (connection.status !== "PENDING") {
+      throw new BadRequestError("Connection must be PENDING");
     }
-    return connectionService.connectionPair.acceptConnectionPair(
-      pair.connection.id,
-      pair.otherSide!.id,
-    );
+    return connectionService.connectionPair.acceptConnectionPair(connection.id);
   },
   declineConnection: async (
     _parent: unknown,
     args: { connectionId: string },
   ) => {
-    const pair = await connectionService.connectionPair.findConnectionPair(
+    const connection = await connectionService.connection.findConnectionById(
       args.connectionId,
     );
-    if (!pair || !pair.connection)
-      throw new NotFoundError("Connection not found");
-    if (
-      !pair.otherSide ||
-      pair.connection.status !== "PENDING" ||
-      pair.otherSide.status !== "PENDING"
-    ) {
-      throw new BadRequestError("Connection must be PENDING on both sides");
+    if (!connection) throw new NotFoundError("Connection not found");
+    if (connection.status !== "PENDING") {
+      throw new BadRequestError("Connection must be PENDING");
     }
-    await connectionService.connectionPair.declineConnectionPair(
-      pair.connection.id,
-      pair.otherSide!.id,
-    );
+    await connectionService.connectionPair.declineConnectionPair(connection.id);
     return true;
   },
   removeConnection: async (_parent: unknown, args: { id: string }) => {
@@ -105,11 +96,7 @@ export const Mutation = {
       args.id,
     );
     if (!connection) throw new NotFoundError("Connection not found");
-    await connectionService.connectionPair.deleteConnectionPair(
-      connection.id,
-      connection.connectedAccountId ?? "",
-      connection.accountId ?? "",
-    );
+    await connectionService.connectionPair.deleteConnectionPair(connection.id);
     return true;
   },
   addConnectionToGroup: async (
@@ -137,6 +124,15 @@ export const Mutation = {
     return connectionService.connection.removeConnectionFromGroup(
       args.connectionId,
       args.groupId,
+    );
+  },
+  updateConnectionGroups: async (
+    _parent: unknown,
+    args: { connectionId: string; groupIds: string[] },
+  ) => {
+    return connectionService.connection.updateConnectionGroups(
+      args.connectionId,
+      args.groupIds,
     );
   },
   updateConnectionTraits: async (

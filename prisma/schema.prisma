@@ -44,9 +44,10 @@ model User {
   updatedAt        DateTime          @updatedAt
   sessions         Session[]
   traits           Trait[]
-  connections      Connection[]      @relation("connections")
   connectionGroups ConnectionGroup[]
-  connectedTo      Connection[]      @relation("connectedTo")
+  sides            ConnectionSide[]
+  initiatedConnections Connection[]  @relation("ConnectionInitiator")
+  receivedConnections  Connection[]  @relation("ConnectionRecipient")
 
   authaccounts AuthAccount[]
 
@@ -69,25 +70,38 @@ model Trait {
 }
 
 model Connection {
-  id                 String            @id @default(uuid())
-  connectedAccount   User?             @relation("connectedTo", fields: [connectedAccountId], references: [id])
-  connectedAccountId String?
-  status             ConnectionStatus
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  account            User?             @relation("connections", fields: [accountId], references: [id])
-  accountId          String?
-  connectionGroups   ConnectionGroup[]
+  id           String           @id @default(uuid())
+  initiator    User             @relation("ConnectionInitiator", fields: [initiatorId], references: [id], onDelete: Cascade)
+  initiatorId  String
+  recipient    User             @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId  String
+  status       ConnectionStatus
+  sides        ConnectionSide[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([initiatorId, recipientId])
+}
+
+model ConnectionSide {
+  id            String            @id @default(uuid())
+  connection    Connection        @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connectionId  String
+  account       User              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId     String
+  groups        ConnectionGroup[]
+
+  @@unique([connectionId, accountId])
 }
 
 model ConnectionGroup {
-  id          String       @id @default(uuid())
+  id          String            @id @default(uuid())
   name        String
-  connections Connection[]
+  sides       ConnectionSide[]
   traits      Trait[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  account     User?        @relation(fields: [accountId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  account     User?             @relation(fields: [accountId], references: [id])
   accountId   String?
 }
 

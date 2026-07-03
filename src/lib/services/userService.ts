@@ -23,17 +23,25 @@ async function findUserWithTraitsByUsername(username: string) {
 
   if (!user) return null;
 
-  const isConnected = viewerId
-    ? !!(await prisma.connection.findFirst({
-        where: {
-          accountId: viewerId,
-          connectedAccountId: user.id,
-          status: "ACCEPTED",
-        },
-      }))
-    : false;
+  if (!viewerId) {
+    if (!user.publicListed) return null;
+    const traits = await prisma.trait.findMany({
+      where: { accountId: user.id, isVisible: true },
+    });
+    return { ...user, traits };
+  }
 
-  if (!viewerId || !isConnected) {
+  const isConnected = !!(await prisma.connection.findFirst({
+    where: {
+      OR: [
+        { initiatorId: viewerId, recipientId: user.id },
+        { initiatorId: user.id, recipientId: viewerId },
+      ],
+      status: "ACCEPTED",
+    },
+  }));
+
+  if (!isConnected) {
     if (!user.publicListed) return null;
   }
 
@@ -47,7 +55,7 @@ async function findUserWithTraitsByUsername(username: string) {
               {
                 visibleGroups: {
                   some: {
-                    connections: {
+                    sides: {
                       some: {
                         accountId: viewerId,
                       },
@@ -100,7 +108,7 @@ async function findUserTraitsForViewer(userId: string) {
         some: {
           accountId: viewerUserId,
           AND: {
-            connections: {
+            sides: {
               some: {
                 accountId: userId,
               },
@@ -114,7 +122,11 @@ async function findUserTraitsForViewer(userId: string) {
 
 async function findUserConnections() {
   const accountId = await requireAuth();
-  return prisma.connection.findMany({ where: { accountId } });
+  return prisma.connection.findMany({
+    where: {
+      OR: [{ initiatorId: accountId }, { recipientId: accountId }],
+    },
+  });
 }
 
 function findUserConnectionGroups(userId: string) {

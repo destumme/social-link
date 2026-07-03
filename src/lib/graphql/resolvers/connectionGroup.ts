@@ -15,8 +15,8 @@ export const ConnectionGroup = {
   account: (parent: { accountId: string }) => {
     return connectionGroupService.search.findAccountForGroup(parent.accountId);
   },
-  connections: (parent: { id: string }) => {
-    return connectionGroupService.search.findConnectionsForGroup(parent.id);
+  sides: (parent: { id: string }) => {
+    return connectionGroupService.search.findSidesForGroup(parent.id);
   },
   traits: (parent: { id: string }) => {
     return connectionGroupService.search.findTraitsForGroup(parent.id);

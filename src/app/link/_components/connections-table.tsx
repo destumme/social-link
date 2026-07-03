@@ -6,18 +6,38 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ConnectionRow } from "./connection-row";
 
+const ME_QUERY = `
+  query Me {
+    me {
+      id
+    }
+  }
+`;
+
 const MY_CONNECTIONS_QUERY = `
   query MyConnections {
     myConnections {
       id
       status
-      groups {
+      initiator {
         id
-        name
-      }
-      connectedAccount {
         displayName
         username
+      }
+      recipient {
+        id
+        displayName
+        username
+      }
+      sides {
+        id
+        account {
+          id
+        }
+        groups {
+          id
+          name
+        }
       }
     }
   }
@@ -57,14 +77,36 @@ interface Group {
   name: string;
 }
 
+interface Side {
+  id: string;
+  account: { id: string };
+  groups: Group[];
+}
+
 interface Connection {
   id: string;
   status: string;
-  groups: Group[];
-  connectedAccount: {
+  initiator: {
+    id: string;
     displayName: string;
     username: string;
   };
+  recipient: {
+    id: string;
+    displayName: string;
+    username: string;
+  };
+  sides: Side[];
+}
+
+function getOtherUser(connection: Connection, myId: string) {
+  return connection.initiator.id === myId
+    ? connection.recipient
+    : connection.initiator;
+}
+
+function getMySide(connection: Connection, myId: string) {
+  return connection.sides.find((s) => s.account.id === myId);
 }
 
 function LoadingCard() {
@@ -89,6 +131,7 @@ export function ConnectionsTable() {
 }
 
 function ConnectionsTableContent() {
+  const [{ data: meData }] = useQuery({ query: ME_QUERY });
   const [{ data, fetching, error }, reexecute] = useQuery({
     query: MY_CONNECTIONS_QUERY,
   });
@@ -103,6 +146,7 @@ function ConnectionsTableContent() {
     REMOVE_CONNECTION_FROM_GROUP_MUTATION,
   );
 
+  const myId = meData?.me?.id;
   const connections = data?.myConnections ?? [];
   const groups = groupsData?.myConnectionGroups ?? [];
 
@@ -155,18 +199,25 @@ function ConnectionsTableContent() {
               No connections yet.
             </div>
           ) : (
-            connections.map((connection: Connection, index: number) => (
-              <div key={connection.id}>
-                {index > 0 && <Separator />}
-                <ConnectionRow
-                  connection={connection}
-                  groups={groups}
-                  onRemove={handleRemove}
-                  onAddToGroup={handleAddToGroup}
-                  onRemoveFromGroup={handleRemoveFromGroup}
-                />
-              </div>
-            ))
+            connections.map((connection: Connection, index: number) => {
+              if (!myId) return null;
+              const otherUser = getOtherUser(connection, myId);
+              const mySide = getMySide(connection, myId);
+              return (
+                <div key={connection.id}>
+                  {index > 0 && <Separator />}
+                  <ConnectionRow
+                    connection={connection}
+                    otherUser={otherUser}
+                    mySide={mySide}
+                    groups={groups}
+                    onRemove={handleRemove}
+                    onAddToGroup={handleAddToGroup}
+                    onRemoveFromGroup={handleRemoveFromGroup}
+                  />
+                </div>
+              );
+            })
           )}
         </CardContent>
       </Card>

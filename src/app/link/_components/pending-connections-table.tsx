@@ -12,7 +12,7 @@ const PENDING_CONNECTIONS_QUERY = `
       id
       status
       createdAt
-      connectedAccount {
+      initiator {
         displayName
         username
       }
@@ -39,7 +39,7 @@ interface PendingConnection {
   id: string;
   status: string;
   createdAt: string;
-  connectedAccount: {
+  initiator: {
     displayName: string;
     username: string;
   };

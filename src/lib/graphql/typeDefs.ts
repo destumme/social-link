@@ -40,18 +40,24 @@ export const typeDefs = /* GraphQL */ `
 
   type Connection {
     id: ID!
-    account: User!
-    connectedAccount: User!
+    initiator: User!
+    recipient: User!
     status: ConnectionStatus!
-    groups: [ConnectionGroup!]!
+    sides: [ConnectionSide!]!
     createdAt: DateTime!
+  }
+
+  type ConnectionSide {
+    id: ID!
+    account: User!
+    groups: [ConnectionGroup!]!
   }
 
   type ConnectionGroup {
     id: ID!
     account: User!
     name: String!
-    connections: [Connection!]!
+    sides: [ConnectionSide!]!
     traits: [Trait!]!
   }
 
@@ -131,8 +137,9 @@ export const typeDefs = /* GraphQL */ `
     acceptConnection(connectionId: ID!): Connection!
     declineConnection(connectionId: ID!): Boolean!
     removeConnection(id: ID!): Boolean!
-    addConnectionToGroup(connectionId: ID!, groupId: ID!): Connection!
-    removeConnectionFromGroup(connectionId: ID!, groupId: ID!): Connection!
+    addConnectionToGroup(connectionId: ID!, groupId: ID!): ConnectionSide!
+    removeConnectionFromGroup(connectionId: ID!, groupId: ID!): ConnectionSide!
+    updateConnectionGroups(connectionId: ID!, groupIds: [ID!]!): ConnectionSide!
     updateConnectionTraits(connectionId: ID!, traitIds: [ID!]!): Connection!
   }
 `;

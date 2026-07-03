@@ -20,10 +20,16 @@ vi.mock("@/lib/database/prisma", () => ({
       findMany: vi.fn(),
       findFirst: vi.fn(),
       findUnique: vi.fn(),
-      createManyAndReturn: vi.fn(),
+      create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
       deleteMany: vi.fn(),
+    },
+    connectionSide: {
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
     },
     connectionGroup: {
       findMany: vi.fn(),
@@ -41,22 +47,36 @@ import service from "@/lib/services/connectionService";
 function mockConnection(
   overrides: Partial<{
     id: string;
-    accountId: string;
-    connectedAccountId: string;
+    initiatorId: string;
+    recipientId: string;
     status: ConnectionStatus;
-    groups: string[];
     createdAt: Date;
     updatedAt: Date;
   }> = {},
 ) {
   return {
     id: overrides.id ?? "conn-1",
-    accountId: overrides.accountId ?? "acc-1",
-    connectedAccountId: overrides.connectedAccountId ?? "acc-2",
+    initiatorId: overrides.initiatorId ?? "acc-1",
+    recipientId: overrides.recipientId ?? "acc-2",
     status: overrides.status ?? ("PENDING" as ConnectionStatus),
-    groups: overrides.groups ?? [],
     createdAt: overrides.createdAt ?? new Date(),
     updatedAt: overrides.updatedAt ?? new Date(),
+  };
+}
+
+function mockSide(
+  overrides: Partial<{
+    id: string;
+    connectionId: string;
+    accountId: string;
+    groups: string[];
+  }> = {},
+) {
+  return {
+    id: overrides.id ?? "side-1",
+    connectionId: overrides.connectionId ?? "conn-1",
+    accountId: overrides.accountId ?? "acc-1",
+    groups: overrides.groups ?? [],
   };
 }
 
@@ -84,9 +104,13 @@ describe("connectionService.connection", () => {
   });
 
   describe("addConnectionToGroup", () => {
-    it("calls prisma.connection.update with connect", async () => {
-      const mockConn = mockConnection();
+    it("calls prisma.connectionSide.update with connect", async () => {
+      const mockConn = mockConnection({ status: "ACCEPTED" });
       vi.mocked(prisma.connection.findUnique).mockResolvedValue(mockConn);
+      const mockSideData = mockSide();
+      vi.mocked(prisma.connectionSide.findUnique).mockResolvedValue(
+        mockSideData,
+      );
       const mockGroup = {
         id: "group-1",
         name: "Social",
@@ -95,26 +119,28 @@ describe("connectionService.connection", () => {
         updatedAt: new Date(),
       };
       vi.mocked(prisma.connectionGroup.findUnique).mockResolvedValue(mockGroup);
-      const updated = mockConnection({ groups: ["group-1"] });
-      vi.mocked(prisma.connection.update).mockResolvedValue(updated);
+      const updated = mockSide({ groups: ["group-1"] });
+      vi.mocked(prisma.connectionSide.update).mockResolvedValue(updated);
 
       const result = await service.connection.addConnectionToGroup(
         "conn-1",
         "group-1",
       );
 
-      expect(prisma.connection.update).toHaveBeenCalledWith({
-        where: { id: "conn-1" },
-        data: { connectionGroups: { connect: { id: "group-1" } } },
+      expect(prisma.connectionSide.update).toHaveBeenCalledWith({
+        where: { id: "side-1" },
+        data: { groups: { connect: { id: "group-1" } } },
       });
       expect(result).toEqual(updated);
     });
   });
 
   describe("removeConnectionFromGroup", () => {
-    it("calls prisma.connection.update with disconnect", async () => {
-      const mockConn = mockConnection();
-      vi.mocked(prisma.connection.findUnique).mockResolvedValue(mockConn);
+    it("calls prisma.connectionSide.update with disconnect", async () => {
+      const mockSideData = mockSide();
+      vi.mocked(prisma.connectionSide.findUnique).mockResolvedValue(
+        mockSideData,
+      );
       const mockGroup = {
         id: "group-1",
         name: "Social",
@@ -123,26 +149,28 @@ describe("connectionService.connection", () => {
         updatedAt: new Date(),
       };
       vi.mocked(prisma.connectionGroup.findUnique).mockResolvedValue(mockGroup);
-      const updated = mockConnection({ groups: [] });
-      vi.mocked(prisma.connection.update).mockResolvedValue(updated);
+      const updated = mockSide({ groups: [] });
+      vi.mocked(prisma.connectionSide.update).mockResolvedValue(updated);
 
       const result = await service.connection.removeConnectionFromGroup(
         "conn-1",
         "group-1",
       );
 
-      expect(prisma.connection.update).toHaveBeenCalledWith({
-        where: { id: "conn-1" },
-        data: { connectionGroups: { disconnect: { id: "group-1" } } },
+      expect(prisma.connectionSide.update).toHaveBeenCalledWith({
+        where: { id: "side-1" },
+        data: { groups: { disconnect: { id: "group-1" } } },
       });
       expect(result).toEqual(updated);
     });
   });
 
   describe("updateConnectionTraitGroups", () => {
-    it("finds groups by trait ids then updates connection", async () => {
-      const mockConn = mockConnection();
-      vi.mocked(prisma.connection.findUnique).mockResolvedValue(mockConn);
+    it("finds groups by trait ids then updates side", async () => {
+      const mockSideData = mockSide();
+      vi.mocked(prisma.connectionSide.findUnique).mockResolvedValue(
+        mockSideData,
+      );
       const mockGroups = [
         {
           id: "group-1",
@@ -153,8 +181,8 @@ describe("connectionService.connection", () => {
         },
       ];
       vi.mocked(prisma.connectionGroup.findMany).mockResolvedValue(mockGroups);
-      const updated = mockConnection();
-      vi.mocked(prisma.connection.update).mockResolvedValue(updated);
+      const updated = mockSide();
+      vi.mocked(prisma.connectionSide.update).mockResolvedValue(updated);
 
       const result = await service.connection.updateConnectionTraitGroups(
         "conn-1",
@@ -164,10 +192,10 @@ describe("connectionService.connection", () => {
       expect(prisma.connectionGroup.findMany).toHaveBeenCalledWith({
         where: { traits: { some: { id: { in: ["trait-1", "trait-2"] } } } },
       });
-      expect(prisma.connection.update).toHaveBeenCalledWith({
-        where: { id: "conn-1" },
+      expect(prisma.connectionSide.update).toHaveBeenCalledWith({
+        where: { id: "side-1" },
         data: {
-          connectionGroups: { set: [{ id: "group-1" }] },
+          groups: { set: [{ id: "group-1" }] },
         },
       });
       expect(result).toEqual(updated);
@@ -176,187 +204,112 @@ describe("connectionService.connection", () => {
 });
 
 describe("connectionService.connectionPair", () => {
-  describe("findConnectionPair", () => {
-    it("returns connection and otherSide when both exist", async () => {
-      const conn = mockConnection({
-        id: "conn-1",
-        accountId: "acc-1",
-        connectedAccountId: "acc-2",
-      });
-      const other = mockConnection({
-        id: "conn-2",
-        accountId: "acc-2",
-        connectedAccountId: "acc-1",
-      });
-      vi.mocked(prisma.connection.findUnique).mockResolvedValue(conn);
-      vi.mocked(prisma.connection.findFirst).mockResolvedValue(other);
-
-      const result = await service.connectionPair.findConnectionPair("conn-1");
-
-      expect(result).toEqual({ connection: conn, otherSide: other });
-    });
-
-    it("returns null when connection not found", async () => {
-      vi.mocked(prisma.connection.findUnique).mockResolvedValue(null);
-
-      const result =
-        await service.connectionPair.findConnectionPair("nonexistent");
-
-      expect(result).toBeNull();
-    });
-  });
-
   describe("createConnectionPair", () => {
-    it("creates two connections and returns the from side", async () => {
-      const fromConn = mockConnection({
+    it("creates a connection and initiator side", async () => {
+      const createdConn = mockConnection({
         id: "conn-1",
-        accountId: "acc-1",
-        connectedAccountId: "acc-2",
+        initiatorId: "acc-1",
+        recipientId: "acc-2",
         status: "PENDING",
       });
-      const toConn = mockConnection({
-        id: "conn-2",
-        accountId: "acc-2",
-        connectedAccountId: "acc-1",
-        status: "PENDING",
-      });
-      vi.mocked(prisma.connection.createManyAndReturn).mockResolvedValue([
-        fromConn,
-        toConn,
-      ]);
+      vi.mocked(prisma.connection.create).mockResolvedValue(createdConn);
+      vi.mocked(prisma.connectionSide.create).mockResolvedValue(mockSide());
 
       const result = await service.connectionPair.createConnectionPair("acc-2");
 
-      expect(prisma.connection.createManyAndReturn).toHaveBeenCalledWith({
-        data: [
-          {
-            accountId: "acc-1",
-            connectedAccountId: "acc-2",
-            status: "PENDING",
-          },
-          {
-            accountId: "acc-2",
-            connectedAccountId: "acc-1",
-            status: "PENDING",
-          },
-        ],
+      expect(prisma.connection.create).toHaveBeenCalledWith({
+        data: {
+          initiatorId: "acc-1",
+          recipientId: "acc-2",
+          status: "PENDING",
+        },
       });
-      expect(result).toEqual(fromConn);
+      expect(result).toEqual(createdConn);
     });
 
     it("connects groups when groupIds provided", async () => {
-      const fromConn = mockConnection({
+      const createdConn = mockConnection({
         id: "conn-1",
-        accountId: "acc-1",
-        connectedAccountId: "acc-2",
+        initiatorId: "acc-1",
+        recipientId: "acc-2",
         status: "PENDING",
       });
-      const toConn = mockConnection({
-        id: "conn-2",
-        accountId: "acc-2",
-        connectedAccountId: "acc-1",
-        status: "PENDING",
-      });
-      vi.mocked(prisma.connection.createManyAndReturn).mockResolvedValue([
-        fromConn,
-        toConn,
-      ]);
+      vi.mocked(prisma.connection.create).mockResolvedValue(createdConn);
+      vi.mocked(prisma.connectionSide.create).mockResolvedValue(mockSide());
 
       await service.connectionPair.createConnectionPair("acc-2", [
         "group-1",
         "group-2",
       ]);
 
-      expect(prisma.connection.createManyAndReturn).toHaveBeenCalledWith({
-        data: [
-          {
-            accountId: "acc-1",
-            connectedAccountId: "acc-2",
-            status: "PENDING",
-            connectionGroups: {
+      expect(prisma.connectionSide.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            groups: {
               connect: [{ id: "group-1" }, { id: "group-2" }],
             },
-          },
-          {
-            accountId: "acc-2",
-            connectedAccountId: "acc-1",
-            status: "PENDING",
-          },
-        ],
-      });
+          }),
+        }),
+      );
     });
   });
 
   describe("acceptConnectionPair", () => {
-    it("updates both connections to ACCEPTED", async () => {
+    it("updates connection to ACCEPTED and creates recipient side", async () => {
       const mockConn = mockConnection({
         id: "conn-1",
-        accountId: "acc-2",
-        connectedAccountId: "acc-1",
+        recipientId: "acc-1",
         status: "PENDING",
       });
       vi.mocked(prisma.connection.findUnique).mockResolvedValue(mockConn);
       const accepted = mockConnection({ status: "ACCEPTED" });
       vi.mocked(prisma.connection.update).mockResolvedValue(accepted);
+      vi.mocked(prisma.connectionSide.create).mockResolvedValue(mockSide());
 
-      const result = await service.connectionPair.acceptConnectionPair(
-        "conn-1",
-        "conn-2",
-      );
+      const result =
+        await service.connectionPair.acceptConnectionPair("conn-1");
 
-      expect(prisma.$transaction).toHaveBeenCalledWith([
-        expect.objectContaining({}),
-        expect.objectContaining({}),
-      ]);
+      expect(prisma.$transaction).toHaveBeenCalled();
       expect(result).toEqual(accepted);
     });
   });
 
   describe("declineConnectionPair", () => {
-    it("updates both connections to DECLINED", async () => {
+    it("updates connection to DECLINED", async () => {
       const mockConn = mockConnection({
         id: "conn-1",
-        accountId: "acc-2",
-        connectedAccountId: "acc-1",
+        recipientId: "acc-1",
         status: "PENDING",
       });
       vi.mocked(prisma.connection.findUnique).mockResolvedValue(mockConn);
       const declined = mockConnection({ status: "DECLINED" });
       vi.mocked(prisma.connection.update).mockResolvedValue(declined);
 
-      const result = await service.connectionPair.declineConnectionPair(
-        "conn-1",
-        "conn-2",
-      );
+      const result =
+        await service.connectionPair.declineConnectionPair("conn-1");
 
-      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(prisma.connection.update).toHaveBeenCalledWith({
+        where: { id: "conn-1" },
+        data: { status: "DECLINED" },
+      });
       expect(result).toEqual(declined);
     });
   });
 
   describe("deleteConnectionPair", () => {
-    it("deletes both connections via transaction", async () => {
+    it("deletes the connection", async () => {
       const mockConn = mockConnection({
         id: "conn-1",
-        accountId: "acc-1",
-        connectedAccountId: "acc-2",
+        initiatorId: "acc-1",
+        recipientId: "acc-2",
       });
       vi.mocked(prisma.connection.findUnique).mockResolvedValue(mockConn);
       vi.mocked(prisma.connection.delete).mockResolvedValue(mockConnection());
-      vi.mocked(prisma.connection.deleteMany).mockResolvedValue({ count: 1 });
 
-      await service.connectionPair.deleteConnectionPair(
-        "conn-1",
-        "acc-2",
-        "acc-1",
-      );
+      await service.connectionPair.deleteConnectionPair("conn-1");
 
-      expect(prisma.$transaction).toHaveBeenCalled();
       expect(prisma.connection.delete).toHaveBeenCalledWith({
         where: { id: "conn-1" },
-      });
-      expect(prisma.connection.deleteMany).toHaveBeenCalledWith({
-        where: { accountId: "acc-2", connectedAccountId: "acc-1" },
       });
     });
   });
@@ -364,50 +317,42 @@ describe("connectionService.connectionPair", () => {
 
 describe("connectionService.search", () => {
   describe("findConnectionsByAccountId", () => {
-    it("finds connections without status filter when status is null", async () => {
-      const mockConns = [mockConnection()];
+    it("finds connections with status filter", async () => {
+      const mockConns = [mockConnection({ status: "ACCEPTED" })];
       vi.mocked(prisma.connection.findMany).mockResolvedValue(mockConns);
 
-      const result = await service.search.findConnectionsByAccountId(null);
+      const result =
+        await service.search.findConnectionsByAccountId("ACCEPTED");
 
       expect(prisma.connection.findMany).toHaveBeenCalledWith({
-        where: { accountId: "acc-1" },
-      });
-      expect(result).toEqual(mockConns);
-    });
-
-    it("finds connections with status filter when status provided", async () => {
-      const mockConns = [mockConnection({ status: "PENDING" })];
-      vi.mocked(prisma.connection.findMany).mockResolvedValue(mockConns);
-
-      const result = await service.search.findConnectionsByAccountId("PENDING");
-
-      expect(prisma.connection.findMany).toHaveBeenCalledWith({
-        where: { accountId: "acc-1", status: "PENDING" },
+        where: {
+          status: "ACCEPTED",
+          OR: [{ initiatorId: "acc-1" }, { recipientId: "acc-1" }],
+        },
       });
       expect(result).toEqual(mockConns);
     });
   });
 
   describe("findPendingConnectionsForAccount", () => {
-    it("finds pending connections by connectedAccountId", async () => {
+    it("finds pending connections where user is recipient", async () => {
       const mockConns = [mockConnection({ status: "PENDING" })];
       vi.mocked(prisma.connection.findMany).mockResolvedValue(mockConns);
 
       const result = await service.search.findPendingConnectionsForAccount();
 
       expect(prisma.connection.findMany).toHaveBeenCalledWith({
-        where: { connectedAccountId: "acc-1", status: "PENDING" },
+        where: { recipientId: "acc-1", status: "PENDING" },
       });
       expect(result).toEqual(mockConns);
     });
   });
 
   describe("findConnectionBetweenAccounts", () => {
-    it("finds first connection between two accounts", async () => {
+    it("finds connection between two accounts", async () => {
       const mockConn = mockConnection({
-        accountId: "acc-1",
-        connectedAccountId: "acc-2",
+        initiatorId: "acc-1",
+        recipientId: "acc-2",
       });
       vi.mocked(prisma.connection.findFirst).mockResolvedValue(mockConn);
 
@@ -415,7 +360,12 @@ describe("connectionService.search", () => {
         await service.search.findConnectionBetweenAccounts("acc-2");
 
       expect(prisma.connection.findFirst).toHaveBeenCalledWith({
-        where: { accountId: "acc-1", connectedAccountId: "acc-2" },
+        where: {
+          OR: [
+            { initiatorId: "acc-1", recipientId: "acc-2" },
+            { initiatorId: "acc-2", recipientId: "acc-1" },
+          ],
+        },
       });
       expect(result).toEqual(mockConn);
     });
@@ -431,8 +381,8 @@ describe("connectionService.search", () => {
       expect(prisma.connection.findFirst).toHaveBeenCalledWith({
         where: {
           OR: [
-            { accountId: "acc-1", connectedAccountId: "acc-2" },
-            { accountId: "acc-2", connectedAccountId: "acc-1" },
+            { initiatorId: "acc-1", recipientId: "acc-2" },
+            { initiatorId: "acc-2", recipientId: "acc-1" },
           ],
         },
       });
@@ -440,8 +390,8 @@ describe("connectionService.search", () => {
     });
   });
 
-  describe("findGroupsForConnection", () => {
-    it("finds groups containing the connection", async () => {
+  describe("findGroupsForSide", () => {
+    it("finds groups containing the side", async () => {
       const mockGroups = [
         {
           id: "group-1",
@@ -453,17 +403,31 @@ describe("connectionService.search", () => {
       ];
       vi.mocked(prisma.connectionGroup.findMany).mockResolvedValue(mockGroups);
 
-      const result = await service.search.findGroupsForConnection("conn-1");
+      const result = await service.search.findGroupsForSide("side-1");
 
       expect(prisma.connectionGroup.findMany).toHaveBeenCalledWith({
-        where: { connections: { some: { id: "conn-1" } } },
+        where: { sides: { some: { id: "side-1" } } },
       });
       expect(result).toEqual(mockGroups);
     });
   });
 
-  describe("findAccountForConnection", () => {
-    it("finds account by id", async () => {
+  describe("findSidesForConnection", () => {
+    it("finds sides for a connection", async () => {
+      const mockSides = [mockSide()];
+      vi.mocked(prisma.connectionSide.findMany).mockResolvedValue(mockSides);
+
+      const result = await service.search.findSidesForConnection("conn-1");
+
+      expect(prisma.connectionSide.findMany).toHaveBeenCalledWith({
+        where: { connectionId: "conn-1" },
+      });
+      expect(result).toEqual(mockSides);
+    });
+  });
+
+  describe("findUserById", () => {
+    it("finds user by id", async () => {
       const mockUser = {
         id: "acc-1",
         name: "Test Name",
@@ -474,42 +438,17 @@ describe("connectionService.search", () => {
         username: "test",
         displayUsername: null,
         publicListed: true,
+        role: "user",
+        banned: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
 
-      const result = await service.search.findAccountForConnection("acc-1");
+      const result = await service.search.findUserById("acc-1");
 
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: "acc-1" },
-      });
-      expect(result).toEqual(mockUser);
-    });
-  });
-
-  describe("findConnectedAccountForConnection", () => {
-    it("finds connected account by id", async () => {
-      const mockUser = {
-        id: "acc-2",
-        name: "Other Name",
-        email: "other@example.com",
-        emailVerified: true,
-        image: null,
-        displayName: "Other",
-        username: "other",
-        displayUsername: null,
-        publicListed: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
-
-      const result =
-        await service.search.findConnectedAccountForConnection("acc-2");
-
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { id: "acc-2" },
       });
       expect(result).toEqual(mockUser);
     });
