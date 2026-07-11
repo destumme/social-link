@@ -2,8 +2,9 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
   schema: "src/lib/graphql/schema.graphql",
+  documents: ["src/**/*.tsx", "src/**/*.ts"],
   generates: {
-    "src/generated/graphql-types.ts": {
+    "src/generated/graphql/server.ts": {
       plugins: ["typescript", "typescript-resolvers"],
       config: {
         mappers: {
@@ -17,6 +18,17 @@ const config: CodegenConfig = {
         },
         scalars: {
           DateTime: { input: "Date | string", output: "Date | string" },
+        },
+      },
+    },
+    "src/generated/graphql/client/": {
+      preset: "client",
+      presetConfig: {
+        fragmentMasking: false,
+      },
+      config: {
+        scalars: {
+          DateTime: "Date | string",
         },
       },
     },

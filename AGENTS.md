@@ -9,6 +9,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Prefer simple over complex.
 - Keep changes small and incremental.
 - Only make changes that are confirmed.
+- Always run `yarn lint:fix` after making code changes to ensure consistent formatting.
 - Use the `todowrite` tool to create todo checklists for any plan with 3+ steps before starting implementation.
 
 # Git Workflow
@@ -34,9 +35,11 @@ Social links app — Next.js 16.2.6 + GraphQL Yoga + Prisma 7 + Better Auth + Po
 | Dev server | `yarn dev` |
 | Production build | `yarn build` |
 | Lint | `yarn lint` (eslint, no separate typecheck script — build runs TS) |
+| Lint fix | `yarn lint:fix` |
 | Prisma generate | `yarn run prisma generate` |
 | DB push (dev) | `yarn run prisma db push` |
 | Seed DB | `yarn run prisma db seed` |
+| GraphQL codegen | `yarn gen:gql` |
 
 Package manager is **yarn 4.14.1** (`packageManager` field). Use `yarn`, not `npm install`.
 Use `yarn run prisma` for Prisma CLI commands (not `npx`). If a `yarn run` command fails, do not retry — report the error instead.

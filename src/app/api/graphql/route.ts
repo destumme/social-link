@@ -1,10 +1,5 @@
 import { readFileSync } from "node:fs";
-import {
-  createYoga,
-  useLogger,
-  createSchema,
-  type YogaServerInstance,
-} from "graphql-yoga";
+import { createYoga, useLogger, createSchema } from "graphql-yoga";
 import { createContext, GraphQLContext } from "@/lib/graphql/resolvers/context";
 import { useServiceErrors } from "@/lib/graphql/plugins/use-service-errors";
 import { resolvers } from "@/lib/graphql/resolvers";
@@ -13,12 +8,10 @@ import { logger } from "@/lib/logger";
 
 const typeDefs = readFileSync("./src/lib/graphql/schema.graphql", "utf8");
 
-const schema = createSchema({ typeDefs, resolvers });
+const schema = createSchema<GraphQLContext>({ typeDefs, resolvers });
 
-const yoga: YogaServerInstance<
-  Record<string, unknown>,
-  GraphQLContext
-> = createYoga<Record<string, unknown>, GraphQLContext>({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const yoga = createYoga<any, GraphQLContext>({
   schema,
   graphqlEndpoint: "/api/graphql",
   fetchAPI: { Response },
