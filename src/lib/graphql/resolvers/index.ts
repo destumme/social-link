@@ -1,33 +1,21 @@
-import { GraphQLDateTime as DateTime } from "graphql-scalars";
+import type { Resolvers } from "@/generated/graphql/server";
+import { DateTime } from "./scalars";
+import { User, Query as UserQuery, Mutation as UserMutation } from "./user";
+import { Trait, Query as TraitQuery, Mutation as TraitMutation } from "./trait";
 import {
-  User as UserType,
-  Query as UserQuery,
-  Mutation as UserMutation,
-} from "./user";
-import {
-  Trait as TraitType,
-  Query as TraitQuery,
-  Mutation as TraitMutation,
-} from "./trait";
-import {
-  Connection as ConnectionType,
-  ConnectionSide as ConnectionSideType,
+  Connection,
+  ConnectionSide,
   Query as ConnectionQuery,
   Mutation as ConnectionMutation,
 } from "./connection";
 import {
-  ConnectionGroup as ConnectionGroupType,
+  ConnectionGroup,
   Query as ConnectionGroupQuery,
   Mutation as ConnectionGroupMutation,
 } from "./connectionGroup";
 
-export const resolvers = {
+export const resolvers: Resolvers = {
   DateTime,
-  User: UserType,
-  Trait: TraitType,
-  Connection: ConnectionType,
-  ConnectionSide: ConnectionSideType,
-  ConnectionGroup: ConnectionGroupType,
   Query: {
     ...UserQuery,
     ...TraitQuery,
@@ -40,4 +28,9 @@ export const resolvers = {
     ...ConnectionMutation,
     ...ConnectionGroupMutation,
   },
+  User,
+  Trait,
+  Connection,
+  ConnectionSide,
+  ConnectionGroup,
 };

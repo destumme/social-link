@@ -14,8 +14,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # Git Workflow
 
 - Begin all feature and bug-fix work in a **git worktree** (not the main working directory).
+- **Never create a worktree from `main`.** Always branch from the currently checked-out branch (run `git branch --show-current` to confirm). This ensures worktrees inherit in-progress changes from feature branches.
 - Create the worktree on a new branch named descriptively (e.g., `feature/add-oauth`, `fix/login-redirect`), put it in the ./worktree folder
 - When the work is complete and ready to merge:
+  0. Create a new branch to squash into, this will be sent to a PR to main. **DO NOT Merge worktrees into main**
   1. **Always confirm with the user before squashing.**
   2. Show the user a `git diff` of all changes that will be included in the squash.
   3. Only squash and merge after the user explicitly approves.

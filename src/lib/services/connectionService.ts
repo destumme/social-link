@@ -5,6 +5,8 @@ import {
   AuthorizationError,
   NotFoundError,
 } from "./errors";
+import { ConnectionWhereInput } from "@/generated/prisma/models";
+import { ConnectionStatus } from "@/generated/prisma/enums";
 
 async function requireAuth() {
   const accountId = await getAuthedAccountId();
@@ -12,12 +14,11 @@ async function requireAuth() {
   return accountId;
 }
 
-async function findConnectionsByAccountId(status?: string | null) {
+async function findConnectionsByAccountId(status: ConnectionStatus) {
   const accountId = await requireAuth();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = {
-    status,
+  const where: ConnectionWhereInput = {
     OR: [{ initiatorId: accountId }, { recipientId: accountId }],
+    AND: { status },
   };
   return prisma.connection.findMany({ where });
 }
@@ -90,6 +91,7 @@ async function acceptConnectionPair(connectionId: string) {
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
+
   if (!connection) throw new NotFoundError("Connection not found");
   if (connection.recipientId !== accountId)
     throw new AuthorizationError("Not authorized");
@@ -117,6 +119,7 @@ async function declineConnectionPair(connectionId: string) {
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
+
   if (!connection) throw new NotFoundError("Connection not found");
   if (connection.recipientId !== accountId)
     throw new AuthorizationError("Not authorized");
@@ -133,6 +136,7 @@ async function deleteConnectionPair(id: string) {
   const connection = await prisma.connection.findUnique({
     where: { id },
   });
+
   if (!connection) throw new NotFoundError("Connection not found");
   if (
     connection.initiatorId !== accountId &&
@@ -149,6 +153,7 @@ async function addConnectionToGroup(connectionId: string, groupId: string) {
   const connection = await prisma.connection.findUnique({
     where: { id: connectionId },
   });
+
   if (!connection) throw new NotFoundError("Connection not found");
   if (connection.status !== "ACCEPTED") {
     throw new AuthorizationError("Connection not accepted");
@@ -167,6 +172,7 @@ async function addConnectionToGroup(connectionId: string, groupId: string) {
   const group = await prisma.connectionGroup.findUnique({
     where: { id: groupId },
   });
+
   if (!group) throw new NotFoundError("Connection group not found");
   if (group.accountId !== accountId)
     throw new AuthorizationError("Not authorized");

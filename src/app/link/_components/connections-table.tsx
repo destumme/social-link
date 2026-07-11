@@ -5,16 +5,17 @@ import { useQuery, useMutation } from "@urql/next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ConnectionRow } from "./connection-row";
+import { graphql } from "@/generated/gql";
 
-const ME_QUERY = `
+const ME_QUERY = graphql(`
   query Me {
     me {
       id
     }
   }
-`;
+`);
 
-const MY_CONNECTIONS_QUERY = `
+const MY_CONNECTIONS_QUERY = graphql(`
   query MyConnections {
     myConnections {
       id
@@ -41,7 +42,7 @@ const MY_CONNECTIONS_QUERY = `
       }
     }
   }
-`;
+`);
 
 const MY_CONNECTION_GROUPS_QUERY = `
   query MyConnectionGroups {

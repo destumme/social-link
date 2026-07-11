@@ -1,49 +1,53 @@
-import { TraitCategory } from "@/generated/prisma/enums";
+import type {
+  TraitResolvers,
+  QueryResolvers,
+  MutationResolvers,
+} from "@/generated/graphql/server";
+import type { UserModel } from "@/generated/prisma/models/User";
 import traitService from "@/lib/services/traitService";
 
-interface CreateTraitInput {
-  key: string;
-  value: string;
-  category: TraitCategory;
-  icon?: string;
-}
-
-interface UpdateTraitInput {
-  key?: string;
-  value?: string;
-  category?: TraitCategory;
-  icon?: string;
-}
-
-export const Trait = {
-  account: (parent: { accountId: string }) => {
-    return traitService.search.findAccountForTrait(parent.accountId);
+export const Trait: TraitResolvers = {
+  account: (parent) => {
+    if (!parent.accountId) return null as unknown as UserModel;
+    return traitService.search.findAccountForTrait(
+      parent.accountId,
+    ) as Promise<UserModel>;
   },
-  visibleGroups: (parent: { id: string }) => {
+  visibleGroups: (parent) => {
     return traitService.search.findVisibleGroupsForTrait(parent.id);
   },
 };
 
-export const Query = {
+export const Query: Pick<QueryResolvers, "myTraits" | "traitById"> = {
   myTraits: async () => {
     return traitService.search.findTraitsByAccountId();
   },
-  traitById: (_parent: unknown, args: { id: string }) => {
+  traitById: (_parent, args) => {
     return traitService.trait.findTraitById(args.id);
   },
 };
 
-export const Mutation = {
-  createTrait: async (_parent: unknown, args: { input: CreateTraitInput }) => {
-    return traitService.trait.createTrait(args.input);
+export const Mutation: Pick<
+  MutationResolvers,
+  "createTrait" | "updateTrait" | "deleteTrait"
+> = {
+  createTrait: async (_parent, args) => {
+    return traitService.trait.createTrait({
+      ...args.input,
+      icon: args.input.icon ?? undefined,
+    });
   },
-  updateTrait: async (
-    _parent: unknown,
-    args: { id: string; input: UpdateTraitInput },
-  ) => {
-    return traitService.trait.updateTrait(args.id, args.input);
+  updateTrait: async (_parent, args) => {
+    const { key, value, category, icon, isVisible } = args.input;
+    return traitService.trait.updateTrait(args.id, {
+      key: key ?? undefined,
+      value: value ?? undefined,
+      category: category ?? undefined,
+      icon: icon ?? undefined,
+      isVisible: isVisible ?? undefined,
+    });
   },
-  deleteTrait: async (_parent: unknown, args: { id: string }) => {
+  deleteTrait: async (_parent, args) => {
     await traitService.trait.deleteTrait(args.id);
     return true;
   },

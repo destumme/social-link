@@ -7,7 +7,7 @@ services:
       - POSTGRES_PASSWORD=${PG_PW:-links}
       - POSTGRES_DB=${PG_DB:-social_links}
     ports:
-      - 5432:5432
+      - ${PG_HOST_PORT:-5432}:5432
     volumes:
       - ./data/db:/var/lib/postgresql/data
 volumes:

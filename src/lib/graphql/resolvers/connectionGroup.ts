@@ -1,70 +1,66 @@
+import type {
+  ConnectionGroupResolvers,
+  QueryResolvers,
+  MutationResolvers,
+} from "@/generated/graphql/server";
+import type { UserModel } from "@/generated/prisma/models/User";
 import connectionGroupService from "@/lib/services/connectionGroupService";
 
-interface CreateConnectionGroupInput {
-  name: string;
-  traitIds?: string[];
-}
-
-interface UpdateConnectionGroupInput {
-  name?: string;
-  traitIds?: string[];
-  connectionIds?: string[];
-}
-
-export const ConnectionGroup = {
-  account: (parent: { accountId: string }) => {
-    return connectionGroupService.search.findAccountForGroup(parent.accountId);
+export const ConnectionGroup: ConnectionGroupResolvers = {
+  account: (parent) => {
+    if (!parent.accountId) return null as unknown as UserModel;
+    return connectionGroupService.search.findAccountForGroup(
+      parent.accountId,
+    ) as Promise<UserModel>;
   },
-  sides: (parent: { id: string }) => {
+  sides: (parent) => {
     return connectionGroupService.search.findSidesForGroup(parent.id);
   },
-  traits: (parent: { id: string }) => {
+  traits: (parent) => {
     return connectionGroupService.search.findTraitsForGroup(parent.id);
   },
 };
 
-export const Query = {
+export const Query: Pick<QueryResolvers, "myConnectionGroups"> = {
   myConnectionGroups: async () => {
     return connectionGroupService.search.findConnectionGroupsByAccountId();
   },
 };
 
-export const Mutation = {
-  createConnectionGroup: async (
-    _parent: unknown,
-    args: { input: CreateConnectionGroupInput },
-  ) => {
+export const Mutation: Pick<
+  MutationResolvers,
+  | "createConnectionGroup"
+  | "updateConnectionGroup"
+  | "deleteConnectionGroup"
+  | "addTraitToGroup"
+  | "removeTraitFromGroup"
+> = {
+  createConnectionGroup: async (_parent, args) => {
     return connectionGroupService.connectionGroup.createConnectionGroup(
       args.input.name,
-      args.input.traitIds,
+      args.input.traitIds ?? undefined,
     );
   },
-  updateConnectionGroup: async (
-    _parent: unknown,
-    args: { id: string; input: UpdateConnectionGroupInput },
-  ) => {
+  updateConnectionGroup: async (_parent, args) => {
     return connectionGroupService.connectionGroup.updateConnectionGroup(
       args.id,
-      args.input,
+      {
+        name: args.input.name ?? undefined,
+        traitIds: args.input.traitIds ?? undefined,
+      },
     );
   },
-  deleteConnectionGroup: async (_parent: unknown, args: { id: string }) => {
+  deleteConnectionGroup: async (_parent, args) => {
     await connectionGroupService.connectionGroup.deleteConnectionGroup(args.id);
     return true;
   },
-  addTraitToGroup: async (
-    _parent: unknown,
-    args: { groupId: string; traitId: string },
-  ) => {
+  addTraitToGroup: async (_parent, args) => {
     return connectionGroupService.connectionGroup.addTraitToGroup(
       args.groupId,
       args.traitId,
     );
   },
-  removeTraitFromGroup: async (
-    _parent: unknown,
-    args: { groupId: string; traitId: string },
-  ) => {
+  removeTraitFromGroup: async (_parent, args) => {
     return connectionGroupService.connectionGroup.removeTraitFromGroup(
       args.groupId,
       args.traitId,

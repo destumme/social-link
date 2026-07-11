@@ -3,8 +3,7 @@ RUN corepack enable && corepack prepare yarn@4.14.1 --activate
 
 FROM base AS deps
 WORKDIR /app
-COPY package.json yarn.lock .yarnrc.yml .yarn/releases/ ./.yarn/releases/
-COPY .yarnrc.yml .yarnrc.yml
+COPY package.json yarn.lock .yarnrc.yml ./
 RUN yarn install --frozen-lockfile
 
 FROM base AS builder
@@ -21,6 +20,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/yarn.lock ./yarn.lock
+COPY --from=builder /app/.yarnrc.yml ./.yarnrc.yml
 COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000

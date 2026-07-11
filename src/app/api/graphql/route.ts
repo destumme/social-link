@@ -1,21 +1,25 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { readFileSync } from "node:fs";
 import {
-  createSchema,
   createYoga,
   useLogger,
+  createSchema,
   type YogaServerInstance,
 } from "graphql-yoga";
-import { schema } from "@/lib/graphql";
 import { createContext, GraphQLContext } from "@/lib/graphql/resolvers/context";
 import { useServiceErrors } from "@/lib/graphql/plugins/use-service-errors";
+import { resolvers } from "@/lib/graphql/resolvers";
 import { NextRequest } from "next/server";
 import { logger } from "@/lib/logger";
 
-const yoga: YogaServerInstance<any, GraphQLContext> = createYoga<
-  any,
+const typeDefs = readFileSync("./src/lib/graphql/schema.graphql", "utf8");
+
+const schema = createSchema({ typeDefs, resolvers });
+
+const yoga: YogaServerInstance<
+  Record<string, unknown>,
   GraphQLContext
->({
-  schema: createSchema(schema),
+> = createYoga<Record<string, unknown>, GraphQLContext>({
+  schema,
   graphqlEndpoint: "/api/graphql",
   fetchAPI: { Response },
   context: async ({ request }) => createContext(request),
@@ -31,7 +35,6 @@ const yoga: YogaServerInstance<any, GraphQLContext> = createYoga<
   ],
 });
 
-//Nextjs Context for route handler is the url params, yoga request context is a context factory function
 const NextHandler = (request: NextRequest) => yoga.handleRequest(request, {});
 
 export {

@@ -91,7 +91,9 @@ async function updateUser(data: {
 }) {
   const accountId = await requireAuth();
   const user = await prisma.user.findUnique({ where: { id: accountId } });
+
   if (!user) throw new AuthenticationError("User not found");
+
   return prisma.user.update({ where: { id: accountId }, data });
 }
 
@@ -102,6 +104,7 @@ async function findUserTraitsForOwner() {
 
 async function findUserTraitsForViewer(userId: string) {
   const viewerUserId = await requireAuth();
+
   return prisma.trait.findMany({
     where: {
       visibleGroups: {
