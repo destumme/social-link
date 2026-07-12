@@ -56,11 +56,10 @@ export const Query: Pick<
     return user;
   },
   userByUsername: async (_parent, args) => {
-    const users = await userService.search.findUsersByUsername(args.username);
-    return users[0] ?? null;
+    return userService.search.findUserByUsernameExact(args.username);
   },
   searchUsers: (_parent, args) => {
-    return userService.search.findUsersByUsername(args.query);
+    return userService.search.searchUsersByUsername(args.query);
   },
   userByShareId: () => {
     throw new Error("Not implemented");

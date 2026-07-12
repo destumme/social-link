@@ -115,8 +115,8 @@ describe("userService.user", () => {
 });
 
 describe("userService.search", () => {
-  describe("findUsersByUsername", () => {
-    it("uses partial case-insensitive search", async () => {
+  describe("searchUsersByUsername", () => {
+    it("uses partial case-insensitive search with publicListed filter", async () => {
       const mockResults = [
         {
           id: "1",
@@ -134,14 +134,14 @@ describe("userService.search", () => {
       ];
       vi.mocked(prisma.user.findMany).mockResolvedValue(mockResults);
 
-      const result = await service.search.findUsersByUsername("test");
+      const result = await service.search.searchUsersByUsername("test");
 
       expect(prisma.user.findMany).toHaveBeenCalledWith({
         where: {
           publicListed: true,
           username: {
             contains: "test",
-            mode: "default",
+            mode: "insensitive",
           },
         },
       });

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { graphql } from "@/generated/graphql/client";
+import { revalidateAfterProfileUpdate } from "@/app/settings/actions";
 
 const ME_QUERY = graphql(`
   query AccountMe {
@@ -83,6 +84,7 @@ function AccountFormContent() {
       }
       setFeedback({ type: "success", message: "Account updated successfully" });
       reexecute();
+      await revalidateAfterProfileUpdate();
     } catch {
       setFeedback({ type: "error", message: "Failed to update account" });
     } finally {

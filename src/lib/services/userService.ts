@@ -17,7 +17,7 @@ async function findUserWithTraitsByUsername(username: string) {
 
   const user = await prisma.user.findFirst({
     where: {
-      username: { contains: username, mode: "default" },
+      username: { equals: username, mode: "insensitive" },
     },
   });
 
@@ -72,13 +72,21 @@ async function findUserWithTraitsByUsername(username: string) {
   return { ...user, traits };
 }
 
-function findUsersByUsername(username: string) {
+function findUserByUsernameExact(username: string) {
+  return prisma.user.findFirst({
+    where: {
+      username: { equals: username, mode: "insensitive" },
+    },
+  });
+}
+
+function searchUsersByUsername(username: string) {
   return prisma.user.findMany({
     where: {
       publicListed: true,
       username: {
         contains: username,
-        mode: "default",
+        mode: "insensitive",
       },
     },
   });
@@ -138,7 +146,8 @@ function findUserConnectionGroups(userId: string) {
 
 export const user = { findUserById, updateUser };
 export const search = {
-  findUsersByUsername,
+  findUserByUsernameExact,
+  searchUsersByUsername,
   findUserWithTraitsByUsername,
   findUserTraitsForOwner,
   findUserTraitsForViewer,
