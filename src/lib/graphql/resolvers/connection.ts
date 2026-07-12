@@ -1,3 +1,9 @@
+import type {
+  ConnectionResolvers,
+  ConnectionSideResolvers,
+  QueryResolvers,
+  MutationResolvers,
+} from "@/generated/graphql/server";
 import {
   ConflictError,
   BadRequestError,
@@ -5,47 +11,66 @@ import {
 } from "@/lib/services/errors";
 import connectionService from "@/lib/services/connectionService";
 
-interface RequestConnectionInput {
-  groupIds?: string[];
-  sharedTraitIds?: string[];
-}
-
-export const Connection = {
-  account: (parent: { accountId: string }) => {
-    return connectionService.search.findAccountForConnection(parent.accountId);
-  },
-  connectedAccount: (parent: { connectedAccountId: string }) => {
-    return connectionService.search.findConnectedAccountForConnection(
-      parent.connectedAccountId,
+export const Connection: ConnectionResolvers = {
+  initiator: async (parent) => {
+    const user = await connectionService.search.findUserById(
+      parent.initiatorId,
     );
+    if (!user) throw new Error("Initiator not found");
+    return user;
   },
-  groups: (parent: { id: string }) => {
-    return connectionService.search.findGroupsForConnection(parent.id);
+  recipient: async (parent) => {
+    const user = await connectionService.search.findUserById(
+      parent.recipientId,
+    );
+    if (!user) throw new Error("Recipient not found");
+    return user;
+  },
+  sides: (parent) => {
+    return connectionService.search.findSidesForConnection(parent.id);
   },
 };
 
-export const Query = {
+export const ConnectionSide: ConnectionSideResolvers = {
+  account: async (parent) => {
+    const user = await connectionService.search.findUserById(parent.accountId);
+    if (!user) throw new Error("Account not found");
+    return user;
+  },
+  groups: (parent) => {
+    return connectionService.search.findGroupsForSide(parent.id);
+  },
+};
+
+export const Query: Pick<
+  QueryResolvers,
+  "myConnections" | "pendingConnections" | "connectionByAccount"
+> = {
   myConnections: async () => {
     return connectionService.search.findConnectionsByAccountId("ACCEPTED");
   },
   pendingConnections: async () => {
     return connectionService.search.findPendingConnectionsForAccount();
   },
-  connectionByAccount: async (
-    _parent: unknown,
-    args: { accountId: string },
-  ) => {
+  connectionByAccount: async (_parent, args) => {
     return connectionService.search.findConnectionBetweenAccounts(
       args.accountId,
     );
   },
 };
 
-export const Mutation = {
-  requestConnection: async (
-    _parent: unknown,
-    args: { accountId: string; input: RequestConnectionInput },
-  ) => {
+export const Mutation: Pick<
+  MutationResolvers,
+  | "requestConnection"
+  | "acceptConnection"
+  | "declineConnection"
+  | "removeConnection"
+  | "addConnectionToGroup"
+  | "removeConnectionFromGroup"
+  | "updateConnectionGroups"
+  | "updateConnectionTraits"
+> = {
+  requestConnection: async (_parent, args) => {
     const existing = await connectionService.search.checkConnectionExists(
       args.accountId,
     );
@@ -54,68 +79,39 @@ export const Mutation = {
     }
     return connectionService.connectionPair.createConnectionPair(
       args.accountId,
-      args.input.groupIds,
+      args.input.groupIds ?? undefined,
     );
   },
-  acceptConnection: async (
-    _parent: unknown,
-    args: { connectionId: string },
-  ) => {
-    const pair = await connectionService.connectionPair.findConnectionPair(
+  acceptConnection: async (_parent, args) => {
+    const connection = await connectionService.connection.findConnectionById(
       args.connectionId,
     );
-    if (!pair || !pair.connection)
-      throw new NotFoundError("Connection not found");
-    if (
-      !pair.otherSide ||
-      pair.connection.status !== "PENDING" ||
-      pair.otherSide.status !== "PENDING"
-    ) {
-      throw new BadRequestError("Connection must be PENDING on both sides");
+    if (!connection) throw new NotFoundError("Connection not found");
+    if (connection.status !== "PENDING") {
+      throw new BadRequestError("Connection must be PENDING");
     }
-    return connectionService.connectionPair.acceptConnectionPair(
-      pair.connection.id,
-      pair.otherSide!.id,
-    );
+    return connectionService.connectionPair.acceptConnectionPair(connection.id);
   },
-  declineConnection: async (
-    _parent: unknown,
-    args: { connectionId: string },
-  ) => {
-    const pair = await connectionService.connectionPair.findConnectionPair(
+  declineConnection: async (_parent, args) => {
+    const connection = await connectionService.connection.findConnectionById(
       args.connectionId,
     );
-    if (!pair || !pair.connection)
-      throw new NotFoundError("Connection not found");
-    if (
-      !pair.otherSide ||
-      pair.connection.status !== "PENDING" ||
-      pair.otherSide.status !== "PENDING"
-    ) {
-      throw new BadRequestError("Connection must be PENDING on both sides");
+    if (!connection) throw new NotFoundError("Connection not found");
+    if (connection.status !== "PENDING") {
+      throw new BadRequestError("Connection must be PENDING");
     }
-    await connectionService.connectionPair.declineConnectionPair(
-      pair.connection.id,
-      pair.otherSide!.id,
-    );
+    await connectionService.connectionPair.declineConnectionPair(connection.id);
     return true;
   },
-  removeConnection: async (_parent: unknown, args: { id: string }) => {
+  removeConnection: async (_parent, args) => {
     const connection = await connectionService.connection.findConnectionById(
       args.id,
     );
     if (!connection) throw new NotFoundError("Connection not found");
-    await connectionService.connectionPair.deleteConnectionPair(
-      connection.id,
-      connection.connectedAccountId ?? "",
-      connection.accountId ?? "",
-    );
+    await connectionService.connectionPair.deleteConnectionPair(connection.id);
     return true;
   },
-  addConnectionToGroup: async (
-    _parent: unknown,
-    args: { connectionId: string; groupId: string },
-  ) => {
+  addConnectionToGroup: async (_parent, args) => {
     const connection = await connectionService.connection.findConnectionById(
       args.connectionId,
     );
@@ -130,22 +126,27 @@ export const Mutation = {
       args.groupId,
     );
   },
-  removeConnectionFromGroup: async (
-    _parent: unknown,
-    args: { connectionId: string; groupId: string },
-  ) => {
+  removeConnectionFromGroup: async (_parent, args) => {
     return connectionService.connection.removeConnectionFromGroup(
       args.connectionId,
       args.groupId,
     );
   },
-  updateConnectionTraits: async (
-    _parent: unknown,
-    args: { connectionId: string; traitIds: string[] },
-  ) => {
-    return connectionService.connection.updateConnectionTraitGroups(
+  updateConnectionGroups: async (_parent, args) => {
+    return connectionService.connection.updateConnectionGroups(
+      args.connectionId,
+      args.groupIds,
+    );
+  },
+  updateConnectionTraits: async (_parent, args) => {
+    await connectionService.connection.updateConnectionTraitGroups(
       args.connectionId,
       args.traitIds,
     );
+    const connection = await connectionService.connection.findConnectionById(
+      args.connectionId,
+    );
+    if (!connection) throw new NotFoundError("Connection not found");
+    return connection;
   },
 };

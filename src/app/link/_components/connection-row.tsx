@@ -15,16 +15,21 @@ interface Group {
   name: string;
 }
 
+interface Side {
+  id: string;
+  groups: Group[];
+}
+
 interface ConnectionRowProps {
   connection: {
     id: string;
     status: string;
-    groups: Group[];
-    connectedAccount: {
-      displayName: string;
-      username: string;
-    };
   };
+  otherUser: {
+    displayName: string;
+    username: string;
+  };
+  mySide: Side | undefined;
   groups: Group[];
   onRemove: (id: string) => void;
   onAddToGroup: (connectionId: string, groupId: string) => void;
@@ -33,22 +38,24 @@ interface ConnectionRowProps {
 
 export function ConnectionRow({
   connection,
+  otherUser,
+  mySide,
   groups,
   onRemove,
   onAddToGroup,
   onRemoveFromGroup,
 }: ConnectionRowProps) {
-  const connectionGroupIds = new Set(connection.groups.map((g) => g.id));
+  const connectionGroupIds = new Set(mySide?.groups.map((g) => g.id) ?? []);
 
   return (
     <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
       <div>
-        <p className="font-medium">{connection.connectedAccount.displayName}</p>
+        <p className="font-medium">{otherUser.displayName}</p>
         <Link
-          href={`/link/${connection.connectedAccount.username}`}
+          href={`/link/${otherUser.username}`}
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          @{connection.connectedAccount.username}
+          @{otherUser.username}
         </Link>
       </div>
       <div>
@@ -64,7 +71,7 @@ export function ConnectionRow({
         </Badge>
       </div>
       <div className="inline-flex gap-1 flex-wrap items-center">
-        {connection.groups.map((group) => (
+        {mySide?.groups.map((group) => (
           <Badge key={group.id} variant="outline">
             {group.name}
           </Badge>

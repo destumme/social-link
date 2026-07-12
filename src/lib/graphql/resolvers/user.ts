@@ -1,15 +1,14 @@
+import type {
+  UserResolvers,
+  QueryResolvers,
+  MutationResolvers,
+} from "@/generated/graphql/server";
 import { AuthenticationError, NotFoundError } from "@/lib/services/errors";
 import { getAuthedAccountId } from "@/lib/auth-server";
 import userService from "@/lib/services/userService";
 
-interface UpdateUserInput {
-  displayName: string;
-  username: string;
-  publicListed: boolean;
-}
-
-export const User = {
-  traits: async (parent: { id: string }) => {
+export const User: UserResolvers = {
+  traits: async (parent) => {
     const authedUserId = await getAuthedAccountId();
     if (!authedUserId) {
       throw new AuthenticationError("Not authenticated");
@@ -21,7 +20,7 @@ export const User = {
 
     return userService.search.findUserTraitsForViewer(parent.id);
   },
-  connections: async (parent: { id: string }) => {
+  connections: async (parent) => {
     const authedUserId = await getAuthedAccountId();
     if (!authedUserId) {
       throw new AuthenticationError("Not authenticated");
@@ -33,12 +32,15 @@ export const User = {
 
     throw new AuthenticationError("Connections are private");
   },
-  connectionGroups: (parent: { id: string }) => {
+  connectionGroups: (parent) => {
     return userService.search.findUserConnectionGroups(parent.id);
   },
 };
 
-export const Query = {
+export const Query: Pick<
+  QueryResolvers,
+  "me" | "userByUsername" | "searchUsers" | "userByShareId"
+> = {
   me: async () => {
     const authedUserId = await getAuthedAccountId();
     if (!authedUserId) {
@@ -53,22 +55,25 @@ export const Query = {
 
     return user;
   },
-  userByUsername: async (_parent: unknown, args: { username: string }) => {
+  userByUsername: async (_parent, args) => {
     const users = await userService.search.findUsersByUsername(args.username);
     return users[0] ?? null;
   },
-  searchUsers: (_parent: unknown, args: { query: string }) => {
+  searchUsers: (_parent, args) => {
     return userService.search.findUsersByUsername(args.query);
   },
-  userByShareId: (parent: unknown, args: { shareId: string }) => {
-    void parent;
-    void args;
+  userByShareId: () => {
     throw new Error("Not implemented");
   },
 };
 
-export const Mutation = {
-  updateUser: async (root: unknown, args: { input: UpdateUserInput }) => {
-    return userService.user.updateUser(args.input);
+export const Mutation: Pick<MutationResolvers, "updateUser"> = {
+  updateUser: async (_parent, args) => {
+    const { displayName, username, publicListed } = args.input;
+    return userService.user.updateUser({
+      displayName: displayName ?? undefined,
+      username: username ?? undefined,
+      publicListed: publicListed ?? undefined,
+    });
   },
 };

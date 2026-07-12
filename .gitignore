@@ -53,5 +53,9 @@ data/
 /generated/prisma
 src/generated/prisma
 
+# Generated GraphQL
+src/generated/graphql
+src/generated/gql
+
 /.opencode/plans
 /docs/plans/worktrees/

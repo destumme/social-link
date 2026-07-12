@@ -35,14 +35,7 @@ export async function requestConnectionAction(formData: FormData) {
 export async function removeConnectionAction(formData: FormData) {
   "use server";
   const connectionId = formData.get("connectionId") as string;
-  const connection =
-    await connectionService.connection.findConnectionById(connectionId);
-  if (!connection) return;
-  await connectionService.connectionPair.deleteConnectionPair(
-    connection.id,
-    connection.connectedAccountId ?? "",
-    connection.accountId ?? "",
-  );
+  await connectionService.connectionPair.deleteConnectionPair(connectionId);
   revalidatePath(`/link/[username]`, "page");
 }
 

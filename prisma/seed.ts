@@ -89,25 +89,54 @@ async function getOrCreateGroup(
 }
 
 async function getOrCreateConnection(
-  accountId: string,
-  connectedAccountId: string,
+  initiatorId: string,
+  recipientId: string,
   status: ConnectionStatus,
-  groupIds: string[] = [],
+  initiatorGroupIds: string[] = [],
+  recipientGroupIds: string[] = [],
 ) {
   const existing = await prisma.connection.findFirst({
-    where: { accountId, connectedAccountId },
+    where: {
+      OR: [
+        { initiatorId, recipientId },
+        { initiatorId: recipientId, recipientId: initiatorId },
+      ],
+    },
   });
   if (existing) return existing;
 
-  return await prisma.connection.create({
-    data: {
-      accountId,
-      connectedAccountId,
-      status,
-      connectionGroups: {
-        connect: groupIds.map((id) => ({ id })),
+  return await prisma.$transaction(async (tx) => {
+    const connection = await tx.connection.create({
+      data: {
+        initiatorId,
+        recipientId,
+        status,
       },
-    },
+    });
+
+    await tx.connectionSide.create({
+      data: {
+        connectionId: connection.id,
+        accountId: initiatorId,
+        ...(initiatorGroupIds.length > 0
+          ? { groups: { connect: initiatorGroupIds.map((id) => ({ id })) } }
+          : {}),
+      },
+    });
+
+    if (status === "ACCEPTED") {
+      await tx.connectionSide.create({
+        data: {
+          connectionId: connection.id,
+          accountId: recipientId,
+          ...(recipientGroupIds.length > 0
+            ? { groups: { connect: recipientGroupIds.map((id) => ({ id })) } }
+            : {}),
+        },
+      });
+    }
+
+    return connection;
   });
 }
 
@@ -918,20 +947,27 @@ async function main() {
   const tinaSocial = await getOrCreateGroup(tina.id, "Social");
   const tinaMusic = await getOrCreateGroup(tina.id, "Music");
 
-  // Connections (30 directional)
-  // Alice
-  await getOrCreateConnection(alice.id, bob.id, ConnectionStatus.ACCEPTED, [
-    aliceCloseFriends.id,
-  ]);
-  await getOrCreateConnection(alice.id, charlie.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(alice.id, eve.id, ConnectionStatus.ACCEPTED, [
-    aliceProfessional.id,
-  ]);
+  // Connections (single shared records with ConnectionSides)
+  // Each call: getOrCreateConnection(initiator, recipient, status, initiatorGroups, recipientGroups)
 
-  // Bob
-  await getOrCreateConnection(bob.id, alice.id, ConnectionStatus.ACCEPTED, [
-    bobColleagues.id,
-  ]);
+  // Alice connections
+  await getOrCreateConnection(
+    alice.id,
+    bob.id,
+    ConnectionStatus.ACCEPTED,
+    [aliceCloseFriends.id],
+    [bobColleagues.id],
+  );
+  await getOrCreateConnection(alice.id, charlie.id, ConnectionStatus.ACCEPTED);
+  await getOrCreateConnection(
+    alice.id,
+    eve.id,
+    ConnectionStatus.ACCEPTED,
+    [aliceProfessional.id],
+    [eveNetworks.id],
+  );
+
+  // Bob connections (already created above for alice-bob)
   await getOrCreateConnection(bob.id, charlie.id, ConnectionStatus.ACCEPTED, [
     bobColleagues.id,
   ]);
@@ -939,77 +975,61 @@ async function main() {
     bobSocial.id,
   ]);
 
-  // Charlie
-  await getOrCreateConnection(charlie.id, alice.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(charlie.id, bob.id, ConnectionStatus.ACCEPTED);
+  // Charlie connections (alice-charlie already created)
   await getOrCreateConnection(charlie.id, grace.id, ConnectionStatus.ACCEPTED, [
     charlieDevContacts.id,
   ]);
 
-  // Diana
-  await getOrCreateConnection(diana.id, bob.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(diana.id, eve.id, ConnectionStatus.ACCEPTED, [
-    dianaSocial.id,
-  ]);
+  // Diana connections (bob-diana already created)
+  await getOrCreateConnection(
+    diana.id,
+    eve.id,
+    ConnectionStatus.ACCEPTED,
+    [dianaSocial.id],
+    [eveCloseFriends.id],
+  );
   await getOrCreateConnection(diana.id, frank.id, ConnectionStatus.ACCEPTED);
 
-  // Eve
-  await getOrCreateConnection(eve.id, alice.id, ConnectionStatus.ACCEPTED, [
-    eveNetworks.id,
-  ]);
-  await getOrCreateConnection(eve.id, diana.id, ConnectionStatus.ACCEPTED, [
-    eveCloseFriends.id,
-  ]);
+  // Eve connections (alice-eve, diana-eve already created)
   await getOrCreateConnection(eve.id, iris.id, ConnectionStatus.ACCEPTED);
 
-  // Frank
-  await getOrCreateConnection(frank.id, diana.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(frank.id, grace.id, ConnectionStatus.ACCEPTED, [
-    frankMusic.id,
-  ]);
-  await getOrCreateConnection(frank.id, henry.id, ConnectionStatus.ACCEPTED, [
-    frankDevContacts.id,
-  ]);
+  // Frank connections (diana-frank already created)
+  await getOrCreateConnection(
+    frank.id,
+    grace.id,
+    ConnectionStatus.ACCEPTED,
+    [frankMusic.id],
+    [graceCreative.id],
+  );
+  await getOrCreateConnection(
+    frank.id,
+    henry.id,
+    ConnectionStatus.ACCEPTED,
+    [frankDevContacts.id],
+    [henryDevContacts.id],
+  );
 
-  // Grace
-  await getOrCreateConnection(grace.id, charlie.id, ConnectionStatus.ACCEPTED, [
-    graceSocial.id,
-  ]);
-  await getOrCreateConnection(grace.id, frank.id, ConnectionStatus.ACCEPTED, [
-    graceCreative.id,
-  ]);
+  // Grace connections (charlie-grace, frank-grace already created)
   await getOrCreateConnection(grace.id, iris.id, ConnectionStatus.ACCEPTED);
 
-  // Henry
-  await getOrCreateConnection(henry.id, frank.id, ConnectionStatus.ACCEPTED, [
-    henryDevContacts.id,
-  ]);
+  // Henry connections (frank-henry already created)
   await getOrCreateConnection(henry.id, iris.id, ConnectionStatus.ACCEPTED, [
     henryFriends.id,
   ]);
   await getOrCreateConnection(henry.id, jack.id, ConnectionStatus.ACCEPTED);
 
-  // Iris
-  await getOrCreateConnection(iris.id, eve.id, ConnectionStatus.ACCEPTED, [
-    irisSocial.id,
-  ]);
-  await getOrCreateConnection(iris.id, grace.id, ConnectionStatus.ACCEPTED, [
-    irisMessaging.id,
-  ]);
-  await getOrCreateConnection(iris.id, henry.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(iris.id, jack.id, ConnectionStatus.ACCEPTED, [
-    irisSocial.id,
-  ]);
+  // Iris connections (eve-iris, grace-iris, henry-iris already created)
+  await getOrCreateConnection(
+    iris.id,
+    jack.id,
+    ConnectionStatus.ACCEPTED,
+    [irisSocial.id],
+    [jackDevContacts.id],
+  );
 
-  // Jack
-  await getOrCreateConnection(jack.id, henry.id, ConnectionStatus.ACCEPTED, [
-    jackMusic.id,
-  ]);
-  await getOrCreateConnection(jack.id, iris.id, ConnectionStatus.ACCEPTED, [
-    jackDevContacts.id,
-  ]);
+  // Jack connections (henry-jack, iris-jack already created)
 
-  // Kate
+  // Kate connections
   await getOrCreateConnection(kate.id, alice.id, ConnectionStatus.ACCEPTED, [
     kateSocial.id,
   ]);
@@ -1021,19 +1041,26 @@ async function main() {
     kateWork.id,
   ]);
 
-  // Leo
+  // Leo connections (kate-leo already created)
   await getOrCreateConnection(leo.id, charlie.id, ConnectionStatus.ACCEPTED, [
     leoDevContacts.id,
   ]);
-  await getOrCreateConnection(leo.id, kate.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(leo.id, peter.id, ConnectionStatus.ACCEPTED, [
-    leoSocial.id,
-  ]);
-  await getOrCreateConnection(leo.id, sam.id, ConnectionStatus.ACCEPTED, [
-    leoDevContacts.id,
-  ]);
+  await getOrCreateConnection(
+    leo.id,
+    peter.id,
+    ConnectionStatus.ACCEPTED,
+    [leoSocial.id],
+    [peterDevContacts.id],
+  );
+  await getOrCreateConnection(
+    leo.id,
+    sam.id,
+    ConnectionStatus.ACCEPTED,
+    [leoDevContacts.id],
+    [samDevContacts.id],
+  );
 
-  // Mia
+  // Mia connections
   await getOrCreateConnection(mia.id, diana.id, ConnectionStatus.ACCEPTED, [
     miaCloseFriends.id,
   ]);
@@ -1041,80 +1068,67 @@ async function main() {
     miaCreative.id,
   ]);
   await getOrCreateConnection(mia.id, olivia.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(mia.id, tina.id, ConnectionStatus.ACCEPTED, [
-    miaCloseFriends.id,
-  ]);
+  await getOrCreateConnection(
+    mia.id,
+    tina.id,
+    ConnectionStatus.ACCEPTED,
+    [miaCloseFriends.id],
+    [tinaSocial.id],
+  );
 
-  // Noah
+  // Noah connections (kate-noah already created)
   await getOrCreateConnection(noah.id, bob.id, ConnectionStatus.ACCEPTED, [
     noahNetworks.id,
   ]);
-  await getOrCreateConnection(noah.id, kate.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(noah.id, peter.id, ConnectionStatus.ACCEPTED, [
-    noahFriends.id,
-  ]);
-  await getOrCreateConnection(noah.id, sam.id, ConnectionStatus.ACCEPTED, [
-    noahNetworks.id,
-  ]);
+  await getOrCreateConnection(
+    noah.id,
+    peter.id,
+    ConnectionStatus.ACCEPTED,
+    [noahFriends.id],
+    [peterProfessional.id],
+  );
+  await getOrCreateConnection(
+    noah.id,
+    sam.id,
+    ConnectionStatus.ACCEPTED,
+    [noahNetworks.id],
+    [samSocial.id],
+  );
 
-  // Olivia
-  await getOrCreateConnection(olivia.id, mia.id, ConnectionStatus.ACCEPTED, [
-    oliviaSocial.id,
-  ]);
-  await getOrCreateConnection(olivia.id, tina.id, ConnectionStatus.ACCEPTED, [
-    oliviaCloseFriends.id,
-  ]);
+  // Olivia connections (mia-olivia already created)
+  await getOrCreateConnection(
+    olivia.id,
+    tina.id,
+    ConnectionStatus.ACCEPTED,
+    [oliviaCloseFriends.id],
+    [tinaMusic.id],
+  );
   await getOrCreateConnection(olivia.id, quinn.id, ConnectionStatus.ACCEPTED);
 
-  // Peter
-  await getOrCreateConnection(peter.id, leo.id, ConnectionStatus.ACCEPTED, [
-    peterDevContacts.id,
-  ]);
-  await getOrCreateConnection(peter.id, noah.id, ConnectionStatus.ACCEPTED, [
-    peterProfessional.id,
-  ]);
+  // Peter connections (leo-peter, noah-peter already created)
   await getOrCreateConnection(peter.id, sam.id, ConnectionStatus.ACCEPTED, [
     peterDevContacts.id,
   ]);
   await getOrCreateConnection(peter.id, quinn.id, ConnectionStatus.ACCEPTED);
 
-  // Quinn
-  await getOrCreateConnection(quinn.id, olivia.id, ConnectionStatus.ACCEPTED, [
-    quinnSocial.id,
-  ]);
-  await getOrCreateConnection(quinn.id, peter.id, ConnectionStatus.ACCEPTED);
-  await getOrCreateConnection(quinn.id, rachel.id, ConnectionStatus.ACCEPTED, [
-    quinnPortfolio.id,
-  ]);
+  // Quinn connections (olivia-quinn, peter-quinn already created)
+  await getOrCreateConnection(
+    quinn.id,
+    rachel.id,
+    ConnectionStatus.ACCEPTED,
+    [quinnPortfolio.id],
+    [rachelWork.id],
+  );
 
-  // Rachel
-  await getOrCreateConnection(rachel.id, quinn.id, ConnectionStatus.ACCEPTED, [
-    rachelWork.id,
-  ]);
+  // Rachel connections (quinn-rachel already created)
   await getOrCreateConnection(rachel.id, sam.id, ConnectionStatus.ACCEPTED);
   await getOrCreateConnection(rachel.id, henry.id, ConnectionStatus.ACCEPTED, [
     rachelPersonal.id,
   ]);
 
-  // Sam
-  await getOrCreateConnection(sam.id, leo.id, ConnectionStatus.ACCEPTED, [
-    samDevContacts.id,
-  ]);
-  await getOrCreateConnection(sam.id, noah.id, ConnectionStatus.ACCEPTED, [
-    samSocial.id,
-  ]);
-  await getOrCreateConnection(sam.id, peter.id, ConnectionStatus.ACCEPTED, [
-    samDevContacts.id,
-  ]);
-  await getOrCreateConnection(sam.id, rachel.id, ConnectionStatus.ACCEPTED);
+  // Sam connections (leo-sam, noah-sam, peter-sam, rachel-sam already created)
 
-  // Tina
-  await getOrCreateConnection(tina.id, mia.id, ConnectionStatus.ACCEPTED, [
-    tinaSocial.id,
-  ]);
-  await getOrCreateConnection(tina.id, olivia.id, ConnectionStatus.ACCEPTED, [
-    tinaMusic.id,
-  ]);
+  // Tina connections (mia-tina, olivia-tina already created)
   await getOrCreateConnection(tina.id, grace.id, ConnectionStatus.ACCEPTED);
 
   console.log("Seeded some users, connections, traits, and connection groups");

@@ -9,13 +9,18 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Prefer simple over complex.
 - Keep changes small and incremental.
 - Only make changes that are confirmed.
+- Always run `yarn lint:fix` after making code changes to ensure consistent formatting.
 - Use the `todowrite` tool to create todo checklists for any plan with 3+ steps before starting implementation.
+- **Never use TypeScript type casts (`as`, `as any`, `as unknown`, `!` non-null assertion) without explicit user approval.** If a type error arises, explain the issue and propose a type-safe alternative first.
+- **If there is a reason to violate any rule in this file, stop and ask the user for permission first.** Explain why the rule cannot be followed and what the alternative approach would be.
 
 # Git Workflow
 
 - Begin all feature and bug-fix work in a **git worktree** (not the main working directory).
+- **Never create a worktree from `main`.** Always branch from the currently checked-out branch (run `git branch --show-current` to confirm). This ensures worktrees inherit in-progress changes from feature branches.
 - Create the worktree on a new branch named descriptively (e.g., `feature/add-oauth`, `fix/login-redirect`), put it in the ./worktree folder
 - When the work is complete and ready to merge:
+  0. Create a new branch to squash into, this will be sent to a PR to main. **DO NOT Merge worktrees into main**
   1. **Always confirm with the user before squashing.**
   2. Show the user a `git diff` of all changes that will be included in the squash.
   3. Only squash and merge after the user explicitly approves.
@@ -32,9 +37,11 @@ Social links app — Next.js 16.2.6 + GraphQL Yoga + Prisma 7 + Better Auth + Po
 | Dev server | `yarn dev` |
 | Production build | `yarn build` |
 | Lint | `yarn lint` (eslint, no separate typecheck script — build runs TS) |
+| Lint fix | `yarn lint:fix` |
 | Prisma generate | `yarn run prisma generate` |
 | DB push (dev) | `yarn run prisma db push` |
 | Seed DB | `yarn run prisma db seed` |
+| GraphQL codegen | `yarn gen:gql` |
 
 Package manager is **yarn 4.14.1** (`packageManager` field). Use `yarn`, not `npm install`.
 Use `yarn run prisma` for Prisma CLI commands (not `npx`). If a `yarn run` command fails, do not retry — report the error instead.

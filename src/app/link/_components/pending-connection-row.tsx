@@ -13,8 +13,8 @@ interface PendingConnectionRowProps {
   connection: {
     id: string;
     status: string;
-    createdAt: string;
-    connectedAccount: {
+    createdAt: Date | string;
+    initiator: {
       displayName: string;
       username: string;
     };
@@ -47,12 +47,12 @@ export function PendingConnectionRow({
   return (
     <div className="grid grid-cols-4 gap-4 px-6 py-4 text-sm">
       <div>
-        <p className="font-medium">{connection.connectedAccount.displayName}</p>
+        <p className="font-medium">{connection.initiator.displayName}</p>
         <Link
-          href={`/link/${connection.connectedAccount.username}`}
+          href={`/link/${connection.initiator.username}`}
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          @{connection.connectedAccount.username}
+          @{connection.initiator.username}
         </Link>
       </div>
       <div>

@@ -5,46 +5,36 @@ import { useQuery, useMutation } from "@urql/next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PendingConnectionRow } from "./pending-connection-row";
+import { graphql } from "@/generated/graphql/client";
 
-const PENDING_CONNECTIONS_QUERY = `
+const PENDING_CONNECTIONS_QUERY = graphql(`
   query PendingConnections {
     pendingConnections {
       id
       status
       createdAt
-      connectedAccount {
+      initiator {
         displayName
         username
       }
     }
   }
-`;
+`);
 
-const ACCEPT_CONNECTION_MUTATION = `
+const ACCEPT_CONNECTION_MUTATION = graphql(`
   mutation AcceptConnection($connectionId: ID!) {
     acceptConnection(connectionId: $connectionId) {
       id
       status
     }
   }
-`;
+`);
 
-const DECLINE_CONNECTION_MUTATION = `
+const DECLINE_CONNECTION_MUTATION = graphql(`
   mutation DeclineConnection($connectionId: ID!) {
     declineConnection(connectionId: $connectionId)
   }
-`;
-
-interface PendingConnection {
-  id: string;
-  status: string;
-  createdAt: string;
-  connectedAccount: {
-    displayName: string;
-    username: string;
-  };
-}
-
+`);
 function LoadingCard() {
   return (
     <section className="space-y-4">
@@ -119,7 +109,7 @@ function PendingConnectionsTableContent() {
               No pending connection requests.
             </div>
           ) : (
-            connections.map((connection: PendingConnection, index: number) => (
+            connections.map((connection, index: number) => (
               <div key={connection.id}>
                 {index > 0 && <Separator />}
                 <PendingConnectionRow

@@ -1,24 +1,9 @@
 import { notFound } from "next/navigation";
 import { getAuthedAccountId } from "@/lib/auth-server";
-import { executeGraphQL } from "@/lib/graphql/server-execute";
+import connectionGroupService from "@/lib/services/connectionGroupService";
+import connectionService from "@/lib/services/connectionService";
 import traitService from "@/lib/services/traitService";
 import { GroupTable } from "./_components/group-table";
-
-interface GroupResult {
-  id: string;
-  name: string;
-  connections: { id: string }[];
-  traits: { id: string }[];
-}
-
-interface ConnectionResult {
-  id: string;
-  connectedAccount: {
-    id: string;
-    displayName: string;
-    username: string;
-  };
-}
 
 export default async function GroupsPage() {
   const accountId = await getAuthedAccountId();
@@ -26,22 +11,35 @@ export default async function GroupsPage() {
     notFound();
   }
 
-  const [groupsData, connectionsData, traits] = await Promise.all([
-    executeGraphQL<{ myConnectionGroups: GroupResult[] }>(
-      `query { myConnectionGroups { id name connections { id } traits { id } } }`,
-    ),
-    executeGraphQL<{ myConnections: ConnectionResult[] }>(
-      `query { myConnections { id connectedAccount { id displayName username } } }`,
-    ),
+  const [groups, connections, traits] = await Promise.all([
+    connectionGroupService.search.findConnectionGroupsByAccountId(),
+    connectionService.search.findConnectionsByAccountId("ACCEPTED"),
     traitService.search.findTraitsByAccountId(),
   ]);
 
-  const groups = groupsData.myConnectionGroups;
-  const connections = connectionsData.myConnections.map((c) => ({
-    id: c.id,
-    name: c.connectedAccount.displayName,
-    username: c.connectedAccount.username,
-  }));
+  const groupsWithRelations = await Promise.all(
+    groups.map(async (g) => ({
+      id: g.id,
+      name: g.name,
+      connections: await connectionGroupService.search.findConnectionsForGroup(
+        g.id,
+      ),
+      traits: await connectionGroupService.search.findTraitsForGroup(g.id),
+    })),
+  );
+
+  const connectionsWithNames = await Promise.all(
+    connections.map(async (c) => {
+      const otherId =
+        c.initiatorId === accountId ? c.recipientId : c.initiatorId;
+      const user = await connectionService.search.findUserById(otherId);
+      return {
+        id: c.id,
+        name: user?.displayName ?? "",
+        username: user?.username ?? "",
+      };
+    }),
+  );
 
   return (
     <div className="flex flex-col flex-1">
@@ -55,7 +53,11 @@ export default async function GroupsPage() {
             visible to each group.
           </p>
         </div>
-        <GroupTable groups={groups} connections={connections} traits={traits} />
+        <GroupTable
+          groups={groupsWithRelations}
+          connections={connectionsWithNames}
+          traits={traits}
+        />
       </div>
     </div>
   );

@@ -88,7 +88,7 @@ import {
   AudioWaveIcon,
 } from "@hugeicons/core-free-icons";
 
-export const iconMap: Record<string, unknown> = {
+export const iconMap: Record<string, IconSvgElement> = {
   CONTACT_INFO: SmartPhone01Icon,
   MAILING_ADDRESS: MapPinIcon,
   SOCIAL_LINK: Link01Icon,
@@ -314,8 +314,7 @@ export const overrideIconOptions: {
 
 export function getCategoryIconElement(value: string | null | undefined) {
   if (!value) return null;
-  const icon = iconMap[value];
-  return icon ? (icon as IconSvgElement) : null;
+  return iconMap[value] ?? null;
 }
 
 export function getOverrideIconElement(value: string | null | undefined) {

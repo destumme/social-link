@@ -69,7 +69,6 @@ const ADD_CONNECTION_TO_GROUP_MUTATION = `
   mutation($connectionId: ID!, $groupId: ID!) {
     addConnectionToGroup(connectionId: $connectionId, groupId: $groupId) {
       id
-      status
     }
   }
 `;
@@ -78,7 +77,6 @@ const REMOVE_CONNECTION_FROM_GROUP_MUTATION = `
   mutation($connectionId: ID!, $groupId: ID!) {
     removeConnectionFromGroup(connectionId: $connectionId, groupId: $groupId) {
       id
-      status
     }
   }
 `;
@@ -126,18 +124,24 @@ describe("GraphQL Connection", () => {
   describe("myConnections", () => {
     it("returns only accepted connections", async () => {
       const prisma = getTestPrisma();
-      await prisma.connection.create({
+      const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId,
           status: "ACCEPTED",
+          sides: {
+            create: [{ accountId: accountId }, { accountId: otherAccountId }],
+          },
         },
       });
       await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId + "-other",
           status: "PENDING",
+          sides: {
+            create: { accountId: accountId },
+          },
         },
       });
 
@@ -157,13 +161,16 @@ describe("GraphQL Connection", () => {
   });
 
   describe("pendingConnections", () => {
-    it("returns pending connections by connectedAccountId", async () => {
+    it("returns pending connections where user is recipient", async () => {
       const prisma = getTestPrisma();
       await prisma.connection.create({
         data: {
-          accountId: otherAccountId,
-          connectedAccountId: accountId,
+          initiatorId: otherAccountId,
+          recipientId: accountId,
           status: "PENDING",
+          sides: {
+            create: { accountId: otherAccountId },
+          },
         },
       });
 
@@ -187,9 +194,12 @@ describe("GraphQL Connection", () => {
       const prisma = getTestPrisma();
       await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId,
           status: "ACCEPTED",
+          sides: {
+            create: [{ accountId: accountId }, { accountId: otherAccountId }],
+          },
         },
       });
 
@@ -213,7 +223,7 @@ describe("GraphQL Connection", () => {
   });
 
   describe("requestConnection", () => {
-    it("creates a bidirectional PENDING connection pair", async () => {
+    it("creates a PENDING connection with initiator side", async () => {
       const result = await client.mutation(REQUEST_CONNECTION_MUTATION, {
         accountId: otherAccountId,
         input: {},
@@ -226,28 +236,19 @@ describe("GraphQL Connection", () => {
       const connections = await prisma.connection.findMany({
         where: {
           OR: [
-            { accountId, connectedAccountId: otherAccountId },
-            { accountId: otherAccountId, connectedAccountId: accountId },
+            { initiatorId: accountId, recipientId: otherAccountId },
+            { initiatorId: otherAccountId, recipientId: accountId },
           ],
         },
       });
-      expect(connections).toHaveLength(2);
-      expect(connections.every((c) => c.status === "PENDING")).toBe(true);
-    });
+      expect(connections).toHaveLength(1);
+      expect(connections[0].status).toBe("PENDING");
 
-    it("connects groups when groupIds provided", async () => {
-      const prisma = getTestPrisma();
-      const group = await prisma.connectionGroup.create({
-        data: { name: "Friends", accountId },
+      const sides = await prisma.connectionSide.findMany({
+        where: { connectionId: connections[0].id },
       });
-
-      const result = await client.mutation(REQUEST_CONNECTION_MUTATION, {
-        accountId: otherAccountId,
-        input: { groupIds: [group.id] },
-      });
-
-      expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain("Unknown argument");
+      expect(sides).toHaveLength(1);
+      expect(sides[0].accountId).toBe(accountId);
     });
 
     it("throws error when connection already exists", async () => {
@@ -267,34 +268,35 @@ describe("GraphQL Connection", () => {
   });
 
   describe("acceptConnection", () => {
-    it("updates both connections to ACCEPTED", async () => {
+    it("updates connection to ACCEPTED and creates recipient side", async () => {
       const prisma = getTestPrisma();
-      await prisma.connection.create({
+      const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: otherAccountId,
+          recipientId: accountId,
           status: "PENDING",
-        },
-      });
-      const otherConn = await prisma.connection.create({
-        data: {
-          accountId: otherAccountId,
-          connectedAccountId: accountId,
-          status: "PENDING",
+          sides: {
+            create: { accountId: otherAccountId },
+          },
         },
       });
 
       const result = await client.mutation(ACCEPT_CONNECTION_MUTATION, {
-        connectionId: otherConn.id,
+        connectionId: conn.id,
       });
 
       expect(result.error).toBeUndefined();
       expect(result.data?.acceptConnection.status).toBe("ACCEPTED");
 
       const updated = await prisma.connection.findUnique({
-        where: { id: otherConn.id },
+        where: { id: conn.id },
       });
       expect(updated?.status).toBe("ACCEPTED");
+
+      const sides = await prisma.connectionSide.findMany({
+        where: { connectionId: conn.id },
+      });
+      expect(sides).toHaveLength(2);
     });
 
     it("throws error when connection not found", async () => {
@@ -307,25 +309,21 @@ describe("GraphQL Connection", () => {
   });
 
   describe("declineConnection", () => {
-    it("updates both connections to DECLINED", async () => {
+    it("updates connection to DECLINED", async () => {
       const prisma = getTestPrisma();
       const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: otherAccountId,
+          recipientId: accountId,
           status: "PENDING",
-        },
-      });
-      const otherConn = await prisma.connection.create({
-        data: {
-          accountId: otherAccountId,
-          connectedAccountId: accountId,
-          status: "PENDING",
+          sides: {
+            create: { accountId: otherAccountId },
+          },
         },
       });
 
       const result = await client.mutation(DECLINE_CONNECTION_MUTATION, {
-        connectionId: otherConn.id,
+        connectionId: conn.id,
       });
 
       expect(result.error).toBeUndefined();
@@ -335,29 +333,20 @@ describe("GraphQL Connection", () => {
         where: { id: conn.id },
       });
       expect(updated?.status).toBe("DECLINED");
-
-      const updatedOther = await prisma.connection.findUnique({
-        where: { id: otherConn.id },
-      });
-      expect(updatedOther?.status).toBe("DECLINED");
     });
   });
 
   describe("removeConnection", () => {
-    it("deletes both connections in the pair", async () => {
+    it("deletes the connection and cascades sides", async () => {
       const prisma = getTestPrisma();
       const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId,
           status: "ACCEPTED",
-        },
-      });
-      await prisma.connection.create({
-        data: {
-          accountId: otherAccountId,
-          connectedAccountId: accountId,
-          status: "ACCEPTED",
+          sides: {
+            create: [{ accountId: accountId }, { accountId: otherAccountId }],
+          },
         },
       });
 
@@ -371,8 +360,8 @@ describe("GraphQL Connection", () => {
       const count = await prisma.connection.count({
         where: {
           OR: [
-            { accountId, connectedAccountId: otherAccountId },
-            { accountId: otherAccountId, connectedAccountId: accountId },
+            { initiatorId: accountId, recipientId: otherAccountId },
+            { initiatorId: otherAccountId, recipientId: accountId },
           ],
         },
       });
@@ -388,9 +377,12 @@ describe("GraphQL Connection", () => {
       });
       const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId,
           status: "ACCEPTED",
+          sides: {
+            create: [{ accountId: accountId }, { accountId: otherAccountId }],
+          },
         },
       });
 
@@ -400,14 +392,13 @@ describe("GraphQL Connection", () => {
       });
 
       expect(result.error).toBeUndefined();
-      expect(result.data?.addConnectionToGroup.status).toBe("ACCEPTED");
 
-      const updated = await prisma.connection.findUnique({
-        where: { id: conn.id },
-        include: { connectionGroups: true },
+      const side = await prisma.connectionSide.findFirst({
+        where: { connectionId: conn.id, accountId },
+        include: { groups: true },
       });
-      expect(updated?.connectionGroups).toHaveLength(1);
-      expect(updated?.connectionGroups[0].id).toBe(group.id);
+      expect(side?.groups).toHaveLength(1);
+      expect(side?.groups[0].id).toBe(group.id);
     });
 
     it("throws error for pending connections", async () => {
@@ -417,9 +408,12 @@ describe("GraphQL Connection", () => {
       });
       const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId,
           status: "PENDING",
+          sides: {
+            create: { accountId: accountId },
+          },
         },
       });
 
@@ -429,9 +423,7 @@ describe("GraphQL Connection", () => {
       });
 
       expect(result.error).toBeDefined();
-      expect(result.error?.message).toContain(
-        "Only accepted connections can be added to groups",
-      );
+      expect(result.error?.message).toContain("Connection not accepted");
     });
   });
 
@@ -443,10 +435,15 @@ describe("GraphQL Connection", () => {
       });
       const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId,
           status: "ACCEPTED",
-          connectionGroups: { connect: [{ id: group.id }] },
+          sides: {
+            create: {
+              accountId,
+              groups: { connect: { id: group.id } },
+            },
+          },
         },
       });
 
@@ -460,16 +457,16 @@ describe("GraphQL Connection", () => {
 
       expect(result.error).toBeUndefined();
 
-      const updated = await prisma.connection.findUnique({
-        where: { id: conn.id },
-        include: { connectionGroups: true },
+      const side = await prisma.connectionSide.findFirst({
+        where: { connectionId: conn.id, accountId },
+        include: { groups: true },
       });
-      expect(updated?.connectionGroups).toHaveLength(0);
+      expect(side?.groups).toHaveLength(0);
     });
   });
 
   describe("updateConnectionTraits", () => {
-    it("sets connection groups based on trait ids", async () => {
+    it("sets side groups based on trait ids", async () => {
       const prisma = getTestPrisma();
       const trait = await prisma.trait.create({
         data: {
@@ -488,9 +485,12 @@ describe("GraphQL Connection", () => {
       });
       const conn = await prisma.connection.create({
         data: {
-          accountId,
-          connectedAccountId: otherAccountId,
+          initiatorId: accountId,
+          recipientId: otherAccountId,
           status: "ACCEPTED",
+          sides: {
+            create: [{ accountId: accountId }, { accountId: otherAccountId }],
+          },
         },
       });
 
@@ -501,12 +501,12 @@ describe("GraphQL Connection", () => {
 
       expect(result.error).toBeUndefined();
 
-      const updated = await prisma.connection.findUnique({
-        where: { id: conn.id },
-        include: { connectionGroups: true },
+      const side = await prisma.connectionSide.findFirst({
+        where: { connectionId: conn.id, accountId },
+        include: { groups: true },
       });
-      expect(updated?.connectionGroups).toHaveLength(1);
-      expect(updated?.connectionGroups[0].id).toBe(group.id);
+      expect(side?.groups).toHaveLength(1);
+      expect(side?.groups[0].id).toBe(group.id);
     });
   });
 });

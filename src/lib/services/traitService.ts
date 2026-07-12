@@ -49,12 +49,14 @@ async function updateTrait(
 ) {
   const accountId = await requireAuth();
   const trait = await prisma.trait.findUnique({ where: { id } });
+
   if (!trait) throw new NotFoundError("Trait not found");
   if (trait.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
 
   if (data.isVisible === true) {
     const user = await prisma.user.findUnique({ where: { id: accountId } });
+
     if (!user || !user.publicListed) {
       throw new AuthorizationError(
         "Cannot make trait visible when profile is not public",
@@ -68,9 +70,11 @@ async function updateTrait(
 async function deleteTrait(id: string) {
   const accountId = await requireAuth();
   const trait = await prisma.trait.findUnique({ where: { id } });
+
   if (!trait) throw new NotFoundError("Trait not found");
   if (trait.accountId !== accountId)
     throw new AuthorizationError("Not authorized");
+
   return prisma.trait.delete({ where: { id } });
 }
 
