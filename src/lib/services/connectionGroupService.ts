@@ -57,7 +57,13 @@ async function updateConnectionGroup(
   }
 
   if (connectionIds !== undefined) {
-    updateData.connections = { set: connectionIds.map((c) => ({ id: c })) };
+    const sides = await prisma.connectionSide.findMany({
+      where: {
+        accountId,
+        connectionId: { in: connectionIds },
+      },
+    });
+    updateData.sides = { set: sides.map((s) => ({ id: s.id })) };
   }
 
   return prisma.connectionGroup.update({ where: { id }, data: updateData });
