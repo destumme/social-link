@@ -7,9 +7,10 @@ Track planned and implemented features.
 | ID | Title | Priority | Status |
 |----|-------|----------|--------|
 | [FEAT-007](FEAT-007-share-links.md) | Share Links | medium | proposed |
-| [FEAT-008](FEAT-008-connection-refactor.md) | Connection Data Model Refactor | high | proposed |
 | [FEAT-010](FEAT-010-individual-connection-traits.md) | Individual Connection Trait Visibility | medium | proposed |
 | [FEAT-011](FEAT-011-trait-link-property.md) | Trait Link Property | medium | proposed |
+| [FEAT-012](FEAT-012-add-jsdoc-comments.md) | Add JSDoc Comments to Resolvers & Services | low | proposed |
+| [FEAT-013](FEAT-013-e2e-playwright-tests.md) | E2E Playwright Tests | medium | proposed |
 
 ## In Progress
 
@@ -21,6 +22,7 @@ Track planned and implemented features.
 
 | ID | Title | Priority | Completed |
 |----|-------|----------|-----------|
+| [FEAT-008](FEAT-008-connection-refactor.md) | Connection Data Model Refactor | high | 2026-07-12 |
 | [FEAT-009](FEAT-009-me-menu-icon.md) | "Me" Menu Icon | medium | 2026-06-28 |
 | [FEAT-001](FEAT-001-wider-modals.md) | Wider Modals | medium | 2026-06-21 |
 | [FEAT-002](FEAT-002-add-connection-to-group.md) | Add Connection to Group | medium | 2026-06-21 |

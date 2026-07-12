@@ -6,12 +6,14 @@ Track known bugs and their resolution status.
 
 | ID | Title | Severity | Status |
 |----|-------|----------|--------|
-| [BUG-001](BUG-001-connections-not-updated-group-reorder.md) | Connections not updated on group edit + group reorder | medium | open |
+| [BUG-008](BUG-008-traits-not-visible-on-profile.md) | Traits not visible to connected users on profile page | high | open |
+| [BUG-009](BUG-009-user-not-found-after-settings-update.md) | User not found after changing display name and username in settings | high | open |
 
 ## Resolved
 
 | ID | Title | Severity | Resolved |
 |----|-------|----------|----------|
+| [BUG-001](BUG-001-connections-not-updated-group-reorder.md) | Connections not updated on group edit + group reorder | medium | 2026-07-12 |
 | [BUG-005](BUG-005-add-to-group-edit-button-toggle.md) | "Add to group" button should be "Edit groups" with Switch toggles | low | 2026-06-28 |
 | [BUG-006](BUG-006-edit-buttons-outline-variant.md) | Edit buttons use default variant instead of outline | low | 2026-06-28 |
 | [BUG-007](BUG-007-group-edit-link-cache-invalidation.md) | Editing a group doesn't invalidate the /link page cache | medium | 2026-06-28 |
