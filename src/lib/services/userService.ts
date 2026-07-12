@@ -80,7 +80,12 @@ async function findUserWithTraitsByUsername(username: string) {
                   some: {
                     sides: {
                       some: {
-                        accountId: viewerId,
+                        connection: {
+                          OR: [
+                            { initiatorId: viewerId },
+                            { recipientId: viewerId },
+                          ],
+                        },
                       },
                     },
                   },
@@ -159,18 +164,27 @@ async function findUserTraitsForViewer(userId: string) {
 
   return prisma.trait.findMany({
     where: {
-      visibleGroups: {
-        some: {
-          accountId: viewerUserId,
-          AND: {
-            sides: {
-              some: {
-                accountId: userId,
+      accountId: userId,
+      OR: [
+        { isVisible: true },
+        {
+          visibleGroups: {
+            some: {
+              accountId: userId,
+              sides: {
+                some: {
+                  connection: {
+                    OR: [
+                      { initiatorId: viewerUserId },
+                      { recipientId: viewerUserId },
+                    ],
+                  },
+                },
               },
             },
           },
         },
-      },
+      ],
     },
   });
 }
