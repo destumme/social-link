@@ -13,7 +13,7 @@ interface PendingConnectionRowProps {
   connection: {
     id: string;
     status: string;
-    createdAt: string;
+    createdAt: Date | string;
     initiator: {
       displayName: string;
       username: string;

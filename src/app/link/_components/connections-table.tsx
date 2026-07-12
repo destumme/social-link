@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "@urql/next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ConnectionRow } from "./connection-row";
-import { graphql } from "@/generated/gql";
+import { graphql } from "@/generated/graphql/client";
 
 const ME_QUERY = graphql(`
   query Me {
@@ -44,61 +44,40 @@ const MY_CONNECTIONS_QUERY = graphql(`
   }
 `);
 
-const MY_CONNECTION_GROUPS_QUERY = `
+const MY_CONNECTION_GROUPS_QUERY = graphql(`
   query MyConnectionGroups {
     myConnectionGroups {
       id
       name
     }
   }
-`;
+`);
 
-const REMOVE_CONNECTION_MUTATION = `
+const REMOVE_CONNECTION_MUTATION = graphql(`
   mutation RemoveConnection($id: ID!) {
     removeConnection(id: $id)
   }
-`;
+`);
 
-const ADD_CONNECTION_TO_GROUP_MUTATION = `
+const ADD_CONNECTION_TO_GROUP_MUTATION = graphql(`
   mutation AddConnectionToGroup($connectionId: ID!, $groupId: ID!) {
     addConnectionToGroup(connectionId: $connectionId, groupId: $groupId) {
       id
     }
   }
-`;
+`);
 
-const REMOVE_CONNECTION_FROM_GROUP_MUTATION = `
+const REMOVE_CONNECTION_FROM_GROUP_MUTATION = graphql(`
   mutation RemoveConnectionFromGroup($connectionId: ID!, $groupId: ID!) {
-    removeConnectionFromGroup(connectionId: $connectionId, groupId: $groupId)
+    removeConnectionFromGroup(connectionId: $connectionId, groupId: $groupId) {
+      id
+    }
   }
-`;
+`);
 
-interface Group {
-  id: string;
-  name: string;
-}
+import type { MyConnectionsQuery } from "@/generated/graphql/client/graphql";
 
-interface Side {
-  id: string;
-  account: { id: string };
-  groups: Group[];
-}
-
-interface Connection {
-  id: string;
-  status: string;
-  initiator: {
-    id: string;
-    displayName: string;
-    username: string;
-  };
-  recipient: {
-    id: string;
-    displayName: string;
-    username: string;
-  };
-  sides: Side[];
-}
+type Connection = MyConnectionsQuery["myConnections"][number];
 
 function getOtherUser(connection: Connection, myId: string) {
   return connection.initiator.id === myId

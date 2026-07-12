@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { graphql } from "@/generated/graphql/client";
 
-const ME_QUERY = `
-  query Me {
+const ME_QUERY = graphql(`
+  query AccountMe {
     me {
       id
       displayName
@@ -17,9 +18,9 @@ const ME_QUERY = `
       publicListed
     }
   }
-`;
+`);
 
-const UPDATE_USER_MUTATION = `
+const UPDATE_USER_MUTATION = graphql(`
   mutation UpdateUser($input: UpdateUserInput!) {
     updateUser(input: $input) {
       id
@@ -28,7 +29,7 @@ const UPDATE_USER_MUTATION = `
       publicListed
     }
   }
-`;
+`);
 
 function LoadingCard() {
   return (
