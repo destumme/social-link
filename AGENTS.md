@@ -11,6 +11,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Only make changes that are confirmed.
 - Always run `yarn lint:fix` after making code changes to ensure consistent formatting.
 - Use the `todowrite` tool to create todo checklists for any plan with 3+ steps before starting implementation.
+- **Never use TypeScript type casts (`as`, `as any`, `as unknown`, `!` non-null assertion) without explicit user approval.** If a type error arises, explain the issue and propose a type-safe alternative first.
+- **If there is a reason to violate any rule in this file, stop and ask the user for permission first.** Explain why the rule cannot be followed and what the alternative approach would be.
 
 # Git Workflow
 

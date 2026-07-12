@@ -3,15 +3,16 @@ import type {
   QueryResolvers,
   MutationResolvers,
 } from "@/generated/graphql/server";
-import type { UserModel } from "@/generated/prisma/models/User";
 import connectionGroupService from "@/lib/services/connectionGroupService";
 
 export const ConnectionGroup: ConnectionGroupResolvers = {
-  account: (parent) => {
-    if (!parent.accountId) return null as unknown as UserModel;
-    return connectionGroupService.search.findAccountForGroup(
+  account: async (parent) => {
+    if (!parent.accountId) throw new Error("ConnectionGroup has no accountId");
+    const account = await connectionGroupService.search.findAccountForGroup(
       parent.accountId,
-    ) as Promise<UserModel>;
+    );
+    if (!account) throw new Error("Account not found for connection group");
+    return account;
   },
   sides: (parent) => {
     return connectionGroupService.search.findSidesForGroup(parent.id);

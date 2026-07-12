@@ -3,15 +3,16 @@ import type {
   QueryResolvers,
   MutationResolvers,
 } from "@/generated/graphql/server";
-import type { UserModel } from "@/generated/prisma/models/User";
 import traitService from "@/lib/services/traitService";
 
 export const Trait: TraitResolvers = {
-  account: (parent) => {
-    if (!parent.accountId) return null as unknown as UserModel;
-    return traitService.search.findAccountForTrait(
+  account: async (parent) => {
+    if (!parent.accountId) throw new Error("Trait has no accountId");
+    const account = await traitService.search.findAccountForTrait(
       parent.accountId,
-    ) as Promise<UserModel>;
+    );
+    if (!account) throw new Error("Account not found for trait");
+    return account;
   },
   visibleGroups: (parent) => {
     return traitService.search.findVisibleGroupsForTrait(parent.id);

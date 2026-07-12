@@ -4,7 +4,6 @@ import type {
   QueryResolvers,
   MutationResolvers,
 } from "@/generated/graphql/server";
-import type { UserModel } from "@/generated/prisma/models/User";
 import {
   ConflictError,
   BadRequestError,
@@ -13,15 +12,19 @@ import {
 import connectionService from "@/lib/services/connectionService";
 
 export const Connection: ConnectionResolvers = {
-  initiator: (parent) => {
-    return connectionService.search.findUserById(
+  initiator: async (parent) => {
+    const user = await connectionService.search.findUserById(
       parent.initiatorId,
-    ) as Promise<UserModel>;
+    );
+    if (!user) throw new Error("Initiator not found");
+    return user;
   },
-  recipient: (parent) => {
-    return connectionService.search.findUserById(
+  recipient: async (parent) => {
+    const user = await connectionService.search.findUserById(
       parent.recipientId,
-    ) as Promise<UserModel>;
+    );
+    if (!user) throw new Error("Recipient not found");
+    return user;
   },
   sides: (parent) => {
     return connectionService.search.findSidesForConnection(parent.id);
@@ -29,10 +32,10 @@ export const Connection: ConnectionResolvers = {
 };
 
 export const ConnectionSide: ConnectionSideResolvers = {
-  account: (parent) => {
-    return connectionService.search.findUserById(
-      parent.accountId,
-    ) as Promise<UserModel>;
+  account: async (parent) => {
+    const user = await connectionService.search.findUserById(parent.accountId);
+    if (!user) throw new Error("Account not found");
+    return user;
   },
   groups: (parent) => {
     return connectionService.search.findGroupsForSide(parent.id);
