@@ -4,7 +4,7 @@
 page: multiple
 area: data-model / connections
 priority: high
-status: proposed
+status: completed
 created: 2026-06-22
 ---
 
@@ -225,21 +225,21 @@ All code that creates, reads, or modifies `Connection` records. The refactor tou
 
 ## Tasks
 
-- [ ] Design new Connection and ConnectionSide models in `prisma/schema.prisma` using `initiator`/`recipient` field names
-- [ ] Update User model relations in schema
-- [ ] Update ConnectionGroup model relations in schema
-- [ ] Run `yarn prisma migrate dev` (truncates old connection data)
-- [ ] Run `yarn prisma generate`
-- [ ] Update `src/lib/graphql/typeDefs.ts` — new Connection type (`initiator`/`recipient`), new ConnectionSide type
-- [ ] Update connection resolvers (`requestConnection`, `acceptConnection`, `declineConnection`, `removeConnection`)
-- [ ] Add `updateConnectionGroups` resolver
-- [ ] Rewrite `src/lib/services/connectionService.ts` for new model using `initiator`/`recipient`
-- [ ] Update `src/lib/services/userService.ts` — connection lookups with new model
-- [ ] Rewrite `prisma/seed.ts` — create single Connection records with ConnectionSides
-- [ ] Update `pending-connections-table.tsx` and `pending-connection-row.tsx`
-- [ ] Update `connections-table.tsx` and `connection-row.tsx`
-- [ ] Update `src/app/link/[username]/page.tsx` — connection check with new model
-- [ ] Update trait-related code referencing `connection.connectedAccount`
-- [ ] Update test fixtures and integration tests
-- [ ] Run `yarn lint`
-- [ ] Run `yarn run prisma db seed`
+- [x] Design new Connection and ConnectionSide models in `prisma/schema.prisma` using `initiator`/`recipient` field names
+- [x] Update User model relations in schema
+- [x] Update ConnectionGroup model relations in schema
+- [x] Run `yarn prisma migrate dev` (truncates old connection data)
+- [x] Run `yarn prisma generate`
+- [x] Update GraphQL schema — new Connection type (`initiator`/`recipient`), new ConnectionSide type
+- [x] Update connection resolvers (`requestConnection`, `acceptConnection`, `declineConnection`, `removeConnection`)
+- [x] Add `updateConnectionGroups` resolver
+- [x] Rewrite `src/lib/services/connectionService.ts` for new model using `initiator`/`recipient`
+- [x] Update `src/lib/services/userService.ts` — connection lookups with new model
+- [x] Rewrite `prisma/seed.ts` — create single Connection records with ConnectionSides
+- [x] Update `pending-connections-table.tsx` and `pending-connection-row.tsx`
+- [x] Update `connections-table.tsx` and `connection-row.tsx`
+- [x] Update `src/app/link/[username]/page.tsx` — connection check with new model
+- [x] Update trait-related code referencing `connection.connectedAccount`
+- [x] Update test fixtures and integration tests
+- [x] Run `yarn lint`
+- [x] Run `yarn run prisma db seed`

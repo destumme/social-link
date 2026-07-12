@@ -4,7 +4,7 @@
 page: /groups
 area: connection groups
 severity: medium
-status: open
+status: resolved
 created: 2026-06-21
 ---
 
@@ -52,6 +52,6 @@ created: 2026-06-21
 ## Tasks
 
 - [x] Investigate connection update flow on group edit — root cause found
-- [ ] Investigate group sort/order behavior after edit
-- [ ] Implement fix for connection updates (rewrite `updateConnectionGroup` to manage `ConnectionSide` records)
-- [ ] Implement fix for group reorder
+- [x] Investigate group sort/order behavior after edit
+- [x] Implement fix for connection updates (rewrite `updateConnectionGroup` to manage `ConnectionSide` records)
+- [x] Implement fix for group reorder (sort by `createdAt` instead of `updatedAt`)
