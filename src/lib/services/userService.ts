@@ -40,7 +40,7 @@ async function findUserWithTraitsByUsername(username: string) {
 
   const user = await prisma.user.findFirst({
     where: {
-      username: { contains: username, mode: "default" },
+      username: { equals: username, mode: "insensitive" },
     },
   });
 
@@ -101,18 +101,34 @@ async function findUserWithTraitsByUsername(username: string) {
 }
 
 /**
- * Searches for publicly listed users whose username contains the given string.
+ * Finds a single user by exact username match (case-insensitive).
  *
- * @param username - The username substring to search for (case-sensitive).
+ * Does not filter by publicListed — suitable for direct profile lookups.
+ *
+ * @param username - The exact username to look up.
+ * @returns The matching user, or null if not found.
+ */
+function findUserByUsernameExact(username: string) {
+  return prisma.user.findFirst({
+    where: {
+      username: { equals: username, mode: "insensitive" },
+    },
+  });
+}
+
+/**
+ * Searches for publicly listed users whose username contains the given string (case-insensitive).
+ *
+ * @param username - The username substring to search for.
  * @returns An array of matching publicly listed users.
  */
-function findUsersByUsername(username: string) {
+function searchUsersByUsername(username: string) {
   return prisma.user.findMany({
     where: {
       publicListed: true,
       username: {
         contains: username,
-        mode: "default",
+        mode: "insensitive",
       },
     },
   });
@@ -216,7 +232,8 @@ function findUserConnectionGroups(userId: string) {
 
 export const user = { findUserById, updateUser };
 export const search = {
-  findUsersByUsername,
+  findUserByUsernameExact,
+  searchUsersByUsername,
   findUserWithTraitsByUsername,
   findUserTraitsForOwner,
   findUserTraitsForViewer,

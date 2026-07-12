@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/database/prisma";
 import { getAuthedAccountId } from "@/lib/auth-server";
 
@@ -17,4 +18,9 @@ export async function getLinkedProviders() {
   return {
     github: accounts.some((a) => a.providerId === "github"),
   };
+}
+
+export async function revalidateAfterProfileUpdate() {
+  revalidatePath("/settings");
+  revalidatePath("/link", "layout");
 }

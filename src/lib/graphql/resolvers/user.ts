@@ -96,8 +96,7 @@ export const Query: Pick<
    * @returns The matching user, or `null` if not found.
    */
   userByUsername: async (_parent, args) => {
-    const users = await userService.search.findUsersByUsername(args.username);
-    return users[0] ?? null;
+    return userService.search.findUserByUsernameExact(args.username);
   },
   /**
    * Resolves the `searchUsers` query. Returns all publicly listed users matching the query string.
@@ -107,7 +106,7 @@ export const Query: Pick<
    * @returns An array of matching users.
    */
   searchUsers: (_parent, args) => {
-    return userService.search.findUsersByUsername(args.query);
+    return userService.search.searchUsersByUsername(args.query);
   },
   /**
    * Resolves the `userByShareId` query. Not yet implemented.
