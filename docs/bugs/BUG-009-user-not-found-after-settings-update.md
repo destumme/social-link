@@ -4,7 +4,7 @@
 page: /settings, /link/[username]
 area: user search / settings
 severity: high
-status: open
+status: resolved
 created: 2026-07-12
 ---
 

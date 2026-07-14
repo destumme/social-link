@@ -4,7 +4,7 @@
 page: /link/[username]
 area: trait visibility
 severity: high
-status: open
+status: resolved
 created: 2026-07-12
 ---
 
